@@ -13,7 +13,7 @@ class RotationCity(Base):
     """
     __tablename__ = 'rotation_city'
     
-    id = Column(Integer, primary_key=True)
+    city_id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False)
     time_zone = Column(String(50), nullable=False)
     res_hall_location = Column(String(200), nullable=True)
@@ -29,7 +29,7 @@ class User(Base):
     """
     __tablename__ = 'user'
     
-    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, primary_key=True)
     rotation_city_id = Column(Integer, ForeignKey('rotation_city.id'), nullable=False)
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
@@ -51,7 +51,7 @@ class Category(Base):
     """
     __tablename__ = 'category'
     
-    id = Column(Integer, primary_key=True)
+    category_id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False, unique=True)
     pic = Column(String(200), nullable=True)  # Category icon/image URL
     
@@ -66,7 +66,7 @@ class Item(Base):
     """
     __tablename__ = 'item'
     
-    id = Column(Integer, primary_key=True)
+    item_id = Column(Integer, primary_key=True)
     name = Column(String(200), nullable=False)
     location = Column(String(500), nullable=False)  # Where the item can be found
     walking_distance = Column(Float, nullable=True)  # Distance in minutes/km
@@ -89,9 +89,9 @@ class CategoryItem(Base):
     """
     __tablename__ = 'category_item'
     
-    id = Column(Integer, primary_key=True)
-    item_id = Column(Integer, ForeignKey('item.id'), nullable=False)
-    category_id = Column(Integer, ForeignKey('category.id'), nullable=False)
+    category_item_id = Column(Integer, primary_key=True)
+    item_id = Column(Integer, ForeignKey('item.item_id'), nullable=False)
+    category_id = Column(Integer, ForeignKey('category.category_id'), nullable=False)
     
     # Relationships
     item = relationship("Item", back_populates="category_items")
@@ -105,11 +105,11 @@ class Verification(Base):
     """
     __tablename__ = 'verification'
     
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-    items_id = Column(Integer, ForeignKey('item.id'), nullable=False)
+    verification_id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('user.user_id'), nullable=False)
+    item_id = Column(Integer, ForeignKey('item.item_id'), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-    note = Column(Text, nullable=True)  # Optional verification notes
+    note = Column(Text, nullable=True)
     
     # Relationships
     user = relationship("User", back_populates="verifications")
@@ -123,7 +123,7 @@ class Tag(Base):
     """
     __tablename__ = 'tag'
     
-    id = Column(Integer, primary_key=True)
+    tag_id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False, unique=True)
     value_type = Column(String(20), nullable=False)  # 'boolean', 'text', 'numeric'
     can_add_new_value = Column(Boolean, default=True)  # Whether users can add custom values
@@ -139,8 +139,8 @@ class Value(Base):
     """
     __tablename__ = 'value'
     
-    id = Column(Integer, primary_key=True)
-    tag_id = Column(Integer, ForeignKey('tag.id'), nullable=False)
+    value_id = Column(Integer, primary_key=True)
+    tag_id = Column(Integer, ForeignKey('tag.tag_id'), nullable=False)
     boolean_val = Column(Boolean, nullable=True)
     name_val = Column(String(200), nullable=True)  # Text values
     numerical_value = Column(Float, nullable=True)
@@ -157,9 +157,9 @@ class ItemTagValue(Base):
     """
     __tablename__ = 'item_tag_value'
     
-    id = Column(Integer, primary_key=True)
-    item_id = Column(Integer, ForeignKey('item.id'), nullable=False)
-    value_id = Column(Integer, ForeignKey('value.id'), nullable=False)
+    item_tag_value_id = Column(Integer, primary_key=True)
+    item_id = Column(Integer, ForeignKey('item.item_id'), nullable=False)
+    value_id = Column(Integer, ForeignKey('value.value_id'), nullable=False)
     
     # Relationships
     item = relationship("Item", back_populates="item_tag_values")
