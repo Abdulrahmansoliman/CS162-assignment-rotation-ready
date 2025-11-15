@@ -70,6 +70,5 @@ backend/
 │       ├── value.py
 │       └── item_tag_value.py
 ├── requirements.txt
-├── venv/                  # Virtual environment
 └── app.db                 # SQLite database (created after setup)
 ```
