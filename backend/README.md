@@ -36,7 +36,7 @@ from app.models import (
 from app.db import SessionLocal
 
 db = SessionLocal()
-# ... your database operations
+# ... database operations
 db.close()
 ```
 
