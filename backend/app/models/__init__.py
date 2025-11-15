@@ -10,7 +10,7 @@ from app.models.user import User
 from app.models.category import Category
 from app.models.item import Item
 from app.models.category_item import CategoryItem
-from app.models.verification import Verification
+from app.models.item_verification import ItemVerification
 from app.models.tag import Tag
 from app.models.value import Value
 from app.models.item_tag_value import ItemTagValue
@@ -23,7 +23,7 @@ __all__ = [
     'Category',
     'Item',
     'CategoryItem',
-    'Verification',
+    'ItemVerification',
     'Tag',
     'Value',
     'ItemTagValue',
