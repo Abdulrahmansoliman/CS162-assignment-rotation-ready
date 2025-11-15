@@ -7,10 +7,10 @@ from datetime import datetime
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from app.db import Base
+from app import db
 
 
-class User(Base):
+class User(db.Model):
     """
     Represents a user in the system.
     Each user belongs to a rotation city and can add/verify items.

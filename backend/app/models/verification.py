@@ -7,10 +7,10 @@ from datetime import datetime
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, Text
 from sqlalchemy.orm import relationship
 
-from app.db import Base
+from app import db
 
 
-class Verification(Base):
+class Verification(db.Model):
     """
     Records when users verify that an item still exists/is available.
     Helps keep item information current and reliable.

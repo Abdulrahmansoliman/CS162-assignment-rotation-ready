@@ -6,10 +6,10 @@ Supports different value types (boolean, text, numeric).
 from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.orm import relationship
 
-from app.db import Base
+from app import db
 
 
-class Tag(Base):
+class Tag(db.Model):
     """
     Tags that can be applied to items for additional metadata.
     Supports different value types (boolean, text, numeric).

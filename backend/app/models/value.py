@@ -6,10 +6,10 @@ separate columns.
 from sqlalchemy import Boolean, Column, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from app.db import Base
+from app import db
 
 
-class Value(Base):
+class Value(db.Model):
     """
     Possible values for tags.
     Supports different data types through separate columns
