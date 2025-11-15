@@ -30,7 +30,7 @@ class User(Base):
     __tablename__ = 'user'
     
     user_id = Column(Integer, primary_key=True)
-    rotation_city_id = Column(Integer, ForeignKey('rotation_city.id'), nullable=False)
+    rotation_city_id = Column(Integer, ForeignKey('rotation_city.city_id'), nullable=False)
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
     username = Column(String(50), unique=True, nullable=False)
@@ -71,7 +71,7 @@ class Item(Base):
     location = Column(String(500), nullable=False)  # Where the item can be found
     walking_distance = Column(Float, nullable=True)  # Distance in minutes/km
     last_verified_date = Column(DateTime, nullable=True)
-    added_by = Column(Integer, ForeignKey('user.id'), nullable=False)  # FK to user who added item
+    added_by = Column(Integer, ForeignKey('user.user_id'), nullable=False)  # FK to user who added item
     created_at = Column(DateTime, default=datetime.utcnow)
     number_of_verifications = Column(Integer, default=0)
     
