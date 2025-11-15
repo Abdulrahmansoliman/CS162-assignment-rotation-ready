@@ -7,10 +7,10 @@ from datetime import datetime
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from app.db import Base
+from app import db
 
 
-class Item(Base):
+class Item(db.Model):
     """
     Items that can be found/verified in rotation cities.
     Each item belongs to categories through the CategoryItem junction table.

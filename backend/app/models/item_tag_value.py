@@ -6,10 +6,10 @@ Associates items with their tag metadata.
 from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
-from app.db import Base
+from app import db
 
 
-class ItemTagValue(Base):
+class ItemTagValue(db.Model):
     """
     Junction table linking items to specific tag values.
     Associates items with their tag metadata.

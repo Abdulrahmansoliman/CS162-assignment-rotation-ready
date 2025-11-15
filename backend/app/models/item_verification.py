@@ -7,15 +7,15 @@ from datetime import datetime
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, Text
 from sqlalchemy.orm import relationship
 
-from app.db import Base
+from app import db
 
 
-class Verification(Base):
+class ItemVerification(db.Model):
     """
     Records when users verify that an item still exists/is available.
     Helps keep item information current and reliable.
     """
-    __tablename__ = 'verification'
+    __tablename__ = 'item_verification'
     
     # Primary Key with descriptive name
     verification_id = Column(Integer, primary_key=True, autoincrement=True)
@@ -44,6 +44,6 @@ class Verification(Base):
     
     def __repr__(self):
         return (
-            f"<Verification(verification_id={self.verification_id}, "
+            f"<ItemVerification(verification_id={self.verification_id}, "
             f"user_id={self.user_id}, item_id={self.item_id})>"
         )

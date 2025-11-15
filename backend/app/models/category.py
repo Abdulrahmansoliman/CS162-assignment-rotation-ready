@@ -5,10 +5,10 @@ Categories for organizing items (e.g., Electronics, Furniture, etc.)
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
-from app.db import Base
+from app import db
 
 
-class Category(Base):
+class Category(db.Model):
     """
     Categories for organizing items.
     Items can belong to multiple categories through the CategoryItem

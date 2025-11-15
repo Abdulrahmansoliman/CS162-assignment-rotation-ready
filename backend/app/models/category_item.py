@@ -6,10 +6,10 @@ An item can belong to multiple categories.
 from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
-from app.db import Base
+from app import db
 
 
-class CategoryItem(Base):
+class CategoryItem(db.Model):
     """
     Junction table linking items to categories (many-to-many relationship).
     An item can belong to multiple categories.

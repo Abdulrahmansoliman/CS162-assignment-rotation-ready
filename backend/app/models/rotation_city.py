@@ -6,10 +6,10 @@ Minerva rotation. Contains city information and residential hall location.
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
-from app.db import Base
+from app import db
 
 
-class RotationCity(Base):
+class RotationCity(db.Model):
     """
     Represents a rotation city where users are assigned.
     Contains city information and residential hall location.
