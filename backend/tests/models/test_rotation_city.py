@@ -4,6 +4,7 @@ Unit tests for RotationCity model
 import unittest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import IntegrityError
 
 from app.db import Base
 from app.models.rotation_city import RotationCity
@@ -81,7 +82,7 @@ class TestRotationCity(unittest.TestCase):
         )
         self.session.add(city2)
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             self.session.commit()
 
     def test_required_fields(self):
@@ -89,7 +90,7 @@ class TestRotationCity(unittest.TestCase):
         city = RotationCity(time_zone="America/New_York")
         self.session.add(city)
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             self.session.commit()
 
     def test_optional_res_hall_location(self):

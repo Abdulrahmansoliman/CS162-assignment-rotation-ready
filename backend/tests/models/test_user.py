@@ -5,6 +5,7 @@ import unittest
 from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import IntegrityError
 
 from app.db import Base
 from app.models.user import User
@@ -120,7 +121,7 @@ class TestUser(unittest.TestCase):
         )
         self.session.add(user2)
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             self.session.commit()
 
     def test_unique_email(self):
@@ -146,7 +147,7 @@ class TestUser(unittest.TestCase):
         )
         self.session.add(user2)
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             self.session.commit()
 
     def test_timestamps(self):
@@ -175,7 +176,7 @@ class TestUser(unittest.TestCase):
         )
         self.session.add(user)
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             self.session.commit()
 
     def test_relationship_to_city(self):
