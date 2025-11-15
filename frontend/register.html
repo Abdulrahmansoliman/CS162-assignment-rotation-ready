@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+
+    <!-- Shared CSS file -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Page heading -->
+    <h1>Register</h1>
+
+    <!-- Registration form: goes to success page, no backend yet -->
+    <form action="success.html" method="GET">
+
+        <!-- Name input -->
+        <div>
+            <label>Name:</label><br>
+            <input type="text" name="name" required>
+        </div>
+
+        <br>
+
+        <!-- Minerva-only email input using pattern restriction -->
+        <div>
+            <label>Email (Minerva email only):</label><br>
+
+            <!-- Pattern checks that email ends with @uni.minerva.edu -->
+            <input type="email" name="email" 
+                   pattern=".*@uni\.minerva\.edu" required>
+        </div>
+
+        <br>
+
+        <!-- Password input -->
+        <div>
+            <label>Password:</label><br>
+            <input type="password" name="password" required>
+        </div>
+
+        <br>
+
+        <!-- Rotation city dropdown -->
+        <div>
+            <label>Rotation City:</label><br>
+            <select name="city" required>
+                <option value="">Choose one</option>
+                <option>San Francisco</option>
+                <option>Seoul</option>
+                <option>Berlin</option>
+                <option>Buenos Aires</option>
+                <option>Hyderabad</option>
+                <option>London</option>
+            </select>
+        </div>
+
+        <br>
+
+        <!-- Form submit button -->
+        <button type="submit">Submit</button>
+    </form>
+
+    <!-- Link to login page -->
+    <p>
+        Already have an account?
+        <a href="login.html">Log in</a>
+    </p>
+
+</body>
+</html>
+

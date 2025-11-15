@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+
+    <!-- Shared CSS for styling -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Page heading -->
+    <h1>Login</h1>
+
+    <!-- Login form: submits to success page using GET (simple MVP, no backend yet) -->
+    <form action="success.html" method="GET">
+
+        <!-- Email input -->
+        <div>
+            <label>Email:</label><br>
+            <input type="email" name="email" required>
+        </div>
+
+        <br>
+
+        <!-- Password input -->
+        <div>
+            <label>Password:</label><br>
+            <input type="password" name="password" required>
+        </div>
+
+        <br>
+
+        <!-- Submit button -->
+        <button type="submit">Login</button>
+    </form>
+
+    <!-- Link to registration page -->
+    <p>
+        Don’t have an account?
+        <a href="register.html">Register</a>
+    </p>
+
+</body>
+</html>
+

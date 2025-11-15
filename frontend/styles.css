@@ -1,0 +1,45 @@
+/* Make the page look cleaner */
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+}
+
+/* Make all forms consistent */
+form {
+    max-width: 300px;
+}
+
+/* Space between elements */
+div {
+    margin-bottom: 12px;
+}
+
+/* Make headings look nicer */
+h1 {
+    color: #333;
+}
+
+/* Style inputs */
+input, select {
+    width: 100%;
+    padding: 6px;
+    margin-top: 4px;
+}
+
+/* Simple button styling */
+button {
+    padding: 8px 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Links styling */
+a {
+    color: #0066cc;
+}
