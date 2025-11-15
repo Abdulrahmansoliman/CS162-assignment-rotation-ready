@@ -1,9 +1,9 @@
 import os
+from app.config.base import Config
 
 
-class Development:
+class Development(Config):
     """Development configuration."""
     SQLALCHEMY_DATABASE_URI = 'sqlite:///dev.db'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
     DEBUG = True
     TESTING = False
