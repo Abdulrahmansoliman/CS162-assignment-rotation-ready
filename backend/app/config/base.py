@@ -4,6 +4,9 @@ Shared settings across all environments.
 """
 
 
+import os
+
+
 class Config:
     """Base configuration with shared settings."""
     
@@ -14,3 +17,6 @@ class Config:
     VERIFICATION_CODE_LENGTH = 6
     VERIFICATION_CODE_EXPIRY_MINUTES = 15
     MAX_VERIFICATION_ATTEMPTS = 5
+
+    # Security
+    SECRET_KEY = os.getenv('SECRET_KEY', 'your-default-secret-key')

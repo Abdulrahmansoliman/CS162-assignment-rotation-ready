@@ -1,6 +1,8 @@
-class Testing:
+from app.config.base import Config
+
+
+class Testing(Config):
     """Testing configuration."""
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
     DEBUG = True
     TESTING = True
