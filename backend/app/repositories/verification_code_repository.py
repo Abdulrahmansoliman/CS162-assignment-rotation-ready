@@ -56,7 +56,7 @@ class VerificationCodeRepository:
     
     def increase_attempts(verification_code_id: int) -> None:
         """Increase the attempt count for a verification code."""
-        code: VerificationCode = VerificationCode.query.get(verification_code_id)
+        code: VerificationCode = db.session.get(VerificationCode, verification_code_id)
         if code:
             code.attempts += 1
             db.session.commit()
@@ -65,7 +65,7 @@ class VerificationCodeRepository:
 
     def mark_code_as_used(verification_code_id: int) -> None:
         """Mark a verification code as used."""
-        code: VerificationCode = VerificationCode.query.get(verification_code_id)
+        code: VerificationCode = db.session.get(VerificationCode, verification_code_id)
         if code:
             code.is_used = True
             code.used_at = db.func.current_timestamp()
