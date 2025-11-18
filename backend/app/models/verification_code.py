@@ -2,12 +2,20 @@ from app import db
 from enum import Enum
 
 class VerificationCodeType(Enum):
-    REGISTRATION = (0, 'registration')
-    LOGIN = (1, 'login')
+    REGISTRATION = (0, "registration")
+    LOGIN = (1, "login")
 
-    def __init__(self, value, name):
-        self._value_ = value
-        self.name = name
+    def __init__(self, code, label):
+        self._code = code
+        self._label = label
+
+    @property
+    def code(self):
+        return self._code
+
+    @property
+    def label(self):
+        return self._label
 
 class VerificationCode(db.Model):
     """Model for storing verification codes."""
