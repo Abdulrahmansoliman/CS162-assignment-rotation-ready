@@ -52,7 +52,7 @@ class User(db.Model):
     # Relationships
     rotation_city = relationship("RotationCity", back_populates="users")
     added_items = relationship("Item", back_populates="added_by_user")
-    verifications = relationship("Verification", back_populates="user")
+    item_verifications = relationship("ItemVerification", back_populates="user")
     verification_codes = relationship("VerificationCode", back_populates="user")
     
     def __repr__(self):
@@ -60,5 +60,4 @@ class User(db.Model):
             f"<User(user_id={self.user_id}, "
             f"full_name='{self.first_name} {self.last_name}', email='{self.email}')>"
         )
-
     
