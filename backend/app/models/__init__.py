@@ -11,6 +11,8 @@ from app.models.category import Category
 from app.models.item import Item
 from app.models.category_item import CategoryItem
 from app.models.item_verification import ItemVerification
+from app.models.verification_code import VerificationCode, VerificationCodeType
+from app.models.verification_stutus_enum import VerificationStatusEnum
 from app.models.tag import Tag
 from app.models.value import Value
 from app.models.item_tag_value import ItemTagValue
@@ -24,6 +26,9 @@ __all__ = [
     'Item',
     'CategoryItem',
     'ItemVerification',
+    'VerificationCode',
+    'VerificationStatusEnum',
+    'VerificationCodeType',
     'Tag',
     'Value',
     'ItemTagValue',

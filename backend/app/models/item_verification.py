@@ -39,8 +39,8 @@ class ItemVerification(db.Model):
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relationships
-    user = relationship("User", back_populates="verifications")
-    item = relationship("Item", back_populates="verifications")
+    user = relationship("User", back_populates="item_verifications")
+    item = relationship("Item", back_populates="item_verifications")
     
     def __repr__(self):
         return (

@@ -44,8 +44,8 @@ class Item(db.Model):
         back_populates="item",
         cascade="all, delete-orphan"
     )
-    verifications = relationship(
-        "Verification",
+    item_verifications = relationship(
+        "ItemVerification",
         back_populates="item",
         cascade="all, delete-orphan"
     )
