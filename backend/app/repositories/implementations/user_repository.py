@@ -1,17 +1,24 @@
-from typing import Optional
+from typing import Optional, List
 from app.models.user import User
 from app import db
 from app.models.verification_stutus_enum import VerificationStatusEnum
+from app.repositories.base.user_repository_interface import (
+    IUserRepository
+)
 
-class UserRepository:
-    @staticmethod
-    def get_user_by_email(email: str) -> Optional[User]:
-        """Retrieve a user by their email address."""
+
+class UserRepository(IUserRepository):
+    
+    def get_user_by_email(self, email: str) -> Optional[User]:
         return User.query.filter_by(email=email).first()
     
-    @staticmethod
-    def create_user(first_name: str, last_name: str, email: str, rotation_city_id: int) -> User:
-        """Create a new user in the database."""
+    def create_user(
+        self,
+        first_name: str,
+        last_name: str,
+        email: str,
+        rotation_city_id: int
+    ) -> User:
         new_user = User(
             first_name=first_name,
             last_name=last_name,
@@ -25,38 +32,30 @@ class UserRepository:
         db.session.refresh(new_user)
         return new_user
     
-    @staticmethod
-    def mark_user_as_verified(user_id: int) -> Optional[User]:
-        """Mark a user as verified."""
+    def mark_user_as_verified(self, user_id: int) -> Optional[User]:
         user: User = User.query.get(user_id)
         if user:
             user.is_verified = True
             user.status = VerificationStatusEnum.VERIFIED.code
             db.session.commit()
+            db.session.refresh(user)
         return user
     
-    @staticmethod
-    def get_user_by_id(user_id: int) -> Optional[User]:
-        """Retrieve a user by their ID."""
+    def get_user_by_id(self, user_id: int) -> Optional[User]:
         return User.query.get(user_id)
     
-    @staticmethod
-    def get_all_users() -> list[User]:
-        """Retrieve all users from the database."""
-        return User.query.all()   
-
-    @staticmethod
-    def update(user_id: User, **kwargs) -> User:
-        """Update user attributes."""
+    def get_all_users(self) -> List[User]:
+        return User.query.all()
+    
+    def update(self, user_id: int, **kwargs) -> User:
         user = User.query.get(user_id)
         if not user:
-            raise ValueError("User not found.")
+            raise ValueError("User not found")
         
         for key, value in kwargs.items():
             if hasattr(user, key):
                 setattr(user, key, value)
-
+        
         db.session.commit()
         db.session.refresh(user)
         return user
-        
