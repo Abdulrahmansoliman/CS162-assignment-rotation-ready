@@ -6,7 +6,7 @@ and can add/verify items.
 from datetime import datetime
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Boolean
 from sqlalchemy.orm import relationship
-from app.models.verification_stutus_enum import VerificationStatusEnum
+from app.models.verification_status_enum import VerificationStatusEnum
 
 from app import db
 

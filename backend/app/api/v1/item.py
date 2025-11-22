@@ -8,22 +8,18 @@ item_bp = Blueprint("item", __name__, url_prefix="/api/v1/items")
 @item_bp.route('/<int:item_id>', methods=['GET'])
 def get_item(item_id):
     """Get item by item id"""
-
     item = ItemService.get_item(item_id=item_id)
 
     if not item:
         return jsonify({'error': 'Item not found'}), 404
-    
-    return jsonify(ItemResponse.from_orm(item).model_dump()), 200
+
+    return jsonify(ItemResponse.model_validate(item).model_dump()), 200
 
 
 @item_bp.route('/', methods=['GET'])
 def get_items():
     """Get all items"""
-
-    from app.models.item import Item
-
-    items = Item.query.all()
+    items = ItemService.get_all_items()
 
     if not items:
         return jsonify({"error": "Items not found"}), 404
@@ -54,5 +50,5 @@ def create_item():
         added_by_user_id=data['added_by_user_id'],
         walking_distance=data.get('walking_distance')
     )
-    
-    return jsonify(ItemResponse.from_orm(item).model_dump()), 201
+
+    return jsonify(ItemResponse.model_validate(item).model_dump()), 201
