@@ -1,18 +1,24 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint
+from app.api.v1.auth import auth_bp
+from app.api.v1.rotation_city import rotation_city_bp
+from app.api.v1.user import user_bp
+from app.api.v1.categories import categories_bp
+from app.api.v1.item import item_bp
+from app.api.v1.value import value_bp
+from app.api.v1.verification import verification_bp
 
-api_bp = Blueprint('api', __name__, url_prefix='/api/v1')
+# Create a parent blueprint
+api_bp = Blueprint('api', __name__)
 
+# Register all sub-blueprints
+blueprints = [
+    auth_bp,
+    rotation_city_bp,
+    user_bp,
+    categories_bp,
+    item_bp,
+    value_bp,
+    verification_bp
+]
 
-@api_bp.route('/health', methods=['GET'])
-def health_check():
-    """Health check endpoint."""
-    return jsonify({'status': 'healthy', 'message': 'API is running'}), 200
-
-
-@api_bp.route('/', methods=['GET'])
-def index():
-    """API welcome endpoint."""
-    return jsonify({
-        'message': 'Welcome to Minerva API v1',
-        'version': '1.0.0'
-    }), 200
+__all__ = ["api_bp", "blueprints"]

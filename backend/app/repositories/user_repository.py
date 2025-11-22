@@ -1,7 +1,7 @@
 from typing import Optional
 from app.models.user import User
 from app import db
-from app.models.verification_stutus_enum import VerificationStatusEnum
+from backend.app.models.verification_status_enum import VerificationStatusEnum
 
 class UserRepository:
     @staticmethod

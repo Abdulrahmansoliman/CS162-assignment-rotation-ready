@@ -23,8 +23,9 @@ def create_app(config_name='development'):
     db.init_app(app)
     
     # Register blueprints
-    from app.api.v1 import api_bp
-    app.register_blueprint(api_bp)
+    from app.api.v1 import blueprints
+    for blueprint in blueprints:
+        app.register_blueprint(blueprint)
     
     # Create database tables
     with app.app_context():
