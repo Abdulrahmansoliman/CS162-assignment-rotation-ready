@@ -19,14 +19,11 @@ class UserResponse(BaseModel):
 @user_bp.route('/<int:user_id>', methods=['GET'])
 def get_user(user_id):
     """Get user by user id"""
-    users = []  # TODO: query the database for the user by id
+    from app.models.user import User
 
-    return jsonify({'user': [UserResponse(
-        user_id=user.user_id,
-        username=user.username,
-        email=user.email,
-        first_name=user.first_name,
-        last_name=user.last_name,
-        created_at=user.created_at,
-        updated_at=user.updated_at
-    ).model_dump() for user in users]})
+    user = User.query.filter_by(user_id=user_id)
+
+    if not user:
+        return jsonify({"error": "User not found"})
+    
+    return jsonify(UserResponse.from_orm(user).model_dump()), 200
