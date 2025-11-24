@@ -45,11 +45,14 @@ def verify_registration():
     """User email verification endpoint."""
     data = request.get_json()
     
-    email = data['email']
-    verification_code = data['verification_code']
-
     try:
+        from services.auth.registration_service import RegistrationService
         
+        registration_service = RegistrationService()
+        user = registration_service.verify_user_email(
+            email=data['email'],
+            verification_code=data['verification_code']
+        )
 
         return jsonify({
             'message': 'Email verified successfully.',
