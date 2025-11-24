@@ -21,7 +21,7 @@ class VerificationCode(db.Model):
     """Model for storing verification codes."""
     __tablename__ = 'verification_code'
 
-    id = db.Column(db.Integer, primary_key=True)
+    verification_code_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False, index=True)
 
     # Code information
@@ -43,7 +43,7 @@ class VerificationCode(db.Model):
     user = db.relationship('User', back_populates='verification_codes')
 
     def __repr__(self):
-        return f"<VerificationCode(id={self.id}, user_id={self.user_id}, code_hash='{self.code_hash}')>"
+        return f"<VerificationCode(verification_code_id={self.verification_code_id}, user_id={self.user_id}, code_hash='{self.code_hash}')>"
     
     def is_expired(self):
         """Check if the verification code has expired."""
