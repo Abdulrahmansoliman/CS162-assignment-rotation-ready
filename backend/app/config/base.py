@@ -20,3 +20,8 @@ class Config:
 
     # Security
     SECRET_KEY = os.getenv('SECRET_KEY', 'your-default-secret-key')
+
+    # JWT Configuration
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'dev-secret-key-change-in-production')
+    JWT_ACCESS_TOKEN_EXPIRES = 30 * 60  # 30 minutes
+    JWT_ALGORITHM = 'HS256'
