@@ -31,7 +31,7 @@ class TestVerificationCodeRepository:
         )
         
         assert verification_code is not None
-        assert verification_code.id is not None
+        assert verification_code.verification_code_id is not None
         assert verification_code.user_id == user.user_id
         assert verification_code.code_hash == code_hash
         assert verification_code.hash_salt == hash_salt
@@ -79,7 +79,7 @@ class TestVerificationCodeRepository:
         db_session.expire_all()
         persisted = db_session.get(
             VerificationCode,
-            verification_code.id
+            verification_code.verification_code_id
         )
         
         assert persisted is not None
@@ -101,7 +101,7 @@ class TestVerificationCodeRepository:
         )
         
         assert verification_code is not None
-        assert verification_code.id is not None
+        assert verification_code.verification_code_id is not None
         assert verification_code.code_type == VerificationCodeType.LOGIN.code
         assert verification_code.is_used is False
 
@@ -120,7 +120,7 @@ class TestVerificationCodeRepository:
         db_session.expire_all()
         persisted = db_session.get(
             VerificationCode,
-            verification_code.id
+            verification_code.verification_code_id
         )
         
         assert persisted is not None
@@ -218,7 +218,7 @@ class TestVerificationCodeRepository:
         )
         
         assert result is not None
-        assert result.id == login_code.id
+        assert result.verification_code_id == login_code.verification_code_id
 
     def test_find_most_recent_active_code_returns_none_when_no_codes(
         self,
@@ -246,10 +246,10 @@ class TestVerificationCodeRepository:
         )
         
         initial_attempts = code.attempts
-        repository.increase_attempts(code.id)
+        repository.increase_attempts(code.verification_code_id)
         
         db_session.expire_all()
-        updated_code = db_session.get(VerificationCode, code.id)
+        updated_code = db_session.get(VerificationCode, code.verification_code_id)
         
         assert updated_code.attempts == initial_attempts + 1
 
@@ -265,12 +265,12 @@ class TestVerificationCodeRepository:
             hash_salt="salt"
         )
         
-        repository.increase_attempts(code.id)
-        repository.increase_attempts(code.id)
-        repository.increase_attempts(code.id)
+        repository.increase_attempts(code.verification_code_id)
+        repository.increase_attempts(code.verification_code_id)
+        repository.increase_attempts(code.verification_code_id)
         
         db_session.expire_all()
-        updated_code = db_session.get(VerificationCode, code.id)
+        updated_code = db_session.get(VerificationCode, code.verification_code_id)
         
         assert updated_code.attempts == 3
 
@@ -293,10 +293,10 @@ class TestVerificationCodeRepository:
             hash_salt="salt"
         )
         
-        repository.mark_as_used(code.id)
+        repository.mark_as_used(code.verification_code_id)
         
         db_session.expire_all()
-        updated_code = db_session.get(VerificationCode, code.id)
+        updated_code = db_session.get(VerificationCode, code.verification_code_id)
         
         assert updated_code.is_used is True
         assert updated_code.used_at is not None
@@ -313,10 +313,10 @@ class TestVerificationCodeRepository:
             hash_salt="salt"
         )
         
-        repository.mark_as_used(code.id)
+        repository.mark_as_used(code.verification_code_id)
         
         db_session.expire_all()
-        persisted = db_session.get(VerificationCode, code.id)
+        persisted = db_session.get(VerificationCode, code.verification_code_id)
         
         assert persisted.is_used is True
 
@@ -350,8 +350,8 @@ class TestVerificationCodeRepository:
         )
         
         db_session.expire_all()
-        updated_code1 = db_session.get(VerificationCode, code1.id)
-        updated_code2 = db_session.get(VerificationCode, code2.id)
+        updated_code1 = db_session.get(VerificationCode, code1.verification_code_id)
+        updated_code2 = db_session.get(VerificationCode, code2.verification_code_id)
         
         assert updated_code1.is_used is True
         assert updated_code2.is_used is True
@@ -379,8 +379,8 @@ class TestVerificationCodeRepository:
         )
         
         db_session.expire_all()
-        updated_reg = db_session.get(VerificationCode, reg_code.id)
-        updated_login = db_session.get(VerificationCode, login_code.id)
+        updated_reg = db_session.get(VerificationCode, reg_code.verification_code_id)
+        updated_login = db_session.get(VerificationCode, login_code.verification_code_id)
         
         assert updated_reg.is_used is True
         assert updated_login.is_used is False
@@ -407,7 +407,7 @@ class TestVerificationCodeRepository:
         )
         
         db_session.expire_all()
-        updated_code = db_session.get(VerificationCode, code.id)
+        updated_code = db_session.get(VerificationCode, code.verification_code_id)
         
         assert updated_code.is_used is True
 
@@ -431,7 +431,7 @@ class TestVerificationCodeRepository:
         )
         
         db_session.expire_all()
-        updated_code = db_session.get(VerificationCode, code.id)
+        updated_code = db_session.get(VerificationCode, code.verification_code_id)
         
         assert updated_code.is_used is False
 
