@@ -33,7 +33,7 @@ class UserRepository(IUserRepository):
         return new_user
     
     def mark_user_as_verified(self, user_id: int) -> Optional[User]:
-        user: User = User.query.get(user_id)
+        user: User = db.session.get(User, user_id)
         if user:
             user.is_verified = True
             user.status = VerificationStatusEnum.VERIFIED.code
@@ -42,13 +42,13 @@ class UserRepository(IUserRepository):
         return user
     
     def get_user_by_id(self, user_id: int) -> Optional[User]:
-        return User.query.get(user_id)
+        return db.session.get(User, user_id)
     
     def get_all_users(self) -> List[User]:
         return User.query.all()
     
     def update(self, user_id: int, **kwargs) -> User:
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
         if not user:
             raise ValueError("User not found")
         
