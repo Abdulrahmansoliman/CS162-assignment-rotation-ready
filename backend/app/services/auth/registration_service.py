@@ -100,10 +100,9 @@ class RegistrationService:
         if user.is_verified:
             raise ValueError("User is already verified. Please log in.")
         
-        is_code_valid = self.verification_service.verify_code(
-            user_id=user.user_id,
-            code=verification_code,
-            code_type='registration'
+        is_code_valid = self.verification_service.verify_registration_code(
+            user=user,
+            code=verification_code
         )
 
         if not is_code_valid:
