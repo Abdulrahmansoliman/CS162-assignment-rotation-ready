@@ -47,3 +47,23 @@ class LoginService:
                 'VERIFICATION_CODE_EXPIRY_MINUTES'
             ]
         )
+
+    def verify_login(self, email: str, verification_code: str) -> User:
+        """Verify login code and return authenticated user."""
+        user = self.user_repo.get_user_by_email(email)
+
+        if not user:
+            raise ValueError("User with this email does not exist.")
+        
+        if not user.is_verified:
+            raise ValueError("User account is not verified.")
+
+        is_code_valid = self.verification_service.verify_login_code(
+            user=user,
+            code=verification_code
+        )
+
+        if not is_code_valid:
+            raise ValueError("Invalid or expired verification code.")
+
+        return user
