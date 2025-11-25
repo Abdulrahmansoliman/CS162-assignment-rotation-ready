@@ -13,7 +13,7 @@ from app.repositories.implementations.verification_code_repository import (
 from flask import current_app
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 @pytest.mark.service
 class TestVerificationCodeService:
 
