@@ -47,6 +47,7 @@ def verify_registration():
     
     try:
         from services.auth.registration_service import RegistrationService
+        from services.auth.token_service import TokenService
         
         registration_service = RegistrationService()
         user = registration_service.verify_user_email(
@@ -54,9 +55,14 @@ def verify_registration():
             verification_code=data['verification_code']
         )
 
+        tokens = TokenService.generate_tokens(user)
+
         return jsonify({
             'message': 'Email verified successfully.',
-            'user_id': user.user_id
+            'user_id': user.user_id,
+            'email': user.email,
+            'access_token': tokens['access_token'],
+            'refresh_token': tokens['refresh_token']
         }), 200
 
     except ValueError as ve:
