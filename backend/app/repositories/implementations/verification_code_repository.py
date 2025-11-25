@@ -57,7 +57,8 @@ class VerificationCodeRepository(IVerificationCodeRepository):
             VerificationCode.is_used.is_(False),
             VerificationCode.expires_at > db.func.current_timestamp()
         ).order_by(
-            VerificationCode.created_at.desc()
+            VerificationCode.created_at.desc(),
+            VerificationCode.verification_code_id.desc()
         ).first()
     
     def increase_attempts(self, verification_code_id: int) -> None:
