@@ -111,3 +111,26 @@ class RegistrationService:
         self.user_repo.mark_user_as_verified(user.user_id)
 
         return user
+
+    def resend_verification_code(self, email: str) -> None:
+        """Resend verification code to user email."""
+        user = self.user_repo.get_user_by_email(email)
+
+        if not user:
+            raise ValueError("User with this email does not exist.")
+        
+        if user.is_verified:
+            raise ValueError("User is already verified. Please log in.")
+
+        verification_code, code = (
+            self.verification_service.create_registration_code(user)
+        )
+
+        self.notification_service.send_verification_code(
+            user_email=user.email,
+            name=user.first_name,
+            verification_code=code,
+            expiry_minutes=current_app.config[
+                'VERIFICATION_CODE_EXPIRY_MINUTES'
+            ]
+        )

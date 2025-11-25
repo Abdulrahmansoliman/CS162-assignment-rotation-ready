@@ -70,3 +70,25 @@ def verify_registration():
 
     except Exception as e:
         return jsonify({'message': 'An error occurred during email verification.'}), 500
+
+@auth_bp.route('/register/resend-code', methods=['POST'])
+@require_params('email')
+def resend_verification_code():
+    """Resend verification code endpoint."""
+    data = request.get_json()
+    
+    try:
+        from services.auth.registration_service import RegistrationService
+        
+        registration_service = RegistrationService()
+        registration_service.resend_verification_code(email=data['email'])
+
+        return jsonify({
+            'message': 'Verification code resent. Please check your email.'
+        }), 200
+
+    except ValueError as ve:
+        return jsonify({'message': str(ve)}), 400
+
+    except Exception as e:
+        return jsonify({'message': 'An error occurred while resending verification code.'}), 500

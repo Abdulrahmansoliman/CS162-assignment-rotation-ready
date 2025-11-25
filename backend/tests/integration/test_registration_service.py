@@ -460,3 +460,103 @@ class TestRegistrationServiceIntegration:
         assert db_user.first_name == 'Jane'
         assert db_user.last_name == 'Smith'
         assert db_user.is_verified is True
+
+    # ============================================================================
+    # Tests for resend_verification_code()
+    # ============================================================================
+
+    def test_resend_verification_code_creates_new_code(
+        self,
+        service,
+        rotation_city,
+        db_session
+    ):
+        captured_codes = []
+        original_notify = service.notification_service.send_verification_code
+        def capture_code(**kwargs):
+            captured_codes.append(kwargs.get('verification_code'))
+            return original_notify(**kwargs)
+        
+        service.notification_service.send_verification_code = capture_code
+        
+        user = service.register_user(
+            first_name='John',
+            last_name='Doe',
+            email='john@example.com',
+            rotation_city_id=rotation_city.city_id
+        )
+        
+        code1 = captured_codes[0]
+        
+        service.resend_verification_code(email='john@example.com')
+        code2 = captured_codes[1]
+        
+        assert code1 != code2
+        
+        codes = db_session.query(VerificationCode).filter_by(
+            user_id=user.user_id
+        ).all()
+        assert len(codes) == 2
+
+    def test_resend_verification_code_old_code_becomes_invalid(
+        self,
+        service,
+        rotation_city,
+        db_session
+    ):
+        captured_codes = []
+        original_notify = service.notification_service.send_verification_code
+        def capture_code(**kwargs):
+            captured_codes.append(kwargs.get('verification_code'))
+            return original_notify(**kwargs)
+        
+        service.notification_service.send_verification_code = capture_code
+        
+        user = service.register_user(
+            first_name='John',
+            last_name='Doe',
+            email='john@example.com',
+            rotation_city_id=rotation_city.city_id
+        )
+        
+        code1 = captured_codes[0]
+        
+        service.resend_verification_code(email='john@example.com')
+        code2 = captured_codes[1]
+        
+        result1 = service.verification_service.verify_registration_code(user, code1)
+        assert result1 is False
+        
+        result2 = service.verification_service.verify_registration_code(user, code2)
+        assert result2 is True
+
+    def test_resend_verification_code_nonexistent_user_raises_error(self, service):
+        with pytest.raises(ValueError, match="User with this email does not exist"):
+            service.resend_verification_code(email='nonexistent@example.com')
+
+    def test_resend_verification_code_verified_user_raises_error(
+        self,
+        service,
+        rotation_city,
+        db_session
+    ):
+        captured_code = [None]
+        original_notify = service.notification_service.send_verification_code
+        def capture_code(**kwargs):
+            captured_code[0] = kwargs.get('verification_code')
+            return original_notify(**kwargs)
+        
+        service.notification_service.send_verification_code = capture_code
+        
+        user = service.register_user(
+            first_name='John',
+            last_name='Doe',
+            email='john@example.com',
+            rotation_city_id=rotation_city.city_id
+        )
+        
+        plain_code = captured_code[0]
+        service.verify_user_email('john@example.com', plain_code)
+        
+        with pytest.raises(ValueError, match="User is already verified"):
+            service.resend_verification_code(email='john@example.com')
