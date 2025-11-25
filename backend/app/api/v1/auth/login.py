@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from utils.decorators import require_params
+from app.utils.decorators import require_params
 
 auth_bp = Blueprint('auth', __name__)
 
