@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
 from utils.decorators import require_params
+from services.auth.login_service import LoginService
+from services.auth.token_service import TokenService
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -11,8 +13,6 @@ def login():
     data = request.get_json()
     
     try:
-        from services.auth.login_service import LoginService
-        
         login_service = LoginService()
         login_service.initiate_login(email=data['email'])
 
@@ -33,9 +33,6 @@ def verify_login():
     data = request.get_json()
     
     try:
-        from services.auth.login_service import LoginService
-        from services.auth.token_service import TokenService
-        
         login_service = LoginService()
         user = login_service.verify_login(
             email=data['email'],
