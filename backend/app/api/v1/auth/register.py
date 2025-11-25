@@ -1,7 +1,11 @@
 from flask import Blueprint, request, jsonify
-from utils.decorators import require_params
+from app.utils.decorators import require_params
+from app.services.auth.registration_service import RegistrationService
 
-auth_bp = Blueprint('auth', __name__) 
+auth_bp = Blueprint('auth', __name__)
+
+# Create service instance
+registration_service = RegistrationService()
 
 
 @auth_bp.route('/register', methods=['POST'])
@@ -16,8 +20,6 @@ def register():
     last_name = data['last_name']
 
     try:
-        from services.auth.registration_service import RegistrationService
-        registration_service = RegistrationService()
         new_user = registration_service.register_user(
             first_name=first_name,
             last_name=last_name,
@@ -25,7 +27,9 @@ def register():
             rotation_city_id=city_id
         )
         if new_user is None:
-            return jsonify({'message': 'Verification code resent. Please check your email.'}), 200
+            return jsonify({
+                'message': 'Verification code resent. Please check your email.'
+            }), 200
 
         return jsonify({
             'message': 'User registered successfully. Please verify your email.',
@@ -37,7 +41,9 @@ def register():
         return jsonify({'message': str(ve)}), 400
 
     except Exception as e:
-        return jsonify({'message': 'An error occurred during registration.'}), 500
+        return jsonify({
+            'message': 'An error occurred during registration.'
+        }), 500
     
 @auth_bp.route('/register/verify', methods=['POST'])
 @require_params('email', 'verification_code')
@@ -49,7 +55,10 @@ def verify_registration():
     verification_code = data['verification_code']
 
     try:
-        
+        user = registration_service.verify_user_email(
+            email=email,
+            verification_code=verification_code
+        )
 
         return jsonify({
             'message': 'Email verified successfully.',
@@ -60,4 +69,6 @@ def verify_registration():
         return jsonify({'message': str(ve)}), 400
 
     except Exception as e:
-        return jsonify({'message': 'An error occurred during email verification.'}), 500
+        return jsonify({
+            'message': 'An error occurred during email verification.'
+        }), 500

@@ -1,8 +1,10 @@
 """
-Unit tests for VerificationCodeRepository.
+Unit tests for repository.
 """
 import pytest
-from app.repositories.verification_code_repository import VerificationCodeRepository
+from app.repositories.implementations.verification_code_repository import (
+    VerificationCodeRepository
+)
 from app.models import VerificationCodeType, VerificationCode
 from app import db
 from datetime import datetime, timedelta
@@ -11,9 +13,14 @@ from datetime import datetime, timedelta
 @pytest.mark.unit
 @pytest.mark.repository
 class TestVerificationCodeRepository:
-    """Test cases for VerificationCodeRepository."""
+    """Test cases for repository."""
     
-    def test_create_registration_code(self, db_session, user):
+    @pytest.fixture
+    def repository(self):
+        """Provide a repository instance for each test."""
+        return VerificationCodeRepository()
+    
+    def test_create_registration_code(self, db_session, user, repository):
         """Test creating a new registration verification code for a user.
         
         This test:
@@ -26,7 +33,7 @@ class TestVerificationCodeRepository:
         hash_salt = "test_salt_12345"   
         
         # Act (Execute)
-        verification_code = VerificationCodeRepository.create_registration(
+        verification_code = repository.create_registration(
             user_id=user.user_id,
             code_hash=code_hash,
             hash_salt=hash_salt
@@ -41,7 +48,7 @@ class TestVerificationCodeRepository:
         assert verification_code.code_type == VerificationCodeType.REGISTRATION.code
         assert verification_code.is_used is False
 
-    def test_create_login_code(self, db_session, user):
+    def test_create_login_code(self, db_session, user, repository):
         """Test creating a new login verification code for a user.
         
         This test:
@@ -54,7 +61,7 @@ class TestVerificationCodeRepository:
         hash_salt = "login_salt_67890"   
         
         # Act (Execute)
-        verification_code = VerificationCodeRepository.create_login(
+        verification_code = repository.create_login(
             user_id=user.user_id,
             code_hash=code_hash,
             hash_salt=hash_salt
@@ -80,7 +87,7 @@ class TestVerificationCodeRepository:
         initial_attempts = registration_code.attempts
         
         # Act (Execute)
-        VerificationCodeRepository.increase_attempts(registration_code.id)
+        repository.increase_attempts(registration_code.id)
         
         # Refresh from DB
         new_attempts = registration_code.attempts
@@ -99,7 +106,7 @@ class TestVerificationCodeRepository:
         assert registration_code.is_used is False
         
         # Act (Execute)
-        VerificationCodeRepository.mark_code_as_used(registration_code.id)
+        repository.mark_code_as_used(registration_code.id)
         
         # Refresh from DB
         is_used = registration_code.is_used
@@ -120,7 +127,7 @@ class TestVerificationCodeRepository:
         code_type = registration_code.code_type
         
         # Create another active code
-        another_code = VerificationCodeRepository.create_registration(
+        another_code = repository.create_registration(
             user_id=user_id,
             code_hash="another_hash_99999",
             hash_salt="another_salt_99999"
@@ -128,7 +135,7 @@ class TestVerificationCodeRepository:
         assert another_code.is_used is False
         
         # Act (Execute)
-        VerificationCodeRepository.invalidate_user_codes(user_id, code_type)
+        repository.invalidate_user_codes(user_id, code_type)
         
         # Refresh from DB
         reg_code_used = registration_code.is_used
@@ -151,13 +158,13 @@ class TestVerificationCodeRepository:
         code_type = registration_code.code_type
         
         # Create a new code
-        new_code = VerificationCodeRepository.create_registration(
+        new_code = repository.create_registration(
             user_id=user_id,
             code_hash="new_hash_22222",
             hash_salt="new_salt_22222"
         )
 
-        expire_code = VerificationCodeRepository.create_registration(
+        expire_code = repository.create_registration(
             user_id=user_id,
             code_hash="expired_hash_33333",
             hash_salt="expired_salt_33333"
@@ -167,7 +174,7 @@ class TestVerificationCodeRepository:
         expire_code.expires_at = registration_code.created_at - timedelta(minutes=15)
         
         # Act (Execute)
-        most_recent_code = VerificationCodeRepository.find_most_recent_active_code(
+        most_recent_code = repository.find_most_recent_active_code(
             user_id=user_id,
             code_type=code_type
         )
@@ -189,7 +196,7 @@ class TestVerificationCodeRepository:
         
         # Act & Assert (should not raise an exception)
         try:
-            VerificationCodeRepository.increase_attempts(nonexistent_id)
+            repository.increase_attempts(nonexistent_id)
         except Exception as e:
             pytest.fail(f"Should not raise exception for nonexistent code: {e}")
 
@@ -206,14 +213,14 @@ class TestVerificationCodeRepository:
         assert registration_code.is_used is False
         
         # Act (Execute) - First mark as used
-        VerificationCodeRepository.mark_code_as_used(code_id)
+        repository.mark_code_as_used(code_id)
         registration_code.is_used = True
         
         # Assert (Verify) - First time
         assert registration_code.is_used is True
         
         # Act (Execute) - Mark as used again
-        VerificationCodeRepository.mark_code_as_used(code_id)
+        repository.mark_code_as_used(code_id)
         
         # Assert (Verify) - Should still be used, no errors
         assert registration_code.is_used is True
@@ -227,23 +234,23 @@ class TestVerificationCodeRepository:
         3. Verifies that no active code is returned
         """
         # Arrange (Setup)
-        code1 = VerificationCodeRepository.create_registration(
+        code1 = repository.create_registration(
             user_id=user.user_id,
             code_hash="hash_1",
             hash_salt="salt_1"
         )
-        code2 = VerificationCodeRepository.create_registration(
+        code2 = repository.create_registration(
             user_id=user.user_id,
             code_hash="hash_2",
             hash_salt="salt_2"
         )
         
         # Mark all codes as used
-        VerificationCodeRepository.mark_code_as_used(code1.id)
-        VerificationCodeRepository.mark_code_as_used(code2.id)
+        repository.mark_code_as_used(code1.id)
+        repository.mark_code_as_used(code2.id)
         
         # Act (Execute)
-        most_recent_code = VerificationCodeRepository.find_most_recent_active_code(
+        most_recent_code = repository.find_most_recent_active_code(
             user_id=user.user_id,
             code_type=VerificationCodeType.REGISTRATION.code
         )
@@ -284,7 +291,7 @@ class TestVerificationCodeRepository:
         db_session.commit()
         
         # Act (Execute)
-        most_recent_code = VerificationCodeRepository.find_most_recent_active_code(
+        most_recent_code = repository.find_most_recent_active_code(
             user_id=user.user_id,
             code_type=VerificationCodeType.REGISTRATION.code
         )
@@ -303,7 +310,7 @@ class TestVerificationCodeRepository:
         # Arrange (Setup) - User already exists but has no codes
         
         # Act (Execute)
-        most_recent_code = VerificationCodeRepository.find_most_recent_active_code(
+        most_recent_code = repository.find_most_recent_active_code(
             user_id=user.user_id,
             code_type=VerificationCodeType.REGISTRATION.code
         )
@@ -322,7 +329,7 @@ class TestVerificationCodeRepository:
         
         # Act & Assert (should not raise an exception)
         try:
-            VerificationCodeRepository.invalidate_user_codes(
+            repository.invalidate_user_codes(
                 user_id=user.user_id,
                 code_type=VerificationCodeType.REGISTRATION.code
             )
@@ -342,7 +349,7 @@ class TestVerificationCodeRepository:
         user_id = registration_code.user_id
         
         # Create a login code
-        login_code = VerificationCodeRepository.create_login(
+        login_code = repository.create_login(
             user_id=user_id,
             code_hash="login_hash_test",
             hash_salt="login_salt_test"
@@ -353,7 +360,7 @@ class TestVerificationCodeRepository:
         assert login_code.is_used is False
         
         # Act (Execute) - Invalidate only registration codes
-        VerificationCodeRepository.invalidate_user_codes(
+        repository.invalidate_user_codes(
             user_id=user_id,
             code_type=VerificationCodeType.REGISTRATION.code
         )

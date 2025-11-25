@@ -5,6 +5,9 @@ from app.services.user_service import UserService
 
 user_bp = Blueprint('user', __name__, url_prefix='/api/v1/user')
 
+# Create service instance
+user_service = UserService()
+
 
 class UserResponse(BaseModel):
     """Response schema for user"""
@@ -20,7 +23,7 @@ class UserResponse(BaseModel):
 @user_bp.route('/<int:user_id>', methods=['GET'])
 def get_user(user_id):
     """Get user by user id"""
-    user = UserService.get_user(user_id=user_id)
+    user = user_service.get_user(user_id=user_id)
 
     if not user:
         return jsonify({"error": "User not found"}), 404
