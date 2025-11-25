@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.utils.decorators import require_params
-from services.auth.login_service import LoginService
-from services.auth.token_service import TokenService
+from app.services.auth.login_service import LoginService
+from app.services.auth.token_service import TokenService
 from app.api.v1.auth import auth_bp
 
 

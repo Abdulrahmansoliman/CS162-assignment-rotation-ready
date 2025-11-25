@@ -1,5 +1,5 @@
-from services.auth.registration_service import RegistrationService
-from services.auth.token_service import TokenService
+from app.services.auth.registration_service import RegistrationService
+from app.services.auth.token_service import TokenService
 from app.api.v1.auth import auth_bp
 
 from flask import Blueprint, request, jsonify
