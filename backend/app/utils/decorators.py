@@ -1,4 +1,4 @@
-from func import wraps
+from functools import wraps
 from flask import request, jsonify
 
 def require_params(*required_parameters):
