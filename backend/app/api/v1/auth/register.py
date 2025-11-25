@@ -1,7 +1,9 @@
+from services.auth.registration_service import RegistrationService
+from services.auth.token_service import TokenService
+from app.api.v1.auth import auth_bp
+
 from flask import Blueprint, request, jsonify
 from app.utils.decorators import require_params
-
-auth_bp = Blueprint('auth', __name__) 
 
 
 @auth_bp.route('/register', methods=['POST'])
@@ -16,7 +18,6 @@ def register():
     last_name = data['last_name']
 
     try:
-        from services.auth.registration_service import RegistrationService
         registration_service = RegistrationService()
         new_user = registration_service.register_user(
             first_name=first_name,
@@ -45,10 +46,7 @@ def verify_registration():
     """User email verification endpoint."""
     data = request.get_json()
     
-    try:
-        from services.auth.registration_service import RegistrationService
-        from services.auth.token_service import TokenService
-        
+    try:        
         registration_service = RegistrationService()
         user = registration_service.verify_user_email(
             email=data['email'],
@@ -77,9 +75,7 @@ def resend_verification_code():
     """Resend verification code endpoint."""
     data = request.get_json()
     
-    try:
-        from services.auth.registration_service import RegistrationService
-        
+    try:        
         registration_service = RegistrationService()
         registration_service.resend_verification_code(email=data['email'])
 
