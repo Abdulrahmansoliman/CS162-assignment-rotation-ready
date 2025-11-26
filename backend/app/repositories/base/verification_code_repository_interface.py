@@ -32,3 +32,7 @@ class IVerificationCodeRepository(ABC):
     @abstractmethod
     def mark_as_used(self, verification_code_id: int) -> None:
         pass
+    
+    @abstractmethod
+    def invalidate_user_codes(self, user_id: int, code_type: str) -> None:
+        pass
