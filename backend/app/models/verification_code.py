@@ -4,6 +4,7 @@ from enum import Enum
 class VerificationCodeType(Enum):
     REGISTRATION = (0, "registration")
     LOGIN = (1, "login")
+    PASSWORD_RESET = (2, "password_reset")
 
     def __init__(self, code, label):
         self._code = code
