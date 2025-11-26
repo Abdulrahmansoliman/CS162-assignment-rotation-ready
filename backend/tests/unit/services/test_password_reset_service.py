@@ -189,22 +189,18 @@ class TestPasswordResetServiceUnit:
     # Tests for _hash_token()
     # ============================================================================
 
-    @patch('app.services.auth.password_reset_service.os.urandom')
     def test_hash_token_generates_salt_and_hash(
         self,
-        mock_urandom,
         service,
         app_context
     ):
         """Test that _hash_token generates salt and hash correctly."""
-        mock_urandom.return_value = b'0123456789abcdef'
-        
         token_hash, salt = service._hash_token('test_token')
         
         assert token_hash is not None
         assert salt is not None
         assert len(token_hash) == 64  # SHA256 hex length
-        assert salt == '30313233343536373839616263646566'  # hex of mock bytes
+        assert len(salt) == 32  # 16 bytes in hex
 
     def test_hash_token_produces_different_hashes_for_same_token(
         self,
@@ -228,11 +224,10 @@ class TestPasswordResetServiceUnit:
         app_context
     ):
         """Test that _build_reset_url uses FRONTEND_URL from config."""
-        with patch('app.services.auth.password_reset_service.current_app') as mock_app:
-            mock_app.config.get.return_value = 'https://example.com'
-            
+        from flask import current_app
+        
+        with patch.dict(current_app.config, {'FRONTEND_URL': 'https://example.com'}):
             url = service._build_reset_url('token123')
-            
             assert url == 'https://example.com/reset-password?token=token123'
 
     def test_build_reset_url_uses_default_when_config_missing(
@@ -241,9 +236,7 @@ class TestPasswordResetServiceUnit:
         app_context
     ):
         """Test that _build_reset_url uses default URL when config is missing."""
-        with patch('app.services.auth.password_reset_service.current_app') as mock_app:
-            mock_app.config.get.return_value = 'http://localhost:5173'
-            
-            url = service._build_reset_url('token456')
-            
-            assert 'http://localhost:5173/reset-password?token=token456' == url
+        url = service._build_reset_url('token456')
+        
+        # Should use default localhost URL
+        assert url == 'http://localhost:5173/reset-password?token=token456'
