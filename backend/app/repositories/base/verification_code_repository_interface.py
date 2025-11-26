@@ -14,6 +14,10 @@ class IVerificationCodeRepository(ABC):
         pass
     
     @abstractmethod
+    def create_password_reset(self, **kwargs) -> VerificationCode:
+        pass
+    
+    @abstractmethod
     def find_most_recent_active_code(
         self,
         user_id: int,
