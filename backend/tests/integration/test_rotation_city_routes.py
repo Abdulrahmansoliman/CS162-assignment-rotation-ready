@@ -2,6 +2,7 @@
 Integration tests for rotation city routes
 """
 import pytest
+from app.models.rotation_city import RotationCity
 
 
 class TestRotationCityRoutes:
@@ -54,8 +55,6 @@ class TestRotationCityRoutes:
 
     def test_get_rotation_city_multiple_cities(self, client, db_session):
         """Test GET /api/v1/rotation-city/ returns multiple cities"""
-        from app.models.rotation_city import RotationCity
-        
         # Create multiple cities
         city1 = RotationCity(
             name="San Francisco",

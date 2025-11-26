@@ -50,7 +50,6 @@ def verify_registration():
 
     try:
         
-
         return jsonify({
             'message': 'Email verified successfully.',
             'user_id': user.user_id

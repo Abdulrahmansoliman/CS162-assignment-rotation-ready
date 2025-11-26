@@ -1,13 +1,7 @@
-from flask import Blueprint, jsonify
+from flask import jsonify
 from pydantic import BaseModel
+from app.api.v1.rotation_city import rotation_city_bp
 from app.services.rotation_city_service import RotationCityService
-
-
-rotation_city_bp = Blueprint(
-    'rotation_city',
-    __name__,
-    url_prefix="/api/v1/rotation-city"
-)
 
 # Create service instance
 rotation_city_service = RotationCityService()

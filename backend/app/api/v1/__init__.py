@@ -16,3 +16,8 @@ def index():
         'message': 'Welcome to Minerva API v1',
         'version': '1.0.0'
     }), 200
+
+
+# Register rotation_city blueprint
+from app.api.v1.rotation_city import rotation_city_bp
+api_bp.register_blueprint(rotation_city_bp)
