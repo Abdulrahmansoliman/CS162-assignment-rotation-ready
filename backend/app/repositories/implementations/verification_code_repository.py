@@ -25,6 +25,14 @@ class VerificationCodeRepository(IVerificationCodeRepository):
             hash_salt=kwargs.get("hash_salt"),
             code_type=VerificationCodeType.LOGIN.code
         )
+    
+    def create_password_reset(self, **kwargs) -> VerificationCode:
+        return self._create_code(
+            user_id=kwargs.get("user_id"),
+            code_hash=kwargs.get("code_hash"),
+            hash_salt=kwargs.get("hash_salt"),
+            code_type=VerificationCodeType.PASSWORD_RESET.code
+        )
 
     def _create_code(self, **kwargs) -> VerificationCode:
         now = datetime.utcnow()
