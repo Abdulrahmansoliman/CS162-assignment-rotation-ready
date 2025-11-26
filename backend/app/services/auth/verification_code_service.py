@@ -30,6 +30,17 @@ class VerificationCodeService:
         )
         return verification_code, code
     
+    def create_login_code(self, user: User) -> VerificationCode:
+        code = self._generate_code()
+        code_hash, salt = self._hash_code(code)
+
+        verification_code = self.repo.create_login(
+            user_id=user.user_id,
+            code_hash=code_hash,
+            hash_salt=salt
+        )
+        return verification_code, code
+    
     def verify_registration_code(self, user: User, code: str) -> bool:
         return self._verify_code(
             user=user,
@@ -55,6 +66,10 @@ class VerificationCodeService:
         if not verification_code:
             return False
         
+        # check number of attempts
+        if verification_code.attempts >= current_app.config.get('VERIFICATION_CODE_MAX_ATTEMPTS', 5):
+            return False
+
         is_valid = self._validate_code(verification_code, code)
         if not is_valid:
             self.repo.increase_attempts(

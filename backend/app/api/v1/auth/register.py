@@ -1,7 +1,9 @@
-from flask import Blueprint, request, jsonify
-from utils.decorators import require_params
+from app.services.auth.registration_service import RegistrationService
+from app.services.auth.token_service import TokenService
+from app.api.v1.auth import auth_bp
 
-auth_bp = Blueprint('auth', __name__) 
+from flask import Blueprint, request, jsonify
+from app.utils.decorators import require_params
 
 
 @auth_bp.route('/register', methods=['POST'])
@@ -16,7 +18,6 @@ def register():
     last_name = data['last_name']
 
     try:
-        from services.auth.registration_service import RegistrationService
         registration_service = RegistrationService()
         new_user = registration_service.register_user(
             first_name=first_name,
@@ -45,15 +46,21 @@ def verify_registration():
     """User email verification endpoint."""
     data = request.get_json()
     
-    email = data['email']
-    verification_code = data['verification_code']
+    try:        
+        registration_service = RegistrationService()
+        user = registration_service.verify_user_email(
+            email=data['email'],
+            verification_code=data['verification_code']
+        )
 
-    try:
-        
+        tokens = TokenService.generate_tokens(user)
 
         return jsonify({
             'message': 'Email verified successfully.',
-            'user_id': user.user_id
+            'user_id': user.user_id,
+            'email': user.email,
+            'access_token': tokens['access_token'],
+            'refresh_token': tokens['refresh_token']
         }), 200
 
     except ValueError as ve:
@@ -61,3 +68,23 @@ def verify_registration():
 
     except Exception as e:
         return jsonify({'message': 'An error occurred during email verification.'}), 500
+
+@auth_bp.route('/register/resend-code', methods=['POST'])
+@require_params('email')
+def resend_verification_code():
+    """Resend verification code endpoint."""
+    data = request.get_json()
+    
+    try:        
+        registration_service = RegistrationService()
+        registration_service.resend_verification_code(email=data['email'])
+
+        return jsonify({
+            'message': 'Verification code resent. Please check your email.'
+        }), 200
+
+    except ValueError as ve:
+        return jsonify({'message': str(ve)}), 400
+
+    except Exception as e:
+        return jsonify({'message': 'An error occurred while resending verification code.'}), 500
