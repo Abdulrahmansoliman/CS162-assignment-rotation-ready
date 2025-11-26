@@ -7,6 +7,7 @@ from app.services.auth.verification_code_service import (
 )
 from app.services.auth.notification_service import NotificationService
 from app.models.user import User
+from app.models.verification_code import VerificationCodeType
 from flask import current_app
 
 
@@ -34,6 +35,11 @@ class LoginService:
         
         if not user.is_verified:
             raise ValueError("User account is not verified. Please verify your email first.")
+
+        self.verification_service.repo.invalidate_user_codes(
+            user_id=user.user_id,
+            code_type=VerificationCodeType.LOGIN.code
+        )
 
         verification_code, code = (
             self.verification_service.create_login_code(user)

@@ -17,5 +17,6 @@ def index():
         'version': '1.0.0'
     }), 200
 
+
 from .auth import auth_bp
 api_bp.register_blueprint(auth_bp, url_prefix='/auth')
