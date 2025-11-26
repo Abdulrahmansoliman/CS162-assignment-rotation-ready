@@ -34,3 +34,7 @@ class IUserRepository(ABC):
     @abstractmethod
     def update(self, user_id: int, **kwargs) -> User:
         pass
+    
+    @abstractmethod
+    def update_password(self, user_id: int, new_password: str) -> User:
+        pass
