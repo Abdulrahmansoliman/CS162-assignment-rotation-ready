@@ -59,3 +59,13 @@ class UserRepository(IUserRepository):
         db.session.commit()
         db.session.refresh(user)
         return user
+    
+    def update_password(self, user_id: int, new_password: str) -> User:
+        user = db.session.get(User, user_id)
+        if not user:
+            raise ValueError("User not found")
+        
+        user.set_password(new_password)
+        db.session.commit()
+        db.session.refresh(user)
+        return user
