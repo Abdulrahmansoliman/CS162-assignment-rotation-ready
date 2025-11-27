@@ -1,5 +1,6 @@
 from app.services.auth.registration_service import RegistrationService
 from app.services.auth.token_service import TokenService
+from app.services.auth.verification_code_service import RateLimitExceededError
 from app.api.v1.auth import auth_bp
 
 from flask import Blueprint, request, jsonify
@@ -32,6 +33,9 @@ def register():
             'message': 'User registered successfully. Please verify your email.',
             'user_id': new_user.user_id
         }), 201
+
+    except RateLimitExceededError as rle:
+        return jsonify({'message': str(rle)}), 429
 
     # verified user exists
     except ValueError as ve:
@@ -82,6 +86,9 @@ def resend_verification_code():
         return jsonify({
             'message': 'Verification code resent. Please check your email.'
         }), 200
+
+    except RateLimitExceededError as rle:
+        return jsonify({'message': str(rle)}), 429
 
     except ValueError as ve:
         return jsonify({'message': str(ve)}), 400

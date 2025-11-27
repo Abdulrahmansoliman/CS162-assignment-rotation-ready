@@ -3,7 +3,8 @@ from app.repositories.implementations.verification_code_repository import (
     VerificationCodeRepository
 )
 from app.services.auth.verification_code_service import (
-    VerificationCodeService
+    VerificationCodeService,
+    RateLimitExceededError
 )
 from app.services.auth.notification_service import NotificationService
 from app.models.user import User
