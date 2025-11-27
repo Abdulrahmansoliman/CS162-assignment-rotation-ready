@@ -15,7 +15,7 @@ Usage:
     python test.py list         # List all available commands
 """
 import sys
-from tests.test_suite_facade import test_suite
+from tests.test_runner import test_suite
 
 COMMANDS = {
     'all': ('Run all tests', test_suite.run_all_tests),

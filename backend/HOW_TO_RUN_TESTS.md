@@ -90,7 +90,7 @@ The test runner provides:
 **Key Files:**
 - `test.py` - Simple command interface (recommended for daily use)
 - `run_tests.py` - Full CLI with all options (advanced usage)
-- `tests/test_suite_facade.py` - Main test runner interface
+- `tests/test_runner.py` - Main test runner interface
 - `tests/test_execution_strategies.py` - Execution strategies
 - `tests/test_suite_config.py` - Configuration and test categories
 

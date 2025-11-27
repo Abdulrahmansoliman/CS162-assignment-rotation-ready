@@ -16,11 +16,6 @@ Usage:
     python run_tests.py --model            # Run model tests only
     python run_tests.py --repository       # Run repository tests only
     python run_tests.py --service          # Run service tests only
-
-Design Patterns Used:
-    - Facade Pattern: TestSuiteFacade provides simplified interface
-    - Strategy Pattern: Different execution strategies for different needs
-    - Singleton Pattern: Single TestSuiteConfig instance
 """
 import sys
 import argparse
@@ -29,7 +24,7 @@ from pathlib import Path
 # Add parent directory to path to import test modules
 sys.path.insert(0, str(Path(__file__).parent))
 
-from tests.test_suite_facade import test_suite
+from tests.test_runner import test_suite
 from tests.test_suite_config import TestLevel
 
 
