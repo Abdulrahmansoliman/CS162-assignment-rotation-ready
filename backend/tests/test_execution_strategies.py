@@ -1,8 +1,8 @@
 """
 Test Execution Strategies
 
-Implements the Strategy Pattern for different test execution approaches.
-Each strategy defines how tests should be discovered, filtered, and executed.
+Different approaches for executing tests with various configurations.
+Each strategy encapsulates specific pytest arguments and execution logic.
 """
 from abc import ABC, abstractmethod
 from typing import List, Optional

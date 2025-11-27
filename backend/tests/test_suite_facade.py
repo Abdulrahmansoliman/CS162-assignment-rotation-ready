@@ -1,11 +1,9 @@
 """
 Test Suite Facade
 
-Implements the Facade Pattern to provide a simplified interface for running tests.
-This is the main entry point for executing the complete test suite.
+Provides a unified interface for running tests with different configurations.
 """
 from typing import List, Optional
-from enum import Enum
 
 from tests.test_suite_config import TestCategory, TestLevel
 from tests.test_execution_strategies import (
