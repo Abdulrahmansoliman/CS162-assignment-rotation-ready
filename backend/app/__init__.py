@@ -1,7 +1,9 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
 
 db = SQLAlchemy()
+jwt = JWTManager()
 
 
 def create_app(config_name='development'):
@@ -21,6 +23,7 @@ def create_app(config_name='development'):
     
     # Initialize extensions
     db.init_app(app)
+    jwt.init_app(app)
     
     # Register blueprints
     from app.api.v1 import api_bp

@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify
-from app.api.v1.rotation_city import rotation_city_bp
 
 api_bp = Blueprint('api', __name__, url_prefix='/api/v1')
 
@@ -19,5 +18,8 @@ def index():
     }), 200
 
 
-# Register rotation_city blueprint
+from app.api.v1.rotation_city import rotation_city_bp
 api_bp.register_blueprint(rotation_city_bp, url_prefix='/rotation-city')
+
+from .auth import auth_bp
+api_bp.register_blueprint(auth_bp, url_prefix='/auth')
