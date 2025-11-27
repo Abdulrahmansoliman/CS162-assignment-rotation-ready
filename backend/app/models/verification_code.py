@@ -39,6 +39,7 @@ class VerificationCode(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     expires_at = db.Column(db.DateTime, nullable=False)
     used_at = db.Column(db.DateTime, nullable=True)
+    sent_at = db.Column(db.DateTime, default=db.func.current_timestamp(), nullable=False, index=True)
 
     user = db.relationship('User', back_populates='verification_codes')
 
