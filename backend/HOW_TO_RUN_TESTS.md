@@ -84,19 +84,20 @@ python test.py repository
 
 ---
 
-## Design Patterns Used
+## Test Architecture
 
-- **Facade Pattern** - Simplified test execution interface
-- **Strategy Pattern** - Multiple execution strategies
-- **Singleton Pattern** - Global test suite instance
+The test runner provides:
+- **Unified Interface** - Single entry point with simple methods
+- **Flexible Execution** - Run all tests, specific layers, or custom combinations
+- **Multiple Modes** - Fast/full, parallel, with coverage, etc.
 
-**Files:**
+**Key Files:**
 - `test.py` - Simple command interface
 - `run_tests.py` - Full CLI with all options
 - `run_all_tests.py` - One-click run everything
-- `tests/test_suite_facade.py` - Main facade
+- `tests/test_suite_facade.py` - Main test runner interface
 - `tests/test_execution_strategies.py` - Execution strategies
-- `tests/test_suite_config.py` - Configuration
+- `tests/test_suite_config.py` - Configuration and test categories
 
 ---
 
