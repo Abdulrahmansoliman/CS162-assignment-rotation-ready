@@ -22,15 +22,10 @@ from tests.test_execution_strategies import (
 
 class TestSuiteFacade:
     """
-    Facade for the test suite execution system.
+    Unified interface for running tests with different configurations.
     
-    Provides a simplified interface to run various test configurations
-    without needing to understand the underlying strategy implementations.
-    
-    Design Pattern: Facade Pattern
-    - Simplifies complex subsystem of test execution strategies
-    - Provides a unified interface for common test operations
-    - Hides complexity from client code
+    Simplifies test execution by providing convenient methods that handle
+    pytest argument construction and execution internally.
     """
     
     def __init__(self, verbose: bool = True):
@@ -41,17 +36,6 @@ class TestSuiteFacade:
             verbose: Enable verbose output during test execution
         """
         self.verbose = verbose
-        self._last_exit_code: Optional[int] = None
-    
-    @property
-    def last_exit_code(self) -> Optional[int]:
-        """Get the exit code from the last test run."""
-        return self._last_exit_code
-    
-    @property
-    def last_run_passed(self) -> bool:
-        """Check if the last test run passed."""
-        return self._last_exit_code == 0 if self._last_exit_code is not None else False
     
     def run_all_tests(self) -> int:
         """
@@ -61,8 +45,7 @@ class TestSuiteFacade:
             Exit code (0 for success, non-zero for failure)
         """
         strategy = AllTestsStrategy(verbose=self.verbose)
-        self._last_exit_code = strategy.execute()
-        return self._last_exit_code
+        return strategy.execute()
     
     def run_unit_tests(self) -> int:
         """
@@ -72,8 +55,7 @@ class TestSuiteFacade:
             Exit code (0 for success, non-zero for failure)
         """
         strategy = UnitTestsStrategy(verbose=self.verbose)
-        self._last_exit_code = strategy.execute()
-        return self._last_exit_code
+        return strategy.execute()
     
     def run_integration_tests(self) -> int:
         """
@@ -83,8 +65,7 @@ class TestSuiteFacade:
             Exit code (0 for success, non-zero for failure)
         """
         strategy = IntegrationTestsStrategy(verbose=self.verbose)
-        self._last_exit_code = strategy.execute()
-        return self._last_exit_code
+        return strategy.execute()
     
     def run_by_category(self, categories: List[TestCategory]) -> int:
         """
@@ -97,8 +78,7 @@ class TestSuiteFacade:
             Exit code (0 for success, non-zero for failure)
         """
         strategy = CategoryBasedStrategy(categories, verbose=self.verbose)
-        self._last_exit_code = strategy.execute()
-        return self._last_exit_code
+        return strategy.execute()
     
     def run_by_level(self, level: TestLevel) -> int:
         """
@@ -111,8 +91,7 @@ class TestSuiteFacade:
             Exit code (0 for success, non-zero for failure)
         """
         strategy = LevelBasedStrategy(level, verbose=self.verbose)
-        self._last_exit_code = strategy.execute()
-        return self._last_exit_code
+        return strategy.execute()
     
     def run_with_coverage(self, min_coverage: float = 80.0) -> int:
         """
@@ -125,8 +104,7 @@ class TestSuiteFacade:
             Exit code (0 for success, non-zero for failure)
         """
         strategy = CoverageStrategy(min_coverage, verbose=self.verbose)
-        self._last_exit_code = strategy.execute()
-        return self._last_exit_code
+        return strategy.execute()
     
     def run_parallel(self, num_workers: Optional[int] = None) -> int:
         """
@@ -139,8 +117,7 @@ class TestSuiteFacade:
             Exit code (0 for success, non-zero for failure)
         """
         strategy = ParallelExecutionStrategy(num_workers, verbose=self.verbose)
-        self._last_exit_code = strategy.execute()
-        return self._last_exit_code
+        return strategy.execute()
     
     def run_fast(self) -> int:
         """
@@ -219,5 +196,6 @@ class TestSuiteFacade:
         print(summary)
 
 
-# Singleton instance for convenient access
+# Global instance for convenient access
+# This is a module-level instance, not a Singleton pattern
 test_suite = TestSuiteFacade()
