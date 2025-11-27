@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app import db
-from app.models.verification import Verification
+from app.models.item_verification import ItemVerification
 from app.models.item import Item
 from app.models.user import User
 from app.models.rotation_city import RotationCity
@@ -29,7 +29,7 @@ def session(engine):
     Session = sessionmaker(bind=engine)
     session = Session()
     yield session
-    session.query(Verification).delete()
+    session.query(ItemVerification).delete()
     session.query(Item).delete()
     session.query(User).delete()
     session.query(RotationCity).delete()
@@ -70,11 +70,11 @@ def test_data(session):
 
 
 class TestVerification:
-    """Test cases for Verification model"""
+    """Test cases for ItemVerification model"""
 
     def test_create_verification(self, session, test_data):
         """Test creating a verification"""
-        verification = Verification(
+        verification = ItemVerification(
             user_id=test_data['user'].user_id,
             item_id=test_data['item'].item_id,
             note="Still there!"
@@ -90,7 +90,7 @@ class TestVerification:
 
     def test_verification_without_note(self, session, test_data):
         """Test creating verification without note"""
-        verification = Verification(
+        verification = ItemVerification(
             user_id=test_data['user'].user_id,
             item_id=test_data['item'].item_id
         )
@@ -101,7 +101,7 @@ class TestVerification:
 
     def test_relationships(self, session, test_data):
         """Test relationships to user and item"""
-        verification = Verification(
+        verification = ItemVerification(
             user_id=test_data['user'].user_id,
             item_id=test_data['item'].item_id
         )
@@ -113,11 +113,11 @@ class TestVerification:
 
     def test_verification_id_auto_increment(self, session, test_data):
         """Test that verification_id auto-increments"""
-        ver1 = Verification(
+        ver1 = ItemVerification(
             user_id=test_data['user'].user_id,
             item_id=test_data['item'].item_id
         )
-        ver2 = Verification(
+        ver2 = ItemVerification(
             user_id=test_data['user'].user_id,
             item_id=test_data['item'].item_id
         )
@@ -128,7 +128,7 @@ class TestVerification:
 
     def test_timestamp_auto_set(self, session, test_data):
         """Test that created_at is set automatically"""
-        verification = Verification(
+        verification = ItemVerification(
             user_id=test_data['user'].user_id,
             item_id=test_data['item'].item_id
         )
