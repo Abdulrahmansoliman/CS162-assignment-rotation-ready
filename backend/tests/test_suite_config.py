@@ -123,5 +123,4 @@ class TestSuiteConfig:
         return paths if paths else ["tests/"]
 
 
-# Singleton instance
 config = TestSuiteConfig()
