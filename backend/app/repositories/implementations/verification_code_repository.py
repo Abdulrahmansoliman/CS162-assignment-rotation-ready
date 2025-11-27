@@ -93,3 +93,20 @@ class VerificationCodeRepository(IVerificationCodeRepository):
             VerificationCode.used_at: db.func.current_timestamp()
         })
         db.session.commit()
+    
+    def count_recent_codes(
+        self,
+        user_id: int,
+        code_type: str,
+        since_minutes: int
+    ) -> int:
+        """Count verification codes sent within the last N minutes."""
+        time_threshold = datetime.utcnow() - timedelta(minutes=since_minutes)
+        
+        count = db.session.query(VerificationCode).filter(
+            VerificationCode.user_id == user_id,
+            VerificationCode.code_type == code_type,
+            VerificationCode.sent_at >= time_threshold
+        ).count()
+        
+        return count
