@@ -8,33 +8,32 @@ jwt = JWTManager()
 
 def create_app(config_name='development'):
     """Application factory function."""
-    flask_app = Flask(__name__)
+    from app.config.production import Production
+    from app.config.testing import Testing
+    from app.config.development import Development
+    
+    app = Flask(__name__)
     
     # Load configuration based on environment
     if config_name == 'production':
-        from app.config.production import Production
-        flask_app.config.from_object(Production)
+        app.config.from_object(Production)
     elif config_name == 'testing':
-        from app.config.testing import Testing
-        flask_app.config.from_object(Testing)
+        app.config.from_object(Testing)
     else:
-        from app.config.development import Development
-        flask_app.config.from_object(Development)
+        app.config.from_object(Development)
     
     # Initialize extensions
-    db.init_app(flask_app)
-    jwt.init_app(flask_app)
+    db.init_app(app)
+    jwt.init_app(app)
     
     # Register blueprints
     from app.api.v1 import api_bp
-    flask_app.register_blueprint(api_bp)
+    from app.api.v1.auth import jwt_handlers  # noqa: F401
     
-    # Import JWT error handlers to register them
-    # This must happen after jwt.init_app()
-    import app.api.v1.auth.jwt_handlers  # noqa: F401
+    app.register_blueprint(api_bp)
     
     # Create database tables
-    with flask_app.app_context():
+    with app.app_context():
         db.create_all()
     
-    return flask_app
+    return app
