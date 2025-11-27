@@ -26,9 +26,9 @@ def create_app(config_name='development'):
     db.init_app(app)
     jwt.init_app(app)
     
-    # Register blueprints
+    # Register blueprints and JWT handlers
     from app.api.v1 import api_bp
-    from app.api.v1.auth import jwt_handlers  # noqa: F401
+    from app.api.v1.auth import jwt_handlers
     
     app.register_blueprint(api_bp)
     
