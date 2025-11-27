@@ -71,7 +71,6 @@ class TestUser:
             rotation_city_id=rotation_city.city_id,
             first_name="John",
             last_name="Doe",
-            username="johndoe",
             email="john@example.com"
         )
         session.add(user)
@@ -80,7 +79,6 @@ class TestUser:
         assert user.user_id is not None
         assert user.first_name == "John"
         assert user.last_name == "Doe"
-        assert user.username == "johndoe"
         assert user.email == "john@example.com"
 
     def test_user_id_auto_increment(self, session, rotation_city):
@@ -89,14 +87,12 @@ class TestUser:
             rotation_city_id=rotation_city.city_id,
             first_name="Alice",
             last_name="Smith",
-            username="alice",
             email="alice@example.com"
         )
         user2 = User(
             rotation_city_id=rotation_city.city_id,
             first_name="Bob",
             last_name="Jones",
-            username="bob",
             email="bob@example.com"
         )
         session.add_all([user1, user2])
@@ -104,29 +100,7 @@ class TestUser:
 
         assert user1.user_id != user2.user_id
 
-    def test_unique_username(self, session, rotation_city):
-        """Test that usernames must be unique"""
-        user1 = User(
-            rotation_city_id=rotation_city.city_id,
-            first_name="User",
-            last_name="One",
-            username="testuser",
-            email="user1@example.com"
-        )
-        session.add(user1)
-        session.commit()
 
-        user2 = User(
-            rotation_city_id=rotation_city.city_id,
-            first_name="User",
-            last_name="Two",
-            username="testuser",
-            email="user2@example.com"
-        )
-        session.add(user2)
-
-        with pytest.raises(Exception):
-            session.commit()
 
     def test_unique_email(self, session, rotation_city):
         """Test that emails must be unique"""
@@ -134,7 +108,6 @@ class TestUser:
             rotation_city_id=rotation_city.city_id,
             first_name="User",
             last_name="One",
-            username="user1",
             email="test@example.com"
         )
         session.add(user1)
@@ -146,7 +119,6 @@ class TestUser:
             rotation_city_id=rotation_city.city_id,
             first_name="User",
             last_name="Two",
-            username="user2",
             email="test@example.com"
         )
         session.add(user2)
@@ -160,7 +132,6 @@ class TestUser:
             rotation_city_id=rotation_city.city_id,
             first_name="Jane",
             last_name="Doe",
-            username="janedoe",
             email="jane@example.com"
         )
         session.add(user)
@@ -175,7 +146,6 @@ class TestUser:
             rotation_city_id=9999,
             first_name="Test",
             last_name="User",
-            username="testfk",
             email="testfk@example.com"
         )
         session.add(user)
@@ -189,7 +159,6 @@ class TestUser:
             rotation_city_id=rotation_city.city_id,
             first_name="Test",
             last_name="User",
-            username="testrel",
             email="testrel@example.com"
         )
         session.add(user)

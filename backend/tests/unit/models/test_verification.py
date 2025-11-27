@@ -48,7 +48,6 @@ def test_data(session):
         rotation_city_id=city.city_id,
         first_name="Verify",
         last_name="User",
-        username="verifyuser",
         email="verify@example.com"
     )
     session.add(user)
@@ -108,7 +107,7 @@ class TestVerification:
         session.add(verification)
         session.commit()
 
-        assert verification.user.username == "verifyuser"
+        assert verification.user.email == "verify@example.com"
         assert verification.item.name == "Test Place"
 
     def test_verification_id_auto_increment(self, session, test_data):

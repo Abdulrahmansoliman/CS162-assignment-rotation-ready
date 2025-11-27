@@ -52,7 +52,6 @@ def user(session):
         rotation_city_id=city.city_id,
         first_name="Test",
         last_name="User",
-        username="testuser",
         email="test@example.com"
     )
     session.add(user)
@@ -103,4 +102,4 @@ class TestItem:
         session.add(item)
         session.commit()
 
-        assert item.added_by_user.username == "testuser"
+        assert item.added_by_user.email == "test@example.com"

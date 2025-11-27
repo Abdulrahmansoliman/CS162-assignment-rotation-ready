@@ -49,7 +49,6 @@ def test_data(session):
         rotation_city_id=city.city_id,
         first_name="Test",
         last_name="User",
-        username="testuser1",
         email="test1@example.com"
     )
     session.add(user)
