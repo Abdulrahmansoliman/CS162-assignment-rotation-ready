@@ -195,6 +195,7 @@ class TestLoginServiceIntegration:
         verified_user,
         db_session
     ):
+        """Test that when a new login code is created, old codes are invalidated."""
         captured_codes = []
         original_notify = service.notification_service.send_verification_code
         def capture_code(**kwargs):
@@ -203,25 +204,39 @@ class TestLoginServiceIntegration:
         
         service.notification_service.send_verification_code = capture_code
         
+        # Create first login code
         service.initiate_login(email=verified_user.email)
         code1 = captured_codes[0]
         
+        # Get codes after first creation - code1 should be active
+        codes_after_first = db_session.query(VerificationCode).filter_by(
+            user_id=verified_user.user_id,
+            code_type=VerificationCodeType.LOGIN.code
+        ).all()
+        assert len(codes_after_first) == 1
+        assert codes_after_first[0].is_used is False
+        
+        # Create second login code - this should invalidate code1
         service.initiate_login(email=verified_user.email)
         code2 = captured_codes[1]
         
-        codes = db_session.query(VerificationCode).filter_by(
-            user_id=verified_user.user_id,
-            code_type=VerificationCodeType.LOGIN.code
-        ).all()
-        assert len(codes) == 2
-        assert all(not c.is_used for c in codes)
-        
-        service.verify_login(email=verified_user.email, verification_code=code2)
-        
+        # Get codes after second creation - both should exist, code1 should be used
         db_session.expire_all()
-        codes = db_session.query(VerificationCode).filter_by(
+        codes_after_second = db_session.query(VerificationCode).filter_by(
             user_id=verified_user.user_id,
             code_type=VerificationCodeType.LOGIN.code
         ).all()
+        assert len(codes_after_second) == 2
         
-        assert all(c.is_used for c in codes)
+        # Old code should be marked as used
+        code1_obj = next(c for c in codes_after_second if c.verification_code_id == codes_after_first[0].verification_code_id)
+        assert code1_obj.is_used is True
+        
+        # New code should be unused
+        code2_obj = next(c for c in codes_after_second if c.verification_code_id != codes_after_first[0].verification_code_id)
+        assert code2_obj.is_used is False
+        
+        # Verify with new code should work
+        result = service.verify_login(email=verified_user.email, verification_code=code2)
+        assert result.user_id == verified_user.user_id
+        assert code2_obj.is_used is True
