@@ -10,6 +10,7 @@ import { useLoginVerification } from "../hooks/useLoginVerification"
 
 export default function LoginPage() {
   const [isWaitingForOtp, setIsWaitingForOtp] = useState(false)
+  const [resendCooldown, setResendCooldown] = useState(0)
   const login = useLogin()
   const verification = useLoginVerification(login.email)
 
@@ -28,7 +29,23 @@ export default function LoginPage() {
 
   const handleBackToLogin = () => {
     setIsWaitingForOtp(false)
+    setResendCooldown(0)
     verification.reset()
+  }
+
+  const handleResendWithCooldown = async () => {
+    await verification.handleResendCode()
+    setResendCooldown(60)
+    
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
   }
 
   return (
@@ -126,11 +143,11 @@ export default function LoginPage() {
                 type="button"
                 variant="ghost"
                 className="w-full bg-gray-300 dark:bg-gray-800"
-                onClick={verification.handleResendCode}
-                disabled={verification.isResending || verification.isLoading}
+                onClick={handleResendWithCooldown}
+                disabled={verification.isResending || verification.isLoading || resendCooldown > 0}
               >
                 {verification.isResending && <Spinner className="mr-2" />}
-                Resend code
+                {resendCooldown > 0 ? `Resend code in ${resendCooldown}s` : "Resend code"}
               </Button>
               <Button
                 type="button"

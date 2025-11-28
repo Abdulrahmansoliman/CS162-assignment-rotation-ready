@@ -3,6 +3,13 @@ import { authService } from "../services/authservice"
 
 const EMAIL_REGEX = /^[^\s@]+@(uni\.minerva\.edu|minerva\.edu)$/
 
+export function validateEmail(email) {
+  if (!EMAIL_REGEX.test(email)) {
+    return "Email must be from @uni.minerva.edu or @minerva.edu"
+  }
+  return null
+}
+
 export function useSignup() {
   const [formData, setFormData] = useState({
     firstName: "",
@@ -12,13 +19,6 @@ export function useSignup() {
   })
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
-
-  const validateEmail = (email) => {
-    if (!EMAIL_REGEX.test(email)) {
-      return "Email must be from @uni.minerva.edu or @minerva.edu"
-    }
-    return null
-  }
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }))

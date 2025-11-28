@@ -23,14 +23,11 @@ export function useLoginVerification(email) {
     setIsLoading(true)
 
     try {
-      const data = await authService.verifyLogin({
+      await authService.verifyLogin({
         email,
         verificationCode,
       })
 
-      localStorage.setItem("token", data.access_token)
-      localStorage.setItem("refreshToken", data.refresh_token)
-      localStorage.setItem("userId", data.user_id)
       navigate("/")
       return { success: true }
     } catch (error) {

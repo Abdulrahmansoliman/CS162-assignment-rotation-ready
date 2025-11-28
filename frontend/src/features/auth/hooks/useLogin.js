@@ -1,19 +1,11 @@
 import { useState } from "react"
 import { authService } from "../services/authservice"
-
-const EMAIL_REGEX = /^[^\s@]+@(uni\.minerva\.edu|minerva\.edu)$/
+import { validateEmail } from "./useSignup"
 
 export function useLogin() {
   const [email, setEmail] = useState("")
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
-
-  const validateEmail = (email) => {
-    if (!EMAIL_REGEX.test(email)) {
-      return "Email must be from @uni.minerva.edu or @minerva.edu"
-    }
-    return null
-  }
 
   const handleChange = (value) => {
     setEmail(value)

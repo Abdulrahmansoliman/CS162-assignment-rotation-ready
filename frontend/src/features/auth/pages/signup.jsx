@@ -20,6 +20,7 @@ const ROTATION_CITIES = [
 
 export default function SignupPage() {
   const [isWaitingForOtp, setIsWaitingForOtp] = useState(false)
+  const [resendCooldown, setResendCooldown] = useState(0)
   const signup = useSignup()
   const verification = useVerification(signup.formData.email)
 
@@ -38,7 +39,23 @@ export default function SignupPage() {
 
   const handleBackToRegistration = () => {
     setIsWaitingForOtp(false)
+    setResendCooldown(0)
     verification.reset()
+  }
+
+  const handleResendWithCooldown = async () => {
+    await verification.handleResendCode()
+    setResendCooldown(60)
+    
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
   }
 
   return (
@@ -194,11 +211,11 @@ export default function SignupPage() {
                 type="button"
                 variant="ghost"
                 className="w-full bg-slate-700/50 hover:bg-slate-700 text-white text-base sm:text-lg font-semibold h-12 sm:h-14"
-                onClick={verification.handleResendCode}
-                disabled={verification.isResending || verification.isLoading}
+                onClick={handleResendWithCooldown}
+                disabled={verification.isResending || verification.isLoading || resendCooldown > 0}
               >
                 {verification.isResending && <Spinner className="mr-2" />}
-                Resend code
+                {resendCooldown > 0 ? `Resend code in ${resendCooldown}s` : "Resend code"}
               </Button>
               <Button
                 type="button"

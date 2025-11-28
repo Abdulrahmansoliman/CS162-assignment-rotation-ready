@@ -1,0 +1,57 @@
+import { getAccessToken, clearTokens } from '../features/auth/services/authservice.js'
+
+const API_BASE_URL = "/api/v1"
+
+const commonHeaders = {
+  "Content-Type": "application/json",
+}
+
+export const checkAuth = async () => {
+  try {
+    const token = getAccessToken()
+    if (!token) return false
+    
+    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    
+    if (response.status === 401) {
+      clearTokens()
+      return false
+    }
+    
+    return response.ok 
+  } catch {
+    return false
+  }
+}
+
+export const apiFetch = async (endpoint, options = {}) => {
+  const token = getAccessToken()
+  
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      ...commonHeaders,
+      ...(token && { 'Authorization': `Bearer ${token}` }),
+      ...options.headers,
+    },
+  })
+
+  if (!response.ok) {
+    const data = await response.json()
+    
+    if (response.status === 401) {
+      clearTokens()
+      window.location.href = '/login' 
+    }
+    
+    throw new Error(data.message || "Request failed")
+  }
+
+  return response.json()
+}
+
+export { API_BASE_URL }

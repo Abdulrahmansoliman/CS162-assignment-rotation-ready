@@ -1,8 +1,24 @@
+import { apiFetch } from "../../../api/index.js"
+
+const AUTH_PREFIX = "/auth"
+
+const saveTokens = (accessToken, refreshToken) => {
+  sessionStorage.setItem('access_token', accessToken)
+  sessionStorage.setItem('refresh_token', refreshToken)
+}
+
+export const getAccessToken = () => sessionStorage.getItem('access_token')
+export const getRefreshToken = () => sessionStorage.getItem('refresh_token')
+
+export const clearTokens = () => {
+  sessionStorage.removeItem('access_token')
+  sessionStorage.removeItem('refresh_token')
+}
+
 export const authService = {
   async register({ email, cityId, firstName, lastName }) {
-    const response = await fetch("/api/v1/auth/register", {
+    return apiFetch(`${AUTH_PREFIX}/register`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email,
         city_id: parseInt(cityId),
@@ -10,78 +26,54 @@ export const authService = {
         last_name: lastName,
       }),
     })
-
-    if (!response.ok) {
-      const data = await response.json()
-      throw new Error(data.message || "Registration failed")
-    }
-
-    return response.json()
   },
 
   async verifyRegistration({ email, verificationCode }) {
-    const response = await fetch("/api/v1/auth/register/verify", {
+    const response = await apiFetch(`${AUTH_PREFIX}/register/verify`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email,
         verification_code: verificationCode,
       }),
     })
-
-    if (!response.ok) {
-      const data = await response.json()
-      throw new Error(data.message || "Invalid verification code")
-    }
-
-    return response.json()
+    
+    saveTokens(response.access_token, response.refresh_token)
+    return response
   },
 
   async resendVerificationCode({ email }) {
-    const response = await fetch("/api/v1/auth/register/resend-code", {
+    return apiFetch(`${AUTH_PREFIX}/register/resend-code`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     })
-
-    if (!response.ok) {
-      const data = await response.json()
-      throw new Error(data.message || "Failed to resend verification code")
-    }
-
-    return response.json()
   },
 
   async login({ email }) {
-    const response = await fetch("/api/v1/auth/login", {
+    return apiFetch(`${AUTH_PREFIX}/login`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     })
-
-    if (!response.ok) {
-      const data = await response.json()
-      throw new Error(data.message || "Login initiation failed")
-    }
-
-    return response.json()
   },
 
   async verifyLogin({ email, verificationCode }) {
-    const response = await fetch("/api/v1/auth/login/verify", {
+    const response = await apiFetch(`${AUTH_PREFIX}/login/verify`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email,
         verification_code: verificationCode,
       }),
     })
+    
+    saveTokens(response.access_token, response.refresh_token)
+    return response
+  },
 
-    if (!response.ok) {
-      const data = await response.json()
-      throw new Error(data.message || "Invalid verification code")
-    }
-
-    return response.json()
+  async logout() {
+    const response = await apiFetch(`${AUTH_PREFIX}/logout`, {
+      method: "POST",
+    })
+    
+    clearTokens()
+    return response
   },
 }
