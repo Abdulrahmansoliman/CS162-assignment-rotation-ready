@@ -12,6 +12,7 @@ class TestGetCurrentUserRoute:
         self,
         client,
         verified_user,
+        rotation_city,
         app_context
     ):
         """Test getting current authenticated user's information."""
@@ -31,25 +32,6 @@ class TestGetCurrentUserRoute:
         assert data['email'] == verified_user.email
         assert data['rotation_city'] is not None
         assert data['rotation_city']['city_id'] == verified_user.rotation_city_id
-
-    def test_get_current_user_includes_rotation_city(
-        self,
-        client,
-        verified_user,
-        rotation_city,
-        app_context
-    ):
-        """Test that rotation city data is included in response."""
-        tokens = TokenService.generate_tokens(verified_user)
-        access_token = tokens['access_token']
-
-        response = client.get(
-            '/api/v1/user/me',
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
-
-        assert response.status_code == 200
-        data = response.get_json()
         assert data['rotation_city']['name'] == rotation_city.name
         assert data['rotation_city']['time_zone'] == rotation_city.time_zone
 
@@ -169,6 +151,26 @@ class TestGetUserByIdRoute:
         assert data['user_id'] == other_user.user_id
         assert data['email'] == other_user.email
 
+    def test_get_user_by_id_returns_404_user_not_verified(
+        self,
+        client,
+        verified_user,
+        unverified_user,
+        db_session,
+        app_context
+    ):
+        """Test that 404 is returned when user is not verified."""
+        tokens = TokenService.generate_tokens(verified_user)
+        access_token = tokens['access_token']
+
+        response = client.get(
+            f'/api/v1/user/{unverified_user.user_id}',
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        assert response.status_code == 404
+        data = response.get_json()
+        assert data['message'] == 'User not found.'
 
 @pytest.mark.integration
 class TestUpdateCurrentUserRoute:
