@@ -5,7 +5,7 @@ from app.repositories.implementations.verification_code_repository import (
 from app.services.auth.verification_code_service import (
     VerificationCodeService
 )
-from backend.app.repositories.implementations.rotation_city_repository import (
+from app.repositories.implementations.rotation_city_repository import (
     RotationCityRepository
 )
 from app.services.auth.notification_service import NotificationService

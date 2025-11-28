@@ -26,10 +26,10 @@ class RotationCityRepository(IRotationCityRepository):
         return db.session.execute(
             db.select(RotationCity).filter_by(name=name)
         ).scalar_one_or_none()
-    
-    def check_city_exists(self, name: str) -> bool:
+
+    def check_city_exists(self, city_id: int) -> bool:
         city = db.session.execute(
-            db.select(RotationCity).filter_by(name=name)
+            db.select(RotationCity).filter_by(city_id=city_id)
         ).scalar_one_or_none()
         return city is not None
 

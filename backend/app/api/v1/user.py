@@ -30,7 +30,7 @@ def get_current_user():
 @jwt_required()
 def get_user(user_id):
     """Get user by user_id"""
-    user = _user_service.get_user_by_id(user_id)
+    user = _user_service.get_verified_user_by_id(user_id)
 
     if user is None:
         return jsonify({'message': 'User not found.'}), 404

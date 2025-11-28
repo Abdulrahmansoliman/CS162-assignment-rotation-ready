@@ -18,7 +18,7 @@ class IRotationCityRepository(ABC):
         pass
 
     @abstractmethod
-    def check_city_exists(self, name: str) -> bool:
+    def check_city_exists(self, city_id: int) -> bool:
         pass
 
     @abstractmethod

@@ -1,6 +1,6 @@
 from flask import jsonify, Blueprint
 from app.services.rotation_city_service import RotationCityService
-from backend.app.api.v1.schemas.rotation_city_schema import RotationCityResponse
+from app.api.v1.schemas.rotation_city_schema import RotationCityResponse
 
 rotation_city_bp = Blueprint('rotation_city', __name__)
 

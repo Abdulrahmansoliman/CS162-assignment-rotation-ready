@@ -33,3 +33,10 @@ class UserService:
             
         self.user_repository.update(user_id, **data)
         return user
+    
+    def get_verified_user_by_id(self, user_id: int) -> Optional[User]:
+        """Get verified user by user_id"""
+        user = self.user_repository.get_user_by_id(user_id)
+        if user and user.is_verified:
+            return user
+        return None

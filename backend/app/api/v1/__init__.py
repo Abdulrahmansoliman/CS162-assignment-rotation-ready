@@ -23,3 +23,6 @@ api_bp.register_blueprint(rotation_city_bp, url_prefix='/rotation-city')
 
 from .auth import auth_bp
 api_bp.register_blueprint(auth_bp, url_prefix='/auth')
+
+from .user import user_bp
+api_bp.register_blueprint(user_bp, url_prefix='/user')
