@@ -26,3 +26,21 @@ class RotationCityRepository(IRotationCityRepository):
         return db.session.execute(
             db.select(RotationCity).filter_by(name=name)
         ).scalar_one_or_none()
+
+    def check_city_exists(self, city_id: int) -> bool:
+        city = db.session.execute(
+            db.select(RotationCity).filter_by(city_id=city_id)
+        ).scalar_one_or_none()
+        return city is not None
+
+    def validate_city_id(self, city_id) -> int:
+        """Validate and return rotation_city_id"""
+        if city_id is None:
+            raise ValueError("rotation_city_id cannot be None")
+        try:
+            city_id = int(city_id)
+        except (TypeError, ValueError):
+            raise ValueError("rotation_city_id must be an integer")
+        if not self.check_city_exists(city_id):
+            raise ValueError(f"rotation_city_id {city_id} does not exist")
+        return city_id
