@@ -52,9 +52,12 @@ class UserRepository(IUserRepository):
         if not user:
             raise ValueError("User not found")
         
-        for key, value in kwargs.items():
-            if hasattr(user, key):
-                setattr(user, key, value)
+        allowed_fields = ['first_name', 'last_name','rotation_city_id']
+
+        for field in allowed_fields:
+            if field in kwargs:
+                setattr(user, field, kwargs[field])
+
         
         db.session.commit()
         db.session.refresh(user)
