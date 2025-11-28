@@ -23,6 +23,7 @@ class RotationCityRepository(IRotationCityRepository):
         self,
         name: str
     ) -> Optional[RotationCity]:
+        
         return db.session.execute(
             db.select(RotationCity).filter_by(name=name)
         ).scalar_one_or_none()
