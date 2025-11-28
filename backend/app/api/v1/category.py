@@ -1,6 +1,6 @@
 from flask import jsonify, Blueprint, request
 from app.services.category_service import CategoryService
-from app.api.v1.schemas.responses import CategoryResponse
+from app.api.v1.schemas.category_schema import CategoryResponse
 from flask_jwt_extended import jwt_required
 
 
@@ -33,16 +33,16 @@ def get_category_by_id(category_id):
     return jsonify(CategoryResponse.model_validate(category).model_dump()), 200
 
 
-@jwt_required()
 @category_bp.route('/', methods=['POST'])
+@jwt_required()
 def add_category():
     """Add a new category"""
 
     service = CategoryService()
     data = request.get_json()
 
-    if not data:
-        return jsonify({'error':'Category name is required'}), 400
+    if not data or 'category_name' not in data:
+        return jsonify({'error': 'Category name is required'}), 400
     
     category = service.add_category(
         category_name=data['category_name'],
@@ -50,13 +50,13 @@ def add_category():
     )
 
     if not category:
-        return jsonify({'error':'Failed to create category'}), 500
+        return jsonify({'error': 'Failed to create category'}), 500
     
     return jsonify(CategoryResponse.model_validate(category).model_dump()), 201
 
 
-@jwt_required()
 @category_bp.route("/<int:category_id>", methods=['DELETE'])
+@jwt_required()
 def delete_category(category_id):
     """Delete category"""
 
@@ -69,8 +69,8 @@ def delete_category(category_id):
     return jsonify("Category deleted successfully!"), 200
 
 
-@jwt_required()
 @category_bp.route("/<int:category_id>", methods=['PUT'])
+@jwt_required()
 def update_category(category_id):
     """Update category"""
 

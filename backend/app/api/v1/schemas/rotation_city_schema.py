@@ -9,12 +9,3 @@ class RotationCityResponse(BaseModel):
     res_hall_location: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
-
-
-class CategoryResponse(BaseModel):
-    """Response schema for category"""
-    category_id: int
-    category_name: int
-    category_pic: str | None = None
-
-    model_config = ConfigDict(from_attributes=True)

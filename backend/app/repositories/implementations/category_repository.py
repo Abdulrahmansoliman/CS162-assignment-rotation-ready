@@ -16,11 +16,11 @@ class CategoryRepository(ICategoryRepository):
             db.select(Category).filter_by(category_id=category_id)
         ).scalar_one_or_none()
     
-    def add_category(self, name: str, pic: str) -> Category | None:
+    def add_category(self, category_name: str, category_pic: Optional[str] = None) -> Category | None:
         try:
             category = Category(
-                category_name=name,
-                category_pic=pic
+                category_name=category_name,
+                category_pic=category_pic
             )
 
             db.session.add(category)
@@ -47,11 +47,23 @@ class CategoryRepository(ICategoryRepository):
             db.session.rollback()
             return False
         
-    def update_category(self, category_id: int, name: str, pic: str) -> Category | None:
-        category = db.session.get(Category, category_id=category_id)
+    def update_category(self, category_id: int, category_name: Optional[str] = None, category_pic: Optional[str] = None) -> Category | None:
+        category = db.session.get(Category, category_id)
 
         if not category:
             return None
         
         try:
-            if name is not None:
+            if category_name is not None:
+                category.category_name = category_name
+
+            if category_pic is not None:
+                category.category_pic = category_pic
+
+            db.session.commit()
+            
+            return category
+        
+        except Exception as e:
+            db.session.rollback()
+            return None

@@ -20,8 +20,8 @@ class Category(db.Model):
     category_id = Column(Integer, primary_key=True, autoincrement=True)
     
     # Category Information
-    name = Column(String(100), nullable=False, unique=True)
-    pic = Column(String(200), nullable=True)  # Category icon/image URL
+    category_name = Column(String(100), nullable=False, unique=True)
+    category_pic = Column(String(200), nullable=True)  # Category icon/image URL
     
     # Relationships
     category_items = relationship(
@@ -33,5 +33,5 @@ class Category(db.Model):
     def __repr__(self):
         return (
             f"<Category(category_id={self.category_id}, "
-            f"name='{self.name}')>"
+            f"category_name='{self.category_name}')>"
         )

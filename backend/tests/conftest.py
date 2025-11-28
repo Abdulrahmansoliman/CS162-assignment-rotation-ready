@@ -5,6 +5,9 @@ All model-specific fixtures are in tests/fixtures/ directory.
 """
 import pytest
 from app import create_app, db
+from app.models.category import Category
+from flask_jwt_extended import create_access_token
+
 
 # Import all fixtures from the fixtures package
 from tests.fixtures.user_fixtures import *  # noqa
@@ -59,3 +62,25 @@ def db_session(app):
     """
     with app.app_context():
         yield db.session
+
+
+@pytest.fixture
+def category(db_session):
+    """Create a test category"""
+    category = Category(
+        category_name="Test Category",
+        category_pic="test.jpg"
+    )
+    db_session.add(category)
+    db_session.commit()
+    return category
+
+
+@pytest.fixture
+def auth_headers(app):
+    """Create authorization headers with JWT token"""
+    with app.app_context():
+        access_token = create_access_token(identity='1')
+        return {
+            'Authorization': f'Bearer {access_token}'
+        }
