@@ -5,20 +5,28 @@ from app.repositories.implementations.verification_code_repository import (
 from app.services.auth.verification_code_service import (
     VerificationCodeService
 )
+from backend.app.repositories.implementations.rotation_city_repository import (
+    RotationCityRepository
+)
 from app.services.auth.notification_service import NotificationService
 from app.models.user import User
 from flask import current_app
+
 
 
 class RegistrationService:
     def __init__(
         self,
         user_repository: UserRepository = None,
-        verification_code_repository: VerificationCodeRepository = None
+        verification_code_repository: VerificationCodeRepository = None,
+        rotation_city_repository: RotationCityRepository = None
     ):
         self.user_repo = user_repository or UserRepository()
         verification_repo = (
             verification_code_repository or VerificationCodeRepository()
+        )
+        self.rotation_city_repo = (
+            rotation_city_repository or RotationCityRepository()
         )
         self.verification_service = VerificationCodeService(
             verification_repo
@@ -34,6 +42,10 @@ class RegistrationService:
     ) -> User:
         """Registers a new user in the system."""
         existing_user = self.user_repo.get_user_by_email(email)
+
+        # validate rotation_city_id
+        rotation_city_id = self.rotation_city_repo.validate_city_id(rotation_city_id)
+
         if existing_user:
             if existing_user.is_verified:
                 raise ValueError(

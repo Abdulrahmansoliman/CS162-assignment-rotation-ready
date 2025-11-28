@@ -16,3 +16,11 @@ class IRotationCityRepository(ABC):
     @abstractmethod
     def get_rotation_city_by_name(self, name: str) -> Optional[RotationCity]:
         pass
+
+    @abstractmethod
+    def check_city_exists(self, name: str) -> bool:
+        pass
+
+    @abstractmethod
+    def validate_city_id(self, city_id) -> int:
+        pass
