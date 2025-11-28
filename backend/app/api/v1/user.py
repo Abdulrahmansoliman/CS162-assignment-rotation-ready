@@ -9,6 +9,11 @@ user_bp = Blueprint('user', __name__)
 
 _user_service: UserService = UserService()
 
+
+def _serialize_user(user):
+    """Serialize user model to response dictionary."""
+    return UserResponse.model_validate(user).model_dump()
+
 @user_bp.route('/me', methods=['GET'])
 @jwt_required()
 def get_current_user():
@@ -21,7 +26,7 @@ def get_current_user():
         if user is None:
             return jsonify({'message': 'User not found.'}), 404
 
-        return jsonify(UserResponse.model_validate(user).model_dump()), 200
+        return jsonify(_serialize_user(user)), 200
 
     except Exception as e:
         return jsonify({'message': 'An error occurred while fetching user data.'}), 500
@@ -35,7 +40,7 @@ def get_user(user_id):
     if user is None:
         return jsonify({'message': 'User not found.'}), 404
 
-    return jsonify(UserResponse.model_validate(user).model_dump()), 200
+    return jsonify(_serialize_user(user)), 200
 
 @user_bp.route('/me', methods=['PUT'])
 @jwt_required()
@@ -50,7 +55,7 @@ def update_current_user():
         if user is None:
             return jsonify({'message': 'User not found.'}), 404
 
-        return jsonify(UserResponse.model_validate(user).model_dump()), 200
+        return jsonify(_serialize_user(user)), 200
 
     except Exception as e:
         return jsonify({'message': 'An error occurred while updating user data.'}), 500
