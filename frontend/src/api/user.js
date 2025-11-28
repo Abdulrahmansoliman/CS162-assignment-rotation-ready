@@ -1,30 +1,24 @@
-import { API_BASE_URL } from "../config/api";
+import { apiFetch } from ".";
 
-// GET CURRENT USER PROFILE
 export async function getCurrentUser() {
-  const response = await fetch(`${API_BASE_URL}/me`, {
-    method: "GET",
-    credentials: "include",  // required for JWT cookies
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const response = await apiFetch("user/me", { method: "GET" });
 
-  if (!response.ok) throw new Error("Failed to fetch user profile");
+  if (!response.ok) {
+    throw new Error("Failed to fetch user");
+  }
+
   return response.json();
 }
 
-// UPDATE CURRENT USER PROFILE
-export async function updateUserProfile(payload) {
-  const response = await fetch(`${API_BASE_URL}/me`, {
+export async function updateUserProfile(data) {
+  const response = await apiFetch("user/me", {
     method: "PUT",
-    credentials: "include", // required for JWT cookies
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(data),
   });
 
-  if (!response.ok) throw new Error("Failed to update profile");
+  if (!response.ok) {
+    throw new Error("Failed to update user profile");
+  }
+
   return response.json();
 }
