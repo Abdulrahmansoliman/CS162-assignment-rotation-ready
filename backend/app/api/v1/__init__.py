@@ -26,3 +26,6 @@ api_bp.register_blueprint(auth_bp, url_prefix='/auth')
 
 from .user import user_bp
 api_bp.register_blueprint(user_bp, url_prefix='/user')
+
+from .item import item_bp
+api_bp.register_blueprint(item_bp, url_prefix='/item')

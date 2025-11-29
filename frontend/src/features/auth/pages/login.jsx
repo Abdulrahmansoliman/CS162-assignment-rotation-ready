@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { Button } from "@/shared/components/ui/button"
 import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field"
@@ -7,10 +7,12 @@ import { Input } from "@/shared/components/ui/input"
 import { Spinner } from "@/shared/components/ui/spinner"
 import { useLogin } from "../hooks/useLogin"
 import { useLoginVerification } from "../hooks/useLoginVerification"
+import { authService } from "../services/authservice"
 
 export default function LoginPage() {
   const [isWaitingForOtp, setIsWaitingForOtp] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
+  const navigate = useNavigate()
   const login = useLogin()
   const verification = useLoginVerification(login.email)
 
@@ -18,7 +20,21 @@ export default function LoginPage() {
     e.preventDefault()
     const result = await login.handleSubmit()
     if (result.success) {
-      setIsWaitingForOtp(true)
+      // Auto-bypass verification for test user
+      if (login.email === 'haya@uni.minerva.edu') {
+        // Automatically verify without showing verification screen
+        try {
+          await authService.verifyLogin({
+            email: login.email,
+            verificationCode: 'BYPASS', // Backend will accept any code for test user
+          })
+          navigate('/')
+        } catch (error) {
+          console.error('Auto-login failed:', error)
+        }
+      } else {
+        setIsWaitingForOtp(true)
+      }
     }
   }
 
