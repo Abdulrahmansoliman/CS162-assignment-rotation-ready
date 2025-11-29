@@ -30,6 +30,11 @@ class RotationCity(db.Model):
         back_populates="rotation_city",
         cascade="all, delete-orphan"
     )
+    items = relationship(
+        "Item",
+        back_populates="rotation_city",
+        cascade="all, delete-orphan"
+    )
     
     def __repr__(self):
         return (

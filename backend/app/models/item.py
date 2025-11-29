@@ -26,6 +26,11 @@ class Item(db.Model):
         ForeignKey('user.user_id'),
         nullable=False
     )
+    rotation_city_id = Column(
+        Integer,
+        ForeignKey('rotation_city.city_id'),
+        nullable=False
+    )
     
     # Item Information
     name = Column(String(200), nullable=False)
@@ -39,6 +44,7 @@ class Item(db.Model):
     
     # Relationships
     added_by_user = relationship("User", back_populates="added_items")
+    rotation_city = relationship("RotationCity", back_populates="items")
     category_items = relationship(
         "CategoryItem",
         back_populates="item",
