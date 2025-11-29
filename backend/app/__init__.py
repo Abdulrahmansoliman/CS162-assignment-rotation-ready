@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
+import os
 
 db = SQLAlchemy()
 jwt = JWTManager()
@@ -25,6 +27,18 @@ def create_app(config_name='development'):
     # Initialize extensions
     db.init_app(app)
     jwt.init_app(app)
+    
+    # Enable CORS with configurable origins
+    cors_origins = os.getenv('CORS_ORIGINS', 'http://localhost:5173').split(',')
+    
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": cors_origins,
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True
+        }
+    })
     
     # Register blueprints and JWT handlers
     from app.api.v1 import api_bp
