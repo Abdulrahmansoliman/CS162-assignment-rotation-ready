@@ -10,6 +10,11 @@ import string
 import hashlib
 
 
+class RateLimitExceededError(Exception):
+    """Raised when verification code send rate limit is exceeded."""
+    pass
+
+
 class VerificationCodeService:
     def __init__(
         self,
@@ -20,6 +25,9 @@ class VerificationCodeService:
         )
     
     def create_registration_code(self, user: User) -> VerificationCode:
+        # Check rate limit before creating new code
+        self._check_rate_limit(user.user_id, VerificationCodeType.REGISTRATION.code)
+        
         code = self._generate_code()
         code_hash, salt = self._hash_code(code)
 
@@ -31,6 +39,9 @@ class VerificationCodeService:
         return verification_code, code
     
     def create_login_code(self, user: User) -> VerificationCode:
+        # Check rate limit before creating new code
+        self._check_rate_limit(user.user_id, VerificationCodeType.LOGIN.code)
+        
         code = self._generate_code()
         code_hash, salt = self._hash_code(code)
 
@@ -67,7 +78,7 @@ class VerificationCodeService:
             return False
         
         # check number of attempts
-        if verification_code.attempts >= current_app.config.get('VERIFICATION_CODE_MAX_ATTEMPTS', 5):
+        if verification_code.attempts >= current_app.config.get('MAX_VERIFICATION_ATTEMPTS', 5):
             return False
 
         is_valid = self._validate_code(verification_code, code)
@@ -111,3 +122,20 @@ class VerificationCodeService:
         code_length = current_app.config.get('VERIFICATION_CODE_LENGTH', 6)
         characters = string.ascii_uppercase + string.digits
         return ''.join(random.choice(characters) for _ in range(code_length))
+    
+    def _check_rate_limit(self, user_id: int, code_type: str) -> None:
+        """Check if user has exceeded rate limit for sending codes."""
+        max_codes = current_app.config.get('VERIFICATION_CODE_MAX_PER_HOUR', 3)
+        time_window = current_app.config.get('VERIFICATION_CODE_RATE_LIMIT_WINDOW_MINUTES', 60)
+        
+        recent_count = self.repo.count_recent_codes(
+            user_id=user_id,
+            code_type=code_type,
+            since_minutes=time_window
+        )
+        
+        if recent_count >= max_codes:
+            raise RateLimitExceededError(
+                f"Too many verification code requests. "
+                f"Please wait {time_window} minutes before requesting again."
+            )
