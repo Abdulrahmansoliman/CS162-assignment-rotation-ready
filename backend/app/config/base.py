@@ -16,7 +16,7 @@ class Config:
     # Verification Settings
     VERIFICATION_CODE_LENGTH = 6
     VERIFICATION_CODE_EXPIRY_MINUTES = 15
-    VERIFICATION_CODE_MAX_ATTEMPTS = 5
+    MAX_VERIFICATION_ATTEMPTS = 5
     
     # Rate Limiting for Verification Codes
     VERIFICATION_CODE_MAX_PER_HOUR = 3

@@ -78,7 +78,7 @@ class VerificationCodeService:
             return False
         
         # check number of attempts
-        if verification_code.attempts >= current_app.config.get('VERIFICATION_CODE_MAX_ATTEMPTS', 5):
+        if verification_code.attempts >= current_app.config.get('MAX_VERIFICATION_ATTEMPTS', 5):
             return False
 
         is_valid = self._validate_code(verification_code, code)
