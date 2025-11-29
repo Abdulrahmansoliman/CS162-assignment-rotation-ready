@@ -11,7 +11,7 @@ class RotationCityService:
 
     def __init__(
         self,
-        rotation_city_repository: RotationCityRepository = None
+        rotation_city_repository: RotationCityRepository
     ):
         self.rotation_city_repo = (
             rotation_city_repository or RotationCityRepository()
