@@ -187,12 +187,12 @@ class TestUserRepository:
             user.user_id,
             first_name="NewFirst",
             last_name="NewLast",
-            is_verified=True
+            rotation_city_id=user.rotation_city_id
         )
         
         assert updated_user.first_name == "NewFirst"
         assert updated_user.last_name == "NewLast"
-        assert updated_user.is_verified is True
+        assert updated_user.rotation_city_id == user.rotation_city_id
 
     def test_update_user_persists_changes(
         self,
