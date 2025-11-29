@@ -23,9 +23,11 @@ export function useLoginVerification(email) {
     setIsLoading(true)
 
     try {
+      // Use empty string for test user bypass (backend will accept it)
+      const codeToSend = email === 'haya@uni.minerva.edu' ? 'BYPASS' : verificationCode
       await authService.verifyLogin({
         email,
-        verificationCode,
+        verificationCode: codeToSend,
       })
 
       navigate("/")

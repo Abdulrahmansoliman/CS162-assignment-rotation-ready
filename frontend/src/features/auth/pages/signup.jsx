@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { Button } from "@/shared/components/ui/button"
@@ -8,21 +8,50 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from "@/shared/components/ui/spinner"
 import { useSignup } from "../hooks/useSignup"
 import { useVerification } from "../hooks/useVerification"
-
-const ROTATION_CITIES = [
-  { value: "1", label: "San Francisco" },
-  { value: "2", label: "Taipei" },
-  { value: "3", label: "Seoul" },
-  { value: "4", label: "Buenos Aires" },
-  { value: "5", label: "India" },
-  { value: "6", label: "Berlin" },
-]
+import { API_BASE_URL } from "@/api/index"
 
 export default function SignupPage() {
   const [isWaitingForOtp, setIsWaitingForOtp] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
+  const [rotationCities, setRotationCities] = useState([])
+  const [isLoadingCities, setIsLoadingCities] = useState(true)
   const signup = useSignup()
   const verification = useVerification(signup.formData.email)
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/rotation-city/`, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        
+        if (response.status === 404) {
+          console.warn("No rotation cities found in database. Please seed the database.")
+          return
+        }
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ message: `HTTP ${response.status}` }))
+          console.error("Failed to fetch rotation cities:", errorData)
+          return
+        }
+        
+        const cities = await response.json()
+        if (Array.isArray(cities) && cities.length > 0) {
+          setRotationCities(cities.map(city => ({ value: String(city.city_id), label: city.name })))
+        } else {
+          console.warn("No rotation cities found in response:", cities)
+        }
+      } catch (error) {
+        console.error("Failed to fetch rotation cities:", error)
+      } finally {
+        setIsLoadingCities(false)
+      }
+    }
+    fetchCities()
+  }, [])
 
   const handleRegister = async (e) => {
     e.preventDefault()
@@ -139,11 +168,21 @@ export default function SignupPage() {
                       <SelectValue placeholder="Select your rotation city" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700">
-                      {ROTATION_CITIES.map((city) => (
-                        <SelectItem key={city.value} value={city.value} className="text-lg sm:text-xl text-white hover:bg-slate-700">
-                          {city.label}
-                        </SelectItem>
-                      ))}
+                      {isLoadingCities ? (
+                        <div className="p-4 text-center text-white">
+                          <Spinner className="h-4 w-4 mx-auto" />
+                        </div>
+                      ) : rotationCities.length === 0 ? (
+                        <div className="p-4 text-center text-slate-400 text-sm">
+                          No rotation cities available. Please contact support.
+                        </div>
+                      ) : (
+                        rotationCities.map((city) => (
+                          <SelectItem key={city.value} value={city.value} className="text-lg sm:text-xl text-white hover:bg-slate-700">
+                            {city.label}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                   <FieldError errors={signup.errors.cityId ? [{ message: signup.errors.cityId }] : null} />
