@@ -37,6 +37,7 @@ def item(db_session, user, category):
         location='Library Floor 2',
         walking_distance=150.5,
         added_by_user_id=user.user_id,
+        rotation_city_id=user.rotation_city_id,
         number_of_verifications=0
     )
     db_session.add(item)
@@ -60,6 +61,7 @@ def book(db_session, user, category):
         location='Science Building',
         walking_distance=200.0,
         added_by_user_id=user.user_id,
+        rotation_city_id=user.rotation_city_id,
         number_of_verifications=0
     )
     db_session.add(item)

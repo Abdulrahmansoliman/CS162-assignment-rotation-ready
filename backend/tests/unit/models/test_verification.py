@@ -55,6 +55,7 @@ def test_data(session):
     
     item = Item(
         added_by_user_id=user.user_id,
+        rotation_city_id=city.city_id,
         name="Test Place",
         location="Test Loc"
     )

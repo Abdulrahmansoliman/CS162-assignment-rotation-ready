@@ -66,6 +66,7 @@ class TestItem:
         """Test creating an item"""
         item = Item(
             added_by_user_id=user.user_id,
+            rotation_city_id=user.rotation_city_id,
             name="Grocery Store",
             location="123 Main St",
             walking_distance=5.5
@@ -82,6 +83,7 @@ class TestItem:
         """Test default values for item"""
         item = Item(
             added_by_user_id=user.user_id,
+            rotation_city_id=user.rotation_city_id,
             name="Library",
             location="456 Oak Ave"
         )
@@ -96,6 +98,7 @@ class TestItem:
         """Test relationship with User"""
         item = Item(
             added_by_user_id=user.user_id,
+            rotation_city_id=user.rotation_city_id,
             name="Cafe",
             location="789 Elm St"
         )
