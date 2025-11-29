@@ -106,7 +106,7 @@ class VerificationCodeRepository(IVerificationCodeRepository):
         count = db.session.query(VerificationCode).filter(
             VerificationCode.user_id == user_id,
             VerificationCode.code_type == code_type,
-            VerificationCode.sent_at >= time_threshold
+            VerificationCode.created_at >= time_threshold
         ).count()
         
         return count

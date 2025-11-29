@@ -36,10 +36,9 @@ class VerificationCode(db.Model):
     attempts = db.Column(db.Integer, default=0, nullable=False)
     is_used = db.Column(db.Boolean, default=False, nullable=False, index=True)
 
-    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp(), nullable=False, index=True)
     expires_at = db.Column(db.DateTime, nullable=False)
     used_at = db.Column(db.DateTime, nullable=True)
-    sent_at = db.Column(db.DateTime, default=db.func.current_timestamp(), nullable=False, index=True)
 
     user = db.relationship('User', back_populates='verification_codes')
 
