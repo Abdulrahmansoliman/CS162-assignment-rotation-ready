@@ -45,7 +45,7 @@ class CreateItemRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=200, description="Item name")
     location: str = Field(..., min_length=1, max_length=500, description="Item location")
     walking_distance: Optional[float] = Field(None, ge=0, description="Walking distance in meters")
-    category_ids: List[int] = Field(..., min_items=1, description="At least one category required")
+    category_ids: List[int] = Field(..., min_length=1, description="At least one category required")
     existing_tags: List[ExistingTagRequest] = Field(default_factory=list, description="Existing tags with values")
     new_tags: List[NewTagRequest] = Field(default_factory=list, description="New tags to create")
 
