@@ -29,3 +29,6 @@ api_bp.register_blueprint(user_bp, url_prefix='/user')
 
 from .tag import tag_bp
 api_bp.register_blueprint(tag_bp, url_prefix='/tag')
+
+from .item import item_bp
+api_bp.register_blueprint(item_bp, url_prefix='/item')
