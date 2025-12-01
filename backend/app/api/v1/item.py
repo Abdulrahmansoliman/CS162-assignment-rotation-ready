@@ -65,9 +65,22 @@ def create_item():
         return jsonify(ItemResponse.model_validate(item).model_dump()), 201
     
     except ValidationError as e:
+        # Convert errors to ensure all values are JSON serializable
+        errors = []
+        for error in e.errors():
+            serializable_error = {
+                'loc': error['loc'],
+                'msg': error['msg'],
+                'type': error['type']
+            }
+            if 'ctx' in error:
+                # Convert context values to strings if they're not serializable
+                serializable_error['ctx'] = {k: str(v) for k, v in error['ctx'].items()}
+            errors.append(serializable_error)
+        
         return jsonify({
             'message': 'Validation error',
-            'errors': e.errors()
+            'errors': errors
         }), 400
     
     except ValueError as e:

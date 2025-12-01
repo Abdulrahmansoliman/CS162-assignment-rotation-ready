@@ -1,4 +1,5 @@
 """Item API schemas for requests and responses."""
+from datetime import datetime
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import List, Optional, Union
 
@@ -89,6 +90,6 @@ class ItemResponse(BaseModel):
     rotation_city_id: int
     added_by_user_id: int
     number_of_verifications: int
-    created_at: str
+    created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

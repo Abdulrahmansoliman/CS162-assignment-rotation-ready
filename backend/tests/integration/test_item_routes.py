@@ -23,15 +23,14 @@ class TestItemRoutes:
         """Test that request body is required."""
         tokens = TokenService.generate_tokens(verified_user)
         headers = {
-            'Authorization': f'Bearer {tokens["access_token"]}',
-            'Content-Type': 'application/json'
+            'Authorization': f'Bearer {tokens["access_token"]}'
         }
         
-        response = client.post('/api/v1/item/', headers=headers, data='')
+        response = client.post('/api/v1/item/', headers=headers, json={})
         
         assert response.status_code == 400
         data = json.loads(response.data)
-        assert 'message' in data or 'msg' in data
+        assert 'message' in data or 'errors' in data
 
     def test_create_item_validates_required_fields(self, client, verified_user, app_context):
         """Test that required fields are validated."""
