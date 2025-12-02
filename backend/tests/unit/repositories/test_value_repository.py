@@ -2,7 +2,7 @@
 Unit tests for ValueRepository.
 """
 import pytest
-from app.repositories.implementations.values_repository import (
+from app.repositories.implementations.value_repository import (
     ValueRepository
 )
 from app.models.value import Value

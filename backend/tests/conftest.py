@@ -10,6 +10,7 @@ from app import create_app, db
 from tests.fixtures.user_fixtures import *  # noqa
 from tests.fixtures.item_fixtures import *  # noqa
 from tests.fixtures.verification_fixtures import *  # noqa
+from tests.fixtures.value_fixtures import *  # noqa
 
 
 @pytest.fixture(scope='session')
@@ -59,3 +60,15 @@ def db_session(app):
     """
     with app.app_context():
         yield db.session
+
+
+@pytest.fixture
+def auth_headers(app):
+    """JWT authentication headers for testing protected routes."""
+    from flask_jwt_extended import create_access_token
+    
+    with app.app_context():
+        access_token = create_access_token(identity='1')
+        return {
+            'Authorization': f'Bearer {access_token}'
+        }
