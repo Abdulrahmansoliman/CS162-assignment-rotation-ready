@@ -5,16 +5,10 @@ on:
     branches:
       - main
       - develop
-    paths:
-      - 'backend/**'
-      - '.github/workflows/tests.yml'
   push:
     branches:
       - main
       - develop
-    paths:
-      - 'backend/**'
-      - '.github/workflows/tests.yml'
 
 jobs:
   test:
