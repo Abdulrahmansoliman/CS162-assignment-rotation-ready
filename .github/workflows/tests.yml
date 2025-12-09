@@ -14,6 +14,11 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.12']
+      fail-fast: true
+    
+    env:
+      FLASK_ENV: testing
+      TESTING: true
     
     steps:
     - name: Checkout code
@@ -24,6 +29,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
+        cache-dependency-path: backend/requirements.txt
     
     - name: Install dependencies
       working-directory: ./backend
@@ -31,24 +37,24 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     
+    - name: Create instance directory for test database
+      working-directory: ./backend
+      run: mkdir -p instance
+    
     - name: Run Unit Tests
       working-directory: ./backend
-      env:
-        FLASK_ENV: testing
       run: |
         python -m pytest tests/unit/ -v --tb=short --color=yes
     
     - name: Run Integration Tests
       working-directory: ./backend
-      env:
-        FLASK_ENV: testing
+      if: success()
       run: |
         python -m pytest tests/integration/ -v --tb=short --color=yes
     
     - name: Run All Tests with Coverage
       working-directory: ./backend
-      env:
-        FLASK_ENV: testing
+      if: success()
       run: |
         python -m pytest tests/ --cov=app --cov-report=term-missing --cov-report=xml --color=yes
     
