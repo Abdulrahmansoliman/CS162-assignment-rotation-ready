@@ -28,20 +28,18 @@ class TestItemService:
         service = ItemService(item_repository=item_repo)
         
         # Create necessary dependencies
+        from app.models.rotation_city import RotationCity
+        city = RotationCity(name="Test City", time_zone="UTC")
+        db_session.add(city)
+        db_session.commit()
+        db_session.refresh(city)
+        
         user_repo = UserRepository()
         user = user_repo.create_user(
             email="test@example.com",
-            hashed_password="hashedpassword123",
             first_name="Test",
             last_name="User",
-            phone_number="+1234567890",
-            rotation_city_id=1
-        )
-        
-        city_repo = RotationCityRepository()
-        city = city_repo.create_rotation_city(
-            city_name="Test City",
-            country="Test Country"
+            rotation_city_id=city.city_id
         )
         
         # Create items
@@ -73,20 +71,18 @@ class TestItemService:
         service = ItemService(item_repository=item_repo)
         
         # Create necessary dependencies
+        from app.models.rotation_city import RotationCity
+        city = RotationCity(name="Test City 2", time_zone="UTC")
+        db_session.add(city)
+        db_session.commit()
+        db_session.refresh(city)
+        
         user_repo = UserRepository()
         user = user_repo.create_user(
             email="test2@example.com",
-            hashed_password="hashedpassword123",
             first_name="Test",
             last_name="User",
-            phone_number="+1234567891",
-            rotation_city_id=1
-        )
-        
-        city_repo = RotationCityRepository()
-        city = city_repo.create_rotation_city(
-            city_name="Test City 2",
-            country="Test Country 2"
+            rotation_city_id=city.city_id
         )
         
         # Create item
