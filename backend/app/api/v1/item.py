@@ -89,3 +89,48 @@ def create_item():
     except Exception as e:
         # Log the error in production
         return jsonify({'message': 'An error occurred while creating item'}), 500
+
+
+@item_bp.route('/', methods=['GET'])
+@jwt_required()
+def get_all_items():
+    """
+    Get all items.
+    
+    Returns:
+        200: List of all items
+        500: Internal server error
+    """
+    try:
+        items = _item_service.get_all_items()
+        return jsonify([ItemResponse.model_validate(item).model_dump() for item in items]), 200
+    
+    except Exception as e:
+        # Log the error in production
+        return jsonify({'message': 'An error occurred while fetching items'}), 500
+
+
+@item_bp.route('/<int:item_id>', methods=['GET'])
+@jwt_required()
+def get_item_by_id(item_id):
+    """
+    Get item by ID.
+    
+    Args:
+        item_id: ID of the item to retrieve
+    
+    Returns:
+        200: Item details
+        404: Item not found
+        500: Internal server error
+    """
+    try:
+        item = _item_service.get_item_by_id(item_id)
+        return jsonify(ItemResponse.model_validate(item).model_dump()), 200
+    
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 404
+    
+    except Exception as e:
+        # Log the error in production
+        return jsonify({'message': 'An error occurred while fetching item'}), 500

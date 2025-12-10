@@ -23,3 +23,8 @@ class ItemRepositoryInterface(ABC):
     def get_item_by_id(self, item_id: int) -> Optional[Item]:
         """Get item by ID."""
         pass
+
+    @abstractmethod
+    def get_all_items(self) -> list[Item]:
+        """Get all items."""
+        pass

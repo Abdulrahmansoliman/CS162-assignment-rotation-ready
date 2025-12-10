@@ -166,3 +166,30 @@ class ItemService:
         elif value_type == 'numeric':
             if not isinstance(value, (int, float)):
                 raise ValueError(f"Value must be numeric for value_type 'numeric', got {type(value).__name__}")
+
+    def get_all_items(self) -> list[Item]:
+        """
+        Get all items.
+        
+        Returns:
+            List of all Item objects
+        """
+        return self.item_repo.get_all_items()
+
+    def get_item_by_id(self, item_id: int) -> Item:
+        """
+        Get item by ID.
+        
+        Args:
+            item_id: ID of the item to retrieve
+            
+        Returns:
+            Item object
+            
+        Raises:
+            ValueError: If item not found
+        """
+        item = self.item_repo.get_item_by_id(item_id)
+        if not item:
+            raise ValueError(f"Item with ID {item_id} not found")
+        return item

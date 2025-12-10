@@ -34,3 +34,9 @@ class ItemRepository(ItemRepositoryInterface):
         return db.session.execute(
             db.select(Item).filter_by(item_id=item_id)
         ).scalar_one_or_none()
+
+    def get_all_items(self) -> list[Item]:
+        """Get all items."""
+        return db.session.execute(
+            db.select(Item)
+        ).scalars().all()
