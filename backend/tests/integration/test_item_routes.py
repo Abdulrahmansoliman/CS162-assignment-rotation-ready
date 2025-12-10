@@ -70,7 +70,7 @@ class TestItemRoutes:
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
         # Create category
-        category = Category(name="Furniture")
+        category = Category(category_name="Furniture")
         db.session.add(category)
         db.session.commit()
         
@@ -109,7 +109,7 @@ class TestItemRoutes:
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
         # Create category
-        category = Category(name="Equipment")
+        category = Category(category_name="Equipment")
         db.session.add(category)
         db.session.commit()
         
@@ -148,7 +148,7 @@ class TestItemRoutes:
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
         # Create category
-        category = Category(name="Tools")
+        category = Category(category_name="Tools")
         db.session.add(category)
         db.session.commit()
         
@@ -202,7 +202,7 @@ class TestItemRoutes:
         tokens = TokenService.generate_tokens(verified_user)
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
-        category = Category(name="Test")
+        category = Category(category_name="Test")
         db.session.add(category)
         db.session.commit()
         
@@ -225,7 +225,7 @@ class TestItemRoutes:
         tokens = TokenService.generate_tokens(verified_user)
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
-        category = Category(name="Test")
+        category = Category(category_name="Test")
         db.session.add(category)
         db.session.commit()
         
@@ -254,7 +254,7 @@ class TestItemRoutes:
         tokens = TokenService.generate_tokens(verified_user)
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
-        category = Category(name="Test")
+        category = Category(category_name="Test")
         db.session.add(category)
         db.session.commit()
         
@@ -279,7 +279,7 @@ class TestItemRoutes:
         tokens = TokenService.generate_tokens(verified_user)
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
-        category = Category(name="Test")
+        category = Category(category_name="Test")
         db.session.add(category)
         db.session.commit()
         
@@ -302,7 +302,7 @@ class TestItemRoutes:
         tokens = TokenService.generate_tokens(verified_user)
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
-        category = Category(name="Test")
+        category = Category(category_name="Test")
         db.session.add(category)
         db.session.commit()
         

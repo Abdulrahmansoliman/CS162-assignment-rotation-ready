@@ -63,7 +63,7 @@ def test_data(session):
     session.add(item)
     session.commit()
     
-    category = Category(name="TestCategory1")
+    category = Category(category_name="TestCategory1")
     session.add(category)
     session.commit()
     
@@ -101,11 +101,11 @@ class TestCategoryItem:
         session.commit()
 
         assert cat_item.item.name == "Test Item"
-        assert cat_item.category.name == "TestCategory1"
+        assert cat_item.category.category_name == "TestCategory1"
 
     def test_multiple_categories_per_item(self, session, test_data):
         """Test that an item can belong to multiple categories"""
-        cat2 = Category(name="TestCategory2")
+        cat2 = Category(category_name="TestCategory2")
         session.add(cat2)
         session.commit()
 
