@@ -4,11 +4,13 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from pydantic import ValidationError
 
 from app.services.item_service import ItemService
+from app.services.user_service import UserService
 from app.api.v1.schemas.item_schema import CreateItemRequest, ItemResponse
 
 item_bp = Blueprint('item', __name__)
 
 _item_service = ItemService()
+_user_service = UserService()
 
 
 @item_bp.route('/', methods=['POST'])
@@ -40,12 +42,8 @@ def create_item():
         # Validate input with Pydantic
         validated_data = CreateItemRequest(**request.json)
         
-        # Get user's rotation_city_id (assuming it's stored in user profile)
-        # For now, we'll need to pass it or get it from the user service
-        # TODO: Get rotation_city_id from authenticated user
-        from app.services.user_service import UserService
-        user_service = UserService()
-        user = user_service.get_user_by_id(user_id)
+        # Get user's rotation_city_id
+        user = _user_service.get_user_by_id(user_id)
         
         if not user or not user.rotation_city_id:
             return jsonify({'message': 'User rotation city not found'}), 400
@@ -95,14 +93,23 @@ def create_item():
 @jwt_required()
 def get_all_items():
     """
-    Get all items.
+    Get all items for the current user's rotation city.
     
     Returns:
-        200: List of all items
+        200: List of items in user's rotation city
+        400: User has no rotation city assigned
         500: Internal server error
     """
     try:
-        items = _item_service.get_all_items()
+        # Get user's rotation_city_id
+        user_id = get_jwt_identity()
+        user = _user_service.get_user_by_id(user_id)
+        
+        if not user or not user.rotation_city_id:
+            return jsonify({'message': 'User has no rotation city assigned'}), 400
+        
+        # Get items filtered by rotation city with full details
+        items = _item_service.get_all_items_with_details(user.rotation_city_id)
         return jsonify([ItemResponse.model_validate(item).model_dump() for item in items]), 200
     
     except Exception as e:
@@ -114,18 +121,27 @@ def get_all_items():
 @jwt_required()
 def get_item_by_id(item_id):
     """
-    Get item by ID.
+    Get item by ID (must belong to user's rotation city).
     
     Args:
         item_id: ID of the item to retrieve
     
     Returns:
         200: Item details
-        404: Item not found
+        400: User has no rotation city assigned
+        404: Item not found or doesn't belong to user's rotation city
         500: Internal server error
     """
     try:
-        item = _item_service.get_item_by_id(item_id)
+        # Get user's rotation_city_id
+        user_id = get_jwt_identity()
+        user = _user_service.get_user_by_id(user_id)
+        
+        if not user or not user.rotation_city_id:
+            return jsonify({'message': 'User has no rotation city assigned'}), 400
+        
+        # Get item filtered by rotation city with full details
+        item = _item_service.get_item_by_id_with_details(item_id, user.rotation_city_id)
         return jsonify(ItemResponse.model_validate(item).model_dump()), 200
     
     except ValueError as e:

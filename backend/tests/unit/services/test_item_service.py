@@ -15,10 +15,10 @@ from app.models.user import User
 class TestItemService:
     """Test ItemService methods."""
 
-    def test_get_all_items_empty(self, db_session):
+    def test_get_all_items_empty(self, db_session, rotation_city):
         """Test getting all items when none exist."""
         service = ItemService()
-        items = service.get_all_items()
+        items = service.get_all_items(rotation_city.city_id)
         assert items == []
 
     def test_get_all_items_returns_list(self, db_session):
@@ -57,7 +57,7 @@ class TestItemService:
             walking_distance=100.0
         )
         
-        items = service.get_all_items()
+        items = service.get_all_items(city.city_id)
         
         assert len(items) == 2
         assert all(hasattr(item, 'item_id') for item in items)
@@ -95,7 +95,7 @@ class TestItemService:
         )
         
         # Test
-        retrieved_item = service.get_item_by_id(item.item_id)
+        retrieved_item = service.get_item_by_id_with_details(item.item_id, city.city_id)
         
         assert retrieved_item is not None
         assert retrieved_item.item_id == item.item_id
@@ -103,21 +103,21 @@ class TestItemService:
         assert retrieved_item.location == "Test Location"
         assert retrieved_item.walking_distance == 50.0
 
-    def test_get_item_by_id_not_found(self, db_session):
+    def test_get_item_by_id_not_found(self, db_session, rotation_city):
         """Test getting item by ID when it doesn't exist."""
         service = ItemService()
         
         with pytest.raises(ValueError) as exc_info:
-            service.get_item_by_id(99999)
+            service.get_item_by_id_with_details(99999, rotation_city.city_id)
         
         assert "Item with ID 99999 not found" in str(exc_info.value)
 
-    def test_get_item_by_id_validates_item_exists(self, db_session):
+    def test_get_item_by_id_validates_item_exists(self, db_session, rotation_city):
         """Test that get_item_by_id raises error for non-existent items."""
         item_repo = ItemRepository()
         service = ItemService(item_repository=item_repo)
         
         with pytest.raises(ValueError) as exc_info:
-            service.get_item_by_id(12345)
+            service.get_item_by_id_with_details(12345, rotation_city.city_id)
         
         assert "not found" in str(exc_info.value).lower()

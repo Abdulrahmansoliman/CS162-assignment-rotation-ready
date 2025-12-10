@@ -127,7 +127,8 @@ class ItemService:
         if value_ids:
             self.item_tag_value_repo.add_tag_values_to_item(item.item_id, value_ids)
         
-        return item
+        # Reload item with all relationships for response
+        return self.get_item_by_id_with_details(item.item_id, rotation_city_id)
 
     def _validate_categories(self, category_ids: list[int]) -> None:
         """Validate all category IDs exist."""
@@ -167,7 +168,104 @@ class ItemService:
             if not isinstance(value, (int, float)):
                 raise ValueError(f"Value must be numeric for value_type 'numeric', got {type(value).__name__}")
 
-    def get_all_items(self) -> list[Item]:
+    def get_all_items(self, rotation_city_id: int) -> list[Item]:
+        """
+        Get all items from specific rotation city.
+        
+        Args:
+            rotation_city_id: ID of the rotation city to filter by
+            
+        Returns:
+            List of all Item objects from the rotation city
+        """
+        return self.item_repo.get_all_items(rotation_city_id)
+
+    def get_item_by_id(self, item_id: int, rotation_city_id: int) -> Item:
+        """
+        Get item by ID (must belong to the specified rotation city).
+        
+        Args:
+            item_id: ID of the item to retrieve
+            rotation_city_id: ID of the rotation city to filter by
+            
+        Returns:
+            Item object
+            
+        Raises:
+            ValueError: If item not found or doesn't belong to the rotation city
+        """
+        item = self.item_repo.get_item_by_id(item_id, rotation_city_id)
+        if not item:
+            raise ValueError(f"Item with ID {item_id} not found in your rotation city")
+        return item
+
+    def _transform_item_for_response(self, item: Item) -> Item:
+        """
+        Transform item by adding computed properties for API response.
+        
+        Args:
+            item: Item object with relationships loaded
+            
+        Returns:
+            Same item object with categories and tags properties added
+        """
+        # Transform category_items to categories list
+        item.categories = [ci.category for ci in item.category_items]
+        
+        # Transform item_tag_values to tags list with tag info + values
+        tags = []
+        for itv in item.item_tag_values:
+            if itv.value and itv.value.tag:
+                tag_dict = {
+                    'tag_id': itv.value.tag.tag_id,
+                    'name': itv.value.tag.name,
+                    'value_type': itv.value.tag.value_type,
+                }
+                
+                # Get the actual value based on value_type (using correct field names)
+                if itv.value.tag.value_type == 'boolean':
+                    tag_dict['value'] = itv.value.boolean_val
+                elif itv.value.tag.value_type == 'text':
+                    tag_dict['value'] = itv.value.name_val
+                elif itv.value.tag.value_type == 'numeric':
+                    tag_dict['value'] = itv.value.numerical_value
+                
+                tags.append(tag_dict)
+        
+        item.tags = tags
+        return item
+
+    def get_all_items_with_details(self, rotation_city_id: int) -> list[Item]:
+        """
+        Get all items from rotation city with full relationship data.
+        
+        Args:
+            rotation_city_id: ID of the rotation city to filter by
+        
+        Returns:
+            List of Item objects with relationships loaded and transformed
+        """
+        items = self.item_repo.get_all_items_with_details(rotation_city_id)
+        return [self._transform_item_for_response(item) for item in items]
+
+    def get_item_by_id_with_details(self, item_id: int, rotation_city_id: int) -> Item:
+        """
+        Get item by ID with full relationship data (must belong to rotation city).
+        
+        Args:
+            item_id: ID of the item to retrieve
+            rotation_city_id: ID of the rotation city to filter by
+            
+        Returns:
+            Item object with relationships loaded and transformed
+            
+        Raises:
+            ValueError: If item not found or doesn't belong to the rotation city
+        """
+        item = self.item_repo.get_item_by_id_with_details(item_id, rotation_city_id)
+        if not item:
+            raise ValueError(f"Item with ID {item_id} not found in your rotation city")
+        return self._transform_item_for_response(item)
         """
         Get all items.
         

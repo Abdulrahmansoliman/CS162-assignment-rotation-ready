@@ -4,6 +4,45 @@ from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import List, Optional, Union
 
 
+# Nested response schemas for related objects
+class RotationCityNested(BaseModel):
+    """Nested rotation city in item response."""
+    city_id: int
+    name: str
+    time_zone: str
+    res_hall_location: Optional[str] = None
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UserNested(BaseModel):
+    """Nested user in item response."""
+    user_id: int
+    first_name: str
+    last_name: str
+    email: str
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CategoryNested(BaseModel):
+    """Nested category in item response."""
+    category_id: int
+    name: str
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TagWithValue(BaseModel):
+    """Tag with its value in item response."""
+    tag_id: int
+    name: str
+    value_type: str
+    value: Union[bool, str, float]
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ExistingTagRequest(BaseModel):
     """Schema for existing tag with value."""
     tag_id: int = Field(..., gt=0, description="ID of existing tag")
@@ -82,13 +121,15 @@ class CreateItemRequest(BaseModel):
 
 
 class ItemResponse(BaseModel):
-    """Response schema for item."""
+    """Response schema for item with full nested objects."""
     item_id: int
     name: str
     location: str
     walking_distance: Optional[float]
-    rotation_city_id: int
-    added_by_user_id: int
+    rotation_city: RotationCityNested
+    added_by_user: UserNested
+    categories: List[CategoryNested]
+    tags: List[TagWithValue]
     number_of_verifications: int
     created_at: datetime
 
