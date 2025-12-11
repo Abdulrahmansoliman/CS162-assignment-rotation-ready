@@ -326,11 +326,11 @@ export default function SignupPage() {
               </div>
 
               <div className="mt-8 w-full max-w-2xl flex items-center justify-between">
-                <div className="text-sm text-white/90">
-                  Already have an account? <Link to="/login" className="underline font-medium" style={{color: 'white'}}>Sign in</Link>
-                </div>
+                <Button type="button" className="rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} onClick={() => window.location.href = '/login'}>
+                  Sign in
+                </Button>
                 <Button type="submit" className="ml-4 rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} disabled={signup.isLoading}>
-                  {signup.isLoading ? <Spinner className="mr-2" /> : 'Create account'}
+                  {signup.isLoading ? <Spinner className="mr-2" /> : 'Sign up'}
                 </Button>
               </div>
             </form>
