@@ -28,9 +28,9 @@ class UserNested(BaseModel):
 class CategoryNested(BaseModel):
     """Nested category in item response."""
     category_id: int
-    name: str
+    name: str = Field(alias='category_name')
     
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 class TagWithValue(BaseModel):

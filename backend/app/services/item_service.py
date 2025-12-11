@@ -231,15 +231,16 @@ class ItemService:
                 tag_dict = {
                     'tag_id': itv.value.tag.tag_id,
                     'name': itv.value.tag.name,
-                    'value_type': itv.value.tag.value_type,
+                    'value_type': itv.value.tag.value_type_label,
                 }
                 
                 # Get the actual value based on value_type (using correct field names)
-                if itv.value.tag.value_type == 'boolean':
+                value_type_label = itv.value.tag.value_type_label
+                if value_type_label == 'boolean':
                     tag_dict['value'] = itv.value.boolean_val
-                elif itv.value.tag.value_type == 'text':
+                elif value_type_label == 'text':
                     tag_dict['value'] = itv.value.name_val
-                elif itv.value.tag.value_type == 'numeric':
+                elif value_type_label == 'numeric':
                     tag_dict['value'] = itv.value.numerical_value
                 
                 tags.append(tag_dict)
