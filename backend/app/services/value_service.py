@@ -1,43 +1,66 @@
 """Value service for business logic."""
 from typing import List, Optional
 from app.models.value import Value
-from app.models.tag import Tag
+from app.models.tag import TagValueType
 from app.repositories.implementations.value_repository import ValueRepository
-from app import db
+from app.repositories.implementations.tag_repository import TagRepository
 
 
 class ValueService:
-    """Service for value-related operations."""
+    """Service for value-related operations.
+    
+    Handles business logic for value management, delegating
+    all data access to ValueRepository following the repository pattern.
+    This service layer contains NO database interactions.
+    """
 
-    def __init__(self, value_repository: ValueRepository = None):
+    def __init__(
+            self,
+            value_repository: ValueRepository = None,
+            tag_repository: TagRepository = None
+    )   -> None:
+        """Initialize service with optional dependency injection.
+        
+        Args:
+            value_repository: Optional ValueRepository instance for testing/DI
+        """
         self.value_repository = value_repository or ValueRepository()
-
-    def get_all_values(self) -> List[Value]:
-        """Get all values."""
-        return db.session.execute(db.select(Value)).scalars().all()
+        self.tag_repository = tag_repository or TagRepository()
 
     def get_value_by_id(self, value_id: int) -> Optional[Value]:
-        """Get value by ID."""
+        """Get value by ID.
+        
+        Args:
+            value_id: ID of the value to retrieve
+            
+        Returns:
+            Value object or None if not found
+        """
         return self.value_repository.get_value_by_id(value_id)
+
+    def get_all_values(self) -> List[Value]:
+        """Get all values in the system.
+        
+        Returns:
+            List of all Value objects
+        """
+        return self.value_repository.get_all_values()
 
     def get_text_values_by_tag(self, tag_id: int) -> List[Value]:
         """Get all text values for a specific tag.
         
         Only returns values where:
         - tag_id matches
-        - The tag's value_type is 'text'
+        - The tag's value_type is TEXT
         - name_val is not None
-        """
-        # Query values with their associated tag
-        query = (
-            db.select(Value)
-            .join(Tag, Value.tag_id == Tag.tag_id)
-            .filter(Value.tag_id == tag_id)
-            .filter(Tag.value_type == 'text')
-            .filter(Value.name_val.isnot(None))
-        )
         
-        return db.session.execute(query).scalars().all()
+        Args:
+            tag_id: ID of the tag to filter by
+            
+        Returns:
+            List of text values for the tag
+        """
+        return self.value_repository.get_text_values_by_tag(tag_id)
 
     def add_value(
         self,
@@ -46,17 +69,33 @@ class ValueService:
         name_val: Optional[str] = None,
         numerical_value: Optional[float] = None
     ) -> Optional[Value]:
-        """Create new value."""
-        value = Value(
-            tag_id=tag_id,
-            boolean_val=boolean_val,
-            name_val=name_val,
-            numerical_value=numerical_value
-        )
-        db.session.add(value)
-        db.session.commit()
-        db.session.refresh(value)
-        return value
+        """Create new value.
+        
+        Note: This method is kept for backward compatibility.
+        Internally delegates to repository for data access.
+        
+        Args:
+            tag_id: ID of the tag this value belongs to
+            boolean_val: Boolean value (optional)
+            name_val: Text value (optional)
+            numerical_value: Numeric value (optional)
+            
+        Returns:
+            Created Value object
+        """
+        # Determine value_type based on tag_id
+        tag = self.tag_repository.get_tag_by_id(tag_id)
+        if not tag:
+            return None
+
+        if tag.value_type == TagValueType.BOOLEAN and boolean_val is not None:
+            return self.value_repository.create_value(tag_id, boolean_val, TagValueType.BOOLEAN.value)
+        elif tag.value_type == TagValueType.TEXT and name_val is not None:
+            return self.value_repository.create_value(tag_id, name_val, TagValueType.TEXT.value)
+        elif tag.value_type == TagValueType.NUMERIC and numerical_value is not None:
+            return self.value_repository.create_value(tag_id, numerical_value, TagValueType.NUMERIC.value)
+
+        return None
 
     def update_value(
         self,
@@ -66,30 +105,53 @@ class ValueService:
         name_val: Optional[str] = None,
         numerical_value: Optional[float] = None
     ) -> Optional[Value]:
-        """Update value."""
-        value = self.get_value_by_id(value_id)
-        if not value:
-            return None
-
-        if tag_id is not None:
-            value.tag_id = tag_id
-        if boolean_val is not None:
-            value.boolean_val = boolean_val
-        if name_val is not None:
-            value.name_val = name_val
-        if numerical_value is not None:
-            value.numerical_value = numerical_value
-
-        db.session.commit()
-        db.session.refresh(value)
-        return value
+        """Update an existing value.
+        
+        Args:
+            value_id: ID of the value to update
+            tag_id: New tag ID (optional)
+            boolean_val: New boolean value (optional)
+            name_val: New text value (optional)
+            numerical_value: New numeric value (optional)
+            
+        Returns:
+            Updated Value object or None if not found
+        """
+        return self.value_repository.update_value(
+            value_id=value_id,
+            tag_id=tag_id,
+            boolean_val=boolean_val,
+            name_val=name_val,
+            numerical_value=numerical_value
+        )
 
     def delete_value(self, value_id: int) -> bool:
-        """Delete value."""
-        value = self.get_value_by_id(value_id)
-        if not value:
-            return False
+        """Delete a value by ID.
+        
+        Args:
+            value_id: ID of the value to delete
+            
+        Returns:
+            True if deleted successfully, False if not found
+        """
+        return self.value_repository.delete_value(value_id)
 
-        db.session.delete(value)
-        db.session.commit()
-        return True
+    
+    def find_similar_text_values(
+        self,
+        tag_id: int,
+        value: str
+    ) -> List[Value]:
+        """Find similar text values for a tag.
+
+        Args:
+            tag_id: ID of the tag to search within
+            value: Text value to find similar for
+
+        Returns:
+            List of similar Value objects or an empty list if none found
+        """
+        tag = self.tag_repository.get_tag_by_id(tag_id)
+        if not tag or tag.value_type != TagValueType.TEXT:
+            return []
+        return self.value_repository.find_similar_text_values(tag_id, value)

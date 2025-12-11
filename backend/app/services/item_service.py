@@ -1,6 +1,7 @@
 """Item service for business logic."""
 from typing import Union
 from app.models.item import Item
+from app.models.tag import TagValueType
 from app.repositories.implementations.item_repository import ItemRepository
 from app.repositories.implementations.category_repository import CategoryRepository
 from app.repositories.implementations.category_item_repository import CategoryItemRepository
@@ -92,10 +93,9 @@ class ItemService:
             # Validate value matches tag's value_type
             self._validate_value_type(value, tag.value_type)
             
-            # Find or create value
-            value_obj = self.value_repo.find_existing_value(tag_id, value, tag.value_type)
-            if not value_obj:
-                value_obj = self.value_repo.create_value(tag_id, value, tag.value_type)
+            # Get the value_type label for repository methods (they expect strings)
+            value_type_label = tag.value_type_label
+            value_obj = self.value_repo.create_value(tag_id, value, value_type_label)
             
             value_ids.append(value_obj.value_id)
         
@@ -155,8 +155,20 @@ class ItemService:
         if len(new_tag_names) != len(set(new_tag_names)):
             raise ValueError("Duplicate tag names in new_tags are not allowed")
 
-    def _validate_value_type(self, value: Union[bool, str, float], value_type: str) -> None:
-        """Validate that value matches the expected value_type."""
+    def _validate_value_type(self, value: Union[bool, str, float], value_type: Union[int, str]) -> None:
+        """Validate that value matches the expected value_type.
+        
+        Args:
+            value: The value to validate
+            value_type: Either integer code (0, 1, 2) or string label ('boolean', 'text', 'numeric')
+        """
+        # Convert integer code to string label if needed
+        if isinstance(value_type, int):
+            try:
+                value_type = TagValueType.from_code(value_type).label
+            except ValueError:
+                raise ValueError(f"Invalid value_type code: {value_type}")
+        
         if value_type == 'boolean':
             if not isinstance(value, bool):
                 raise ValueError(f"Value must be boolean for value_type 'boolean', got {type(value).__name__}")
