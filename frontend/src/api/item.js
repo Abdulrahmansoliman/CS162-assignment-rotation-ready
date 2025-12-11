@@ -1,10 +1,8 @@
-import apiFetch from "./apiFetch";
+import { apiFetch } from ".";
 
 export async function createItem(body) {
-  return apiFetch("/api/v1/item", {
+  return await apiFetch("/item/", {
     method: "POST",
     body: JSON.stringify(body),
   });
 }
-
-

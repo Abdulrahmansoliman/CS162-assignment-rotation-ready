@@ -1,7 +1,9 @@
-import apiFetch from "./apiFetch";
+import { apiFetch } from ".";
 
 export async function getTags() {
-  return apiFetch("/api/v1/tag/");
+  return await apiFetch("/tag/", {
+    method: "GET",
+  });
 }
 
 
