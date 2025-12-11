@@ -126,18 +126,20 @@ const animationStyles = `
 `
 
 const ROTATION_CITIES = [
-  { value: "1", label: "San Francisco" },
-  { value: "2", label: "Taipei" },
-  { value: "3", label: "Seoul" },
-  { value: "4", label: "Buenos Aires" },
-  { value: "5", label: "India" },
-  { value: "6", label: "Berlin" },
+  { value: "1", label: "San Francisco", icon: "/sf.png" },
+  { value: "2", label: "Taipei", icon: "/tp.png" },
+  { value: "3", label: "Seoul", icon: "/sl.png" },
+  { value: "4", label: "Buenos Aires", icon: "/ba.png" },
+  { value: "5", label: "India", icon: "/hy.png" },
+  { value: "6", label: "Berlin", icon: "/br.png" },
 ]
 
 export default function SignupPage() {
   const [isWaitingForOtp, setIsWaitingForOtp] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
   const [currentLocale, setCurrentLocale] = useState('usa')
+  const [hoveredCity, setHoveredCity] = useState(null)
+  const [selectedCity, setSelectedCity] = useState(null)
   const signup = useSignup()
   const verification = useVerification(signup.formData.email)
 
@@ -190,6 +192,7 @@ export default function SignupPage() {
   }
 
   const getLocaleClass = () => {
+    const displayLocale = getDisplayLocale()
     const classMap = {
       usa: 'show-photo',
       china: 'transition-green',
@@ -198,10 +201,11 @@ export default function SignupPage() {
       india: 'transition-india',
       germany: 'transition-germany'
     }
-    return classMap[currentLocale] || 'show-photo'
+    return classMap[displayLocale] || 'show-photo'
   }
 
   const getLocaleColor = () => {
+    const displayLocale = getDisplayLocale()
     const colorMap = {
       usa: '#cc0000',
       china: '#2fb872',
@@ -210,10 +214,58 @@ export default function SignupPage() {
       india: '#ffcc33',
       germany: '#7bb3e8'
     }
-    return colorMap[currentLocale] || '#cc0000'
+    return colorMap[displayLocale] || '#cc0000'
+  }
+
+  const getCityLocale = (cityKey) => {
+    const map = { '1': 'usa', '2': 'china', '3': 'korea', '4': 'argentina', '5': 'india', '6': 'germany' }
+    return map[cityKey] || 'usa'
+  }
+
+  const getLandmarkSvg = (cityKey) => {
+    const svgs = {
+      '1': (
+        <svg viewBox="0 0 100 100" className="w-16 h-16">
+          <text x="50" y="50" textAnchor="middle" dy=".3em" className="text-2xl" fill="currentColor">🌉</text>
+        </svg>
+      ),
+      '2': (
+        <svg viewBox="0 0 100 100" className="w-16 h-16">
+          <text x="50" y="50" textAnchor="middle" dy=".3em" className="text-2xl" fill="currentColor">🏯</text>
+        </svg>
+      ),
+      '3': (
+        <svg viewBox="0 0 100 100" className="w-16 h-16">
+          <text x="50" y="50" textAnchor="middle" dy=".3em" className="text-2xl" fill="currentColor">🗼</text>
+        </svg>
+      ),
+      '4': (
+        <svg viewBox="0 0 100 100" className="w-16 h-16">
+          <text x="50" y="50" textAnchor="middle" dy=".3em" className="text-2xl" fill="currentColor">🗽</text>
+        </svg>
+      ),
+      '5': (
+        <svg viewBox="0 0 100 100" className="w-16 h-16">
+          <text x="50" y="50" textAnchor="middle" dy=".3em" className="text-2xl" fill="currentColor">🕌</text>
+        </svg>
+      ),
+      '6': (
+        <svg viewBox="0 0 100 100" className="w-16 h-16">
+          <text x="50" y="50" textAnchor="middle" dy=".3em" className="text-2xl" fill="currentColor">🗿</text>
+        </svg>
+      ),
+    }
+    return svgs[cityKey]
+  }
+
+  const getDisplayLocale = () => {
+    if (selectedCity) return getCityLocale(selectedCity)
+    if (hoveredCity) return getCityLocale(hoveredCity)
+    return currentLocale
   }
 
   const getLocaleText = () => {
+    const displayLocale = getDisplayLocale()
     const textMap = {
       usa: 'Welcome',
       china: '欢迎',
@@ -222,11 +274,11 @@ export default function SignupPage() {
       india: 'స్వాగతం',
       germany: 'Willkommen'
     }
-    return textMap[currentLocale] || 'Welcome'
+    return textMap[displayLocale] || 'Welcome'
   }
 
   const shouldSplitLetters = () => {
-    return currentLocale !== 'india'
+    return getDisplayLocale() !== 'india'
   }
 
   return (
@@ -236,7 +288,7 @@ export default function SignupPage() {
         <div className={`overlay absolute inset-0 ${getLocaleClass()}`}></div>
 
         <div className="relative z-10 flex flex-col items-center justify-center w-full px-6 sm:px-12 max-w-3xl">
-          <h1 className="text-white text-5xl sm:text-7xl font-extrabold leading-tight drop-shadow-md text-center mb-8" style={{fontFamily: 'Georgia, serif'}}>
+          <h1 className="text-white text-5xl sm:text-7xl font-extrabold leading-tight drop-shadow-md text-center mb-8" style={{fontFamily: 'Playfair Display, serif', letterSpacing: '0.02em'}}>
             {shouldSplitLetters() ? (
               getLocaleText().split('').map((letter, index) => (
                 <span key={index} className={`letter letter-${index}`}>
@@ -244,7 +296,7 @@ export default function SignupPage() {
                 </span>
               ))
             ) : (
-              <span className="letter letter-0">{getLocaleText()}</span>
+              <span className="letter letter-0" style={{fontFeatureSettings: '"liga" on, "kern" on'}}>{getLocaleText()}</span>
             )}
           </h1>
 
@@ -308,19 +360,32 @@ export default function SignupPage() {
                 <Field>
                   <FieldContent>
                     <FieldLabel htmlFor="city" className="text-lg font-semibold text-white">Rotation City</FieldLabel>
-                    <Select value={signup.formData.city} onValueChange={(value) => signup.handleChange("city", value)}>
-                      <SelectTrigger className="bg-white rounded-full px-8 py-4 text-gray-800 text-lg shadow-lg">
-                        <SelectValue placeholder="Select a city" />
-                      </SelectTrigger>
-                      <SelectContent>
+                    <div className="flex flex-col gap-4">
+                      <div className="flex gap-4 justify-center p-2">
                         {ROTATION_CITIES.map((city) => (
-                          <SelectItem key={city.value} value={city.value}>
-                            {city.label}
-                          </SelectItem>
+                          <button
+                            key={city.value}
+                            type="button"
+                            onClick={() => {
+                              signup.handleChange("city", city.value);
+                              setSelectedCity(city.value);
+                            }}
+                            onMouseEnter={() => setHoveredCity(city.value)}
+                            onMouseLeave={() => setHoveredCity(null)}
+                            className={`transition-all duration-300 p-1 rounded-lg ${
+                              selectedCity === city.value
+                                ? "opacity-100 drop-shadow-xl scale-110"
+                                : hoveredCity === city.value
+                                  ? "opacity-100 drop-shadow-lg scale-105"
+                                  : "opacity-70 hover:opacity-100"
+                            }`}
+                          >
+                            <img src={city.icon} alt={city.label} className="w-16 h-16 object-cover rounded-md" />
+                          </button>
                         ))}
-                      </SelectContent>
-                    </Select>
-                    <FieldError errors={signup.errors.city ? [{ message: signup.errors.city }] : null} />
+                      </div>
+                      <FieldError errors={signup.errors.city ? [{ message: signup.errors.city }] : null} />
+                    </div>
                   </FieldContent>
                 </Field>
               </div>

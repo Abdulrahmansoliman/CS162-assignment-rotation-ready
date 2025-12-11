@@ -70,7 +70,7 @@ class TestItemRoutes:
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
         # Create category
-        category = Category(name="Furniture")
+        category = Category(category_name="Furniture")
         db.session.add(category)
         db.session.commit()
         
@@ -109,7 +109,7 @@ class TestItemRoutes:
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
         # Create category
-        category = Category(name="Equipment")
+        category = Category(category_name="Equipment")
         db.session.add(category)
         db.session.commit()
         
@@ -148,7 +148,7 @@ class TestItemRoutes:
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
         # Create category
-        category = Category(name="Tools")
+        category = Category(category_name="Tools")
         db.session.add(category)
         db.session.commit()
         
@@ -202,7 +202,7 @@ class TestItemRoutes:
         tokens = TokenService.generate_tokens(verified_user)
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
-        category = Category(name="Test")
+        category = Category(category_name="Test")
         db.session.add(category)
         db.session.commit()
         
@@ -225,7 +225,7 @@ class TestItemRoutes:
         tokens = TokenService.generate_tokens(verified_user)
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
-        category = Category(name="Test")
+        category = Category(category_name="Test")
         db.session.add(category)
         db.session.commit()
         
@@ -254,7 +254,7 @@ class TestItemRoutes:
         tokens = TokenService.generate_tokens(verified_user)
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
-        category = Category(name="Test")
+        category = Category(category_name="Test")
         db.session.add(category)
         db.session.commit()
         
@@ -279,7 +279,7 @@ class TestItemRoutes:
         tokens = TokenService.generate_tokens(verified_user)
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
-        category = Category(name="Test")
+        category = Category(category_name="Test")
         db.session.add(category)
         db.session.commit()
         
@@ -302,7 +302,7 @@ class TestItemRoutes:
         tokens = TokenService.generate_tokens(verified_user)
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
-        category = Category(name="Test")
+        category = Category(category_name="Test")
         db.session.add(category)
         db.session.commit()
         
@@ -320,3 +320,115 @@ class TestItemRoutes:
                               json=item_data)
         
         assert response.status_code == 400
+
+    def test_get_all_items_requires_authentication(self, client):
+        """Test that GET /api/v1/item/ requires JWT token."""
+        response = client.get('/api/v1/item/')
+        
+        assert response.status_code == 401
+
+    def test_get_all_items_empty(self, client, verified_user, app_context):
+        """Test getting all items when none exist."""
+        tokens = TokenService.generate_tokens(verified_user)
+        headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
+        
+        response = client.get('/api/v1/item/', headers=headers)
+        
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data == []
+
+    def test_get_all_items_returns_list(self, client, verified_user, app_context, db_session):
+        """Test getting all items returns proper list."""
+        tokens = TokenService.generate_tokens(verified_user)
+        headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
+        
+        # Create categories
+        category1 = Category(name="Electronics")
+        category2 = Category(name="Furniture")
+        db.session.add_all([category1, category2])
+        db.session.commit()
+        
+        # Create items via the API
+        item1_data = {
+            "name": "Laptop",
+            "location": "Office A",
+            "category_ids": [category1.category_id],
+            "existing_tags": [],
+            "new_tags": []
+        }
+        
+        item2_data = {
+            "name": "Desk",
+            "location": "Office B",
+            "walking_distance": 100.0,
+            "category_ids": [category2.category_id],
+            "existing_tags": [],
+            "new_tags": []
+        }
+        
+        client.post('/api/v1/item/', headers=headers, json=item1_data)
+        client.post('/api/v1/item/', headers=headers, json=item2_data)
+        
+        # Get all items
+        response = client.get('/api/v1/item/', headers=headers)
+        
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert len(data) == 2
+        assert all('item_id' in item for item in data)
+        assert all('name' in item for item in data)
+        assert all('location' in item for item in data)
+
+    def test_get_item_by_id_requires_authentication(self, client):
+        """Test that GET /api/v1/item/<id> requires JWT token."""
+        response = client.get('/api/v1/item/1')
+        
+        assert response.status_code == 401
+
+    def test_get_item_by_id_success(self, client, verified_user, app_context, db_session):
+        """Test getting item by ID when it exists."""
+        tokens = TokenService.generate_tokens(verified_user)
+        headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
+        
+        # Create category and item
+        category = Category(name="Books")
+        db.session.add(category)
+        db.session.commit()
+        
+        item_data = {
+            "name": "Python Programming",
+            "location": "Library, Shelf 3",
+            "walking_distance": 200.0,
+            "category_ids": [category.category_id],
+            "existing_tags": [],
+            "new_tags": []
+        }
+        
+        # Create item
+        create_response = client.post('/api/v1/item/', headers=headers, json=item_data)
+        created_item = json.loads(create_response.data)
+        item_id = created_item['item_id']
+        
+        # Get item by ID
+        response = client.get(f'/api/v1/item/{item_id}', headers=headers)
+        
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['item_id'] == item_id
+        assert data['name'] == "Python Programming"
+        assert data['location'] == "Library, Shelf 3"
+        assert data['walking_distance'] == 200.0
+
+    def test_get_item_by_id_not_found(self, client, verified_user, app_context):
+        """Test getting item by ID when it doesn't exist."""
+        tokens = TokenService.generate_tokens(verified_user)
+        headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
+        
+        response = client.get('/api/v1/item/99999', headers=headers)
+        
+        assert response.status_code == 404
+        data = json.loads(response.data)
+        assert 'message' in data
+        assert 'not found' in data['message'].lower()
+

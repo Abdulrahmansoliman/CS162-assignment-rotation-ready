@@ -55,16 +55,16 @@ class TestItemRepository:
             added_by_user_id=verified_user.user_id
         )
         
-        retrieved_item = repo.get_item_by_id(created_item.item_id)
+        retrieved_item = repo.get_item_by_id(created_item.item_id, rotation_city.city_id)
         
         assert retrieved_item is not None
         assert retrieved_item.item_id == created_item.item_id
         assert retrieved_item.name == "Test Item"
 
-    def test_get_item_by_id_not_found(self, db_session):
+    def test_get_item_by_id_not_found(self, db_session, rotation_city):
         """Test getting item with non-existent ID."""
         repo = ItemRepository()
-        item = repo.get_item_by_id(99999)
+        item = repo.get_item_by_id(99999, rotation_city.city_id)
         assert item is None
 
     def test_create_multiple_items(self, db_session, verified_user, rotation_city):

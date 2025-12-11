@@ -36,32 +36,32 @@ class TestCategory:
     def test_create_category(self, session):
         """Test creating a category"""
         category = Category(
-            name="Electronics",
-            pic="electronics.png"
+            category_name="Electronics",
+            category_pic="electronics.png"
         )
         session.add(category)
         session.commit()
 
         assert category.category_id is not None
-        assert category.name == "Electronics"
-        assert category.pic == "electronics.png"
+        assert category.category_name == "Electronics"
+        assert category.category_pic == "electronics.png"
 
     def test_category_without_pic(self, session):
         """Test creating category without picture"""
-        category = Category(name="Furniture")
+        category = Category(category_name="Furniture")
         session.add(category)
         session.commit()
 
         assert category.category_id is not None
-        assert category.pic is None
+        assert category.category_pic is None
 
     def test_unique_category_name(self, session):
         """Test that category names must be unique"""
-        category1 = Category(name="Books")
+        category1 = Category(category_name="Books")
         session.add(category1)
         session.commit()
 
-        category2 = Category(name="Books")
+        category2 = Category(category_name="Books")
         session.add(category2)
 
         with pytest.raises(IntegrityError):
@@ -69,8 +69,8 @@ class TestCategory:
 
     def test_category_id_auto_increment(self, session):
         """Test that category_id auto-increments"""
-        cat1 = Category(name="Sports")
-        cat2 = Category(name="Music")
+        cat1 = Category(category_name="Sports")
+        cat2 = Category(category_name="Music")
         session.add_all([cat1, cat2])
         session.commit()
 
@@ -78,7 +78,7 @@ class TestCategory:
 
     def test_repr_method(self, session):
         """Test string representation"""
-        category = Category(name="Food")
+        category = Category(category_name="Food")
         session.add(category)
         session.commit()
 

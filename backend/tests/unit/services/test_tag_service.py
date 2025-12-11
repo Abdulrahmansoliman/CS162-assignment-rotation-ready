@@ -2,6 +2,7 @@
 import pytest
 from app.services.tag_service import TagService
 from app.repositories.implementations.tag_repository import TagRepository
+from app.models.tag import TagValueType
 
 
 @pytest.mark.unit
@@ -21,9 +22,9 @@ class TestTagService:
         service = TagService(tag_repo)
         
         # Create some tags
-        tag_repo.create_tag(name="Condition", value_type="text")
-        tag_repo.create_tag(name="Available", value_type="boolean")
-        tag_repo.create_tag(name="Price", value_type="numeric")
+        tag_repo.create_tag(name="Condition", value_type=TagValueType.TEXT.code)
+        tag_repo.create_tag(name="Available", value_type=TagValueType.BOOLEAN.code)
+        tag_repo.create_tag(name="Price", value_type=TagValueType.NUMERIC.code)
         
         tags = service.get_all_tags()
         
@@ -38,9 +39,9 @@ class TestTagService:
         service = TagService(tag_repo)
         
         # Create tags in non-alphabetical order
-        tag_repo.create_tag(name="Zebra", value_type="text")
-        tag_repo.create_tag(name="Apple", value_type="text")
-        tag_repo.create_tag(name="Banana", value_type="text")
+        tag_repo.create_tag(name="Zebra", value_type=TagValueType.TEXT.code)
+        tag_repo.create_tag(name="Apple", value_type=TagValueType.TEXT.code)
+        tag_repo.create_tag(name="Banana", value_type=TagValueType.TEXT.code)
         
         tags = service.get_all_tags()
         

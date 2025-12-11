@@ -27,8 +27,14 @@ api_bp.register_blueprint(auth_bp, url_prefix='/auth')
 from .user import user_bp
 api_bp.register_blueprint(user_bp, url_prefix='/user')
 
+from .category import category_bp
+api_bp.register_blueprint(category_bp, url_prefix='/category')
+
 from .tag import tag_bp
 api_bp.register_blueprint(tag_bp, url_prefix='/tag')
 
 from .item import item_bp
 api_bp.register_blueprint(item_bp, url_prefix='/item')
+
+from .value import value_bp
+api_bp.register_blueprint(value_bp, url_prefix='/value')
