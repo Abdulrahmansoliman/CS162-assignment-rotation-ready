@@ -86,6 +86,14 @@ const animationStyles = `
     background-blend-mode: overlay;
   }
 
+  .login-container.transition-argentina {
+    background: linear-gradient(135deg, #4b8dc9 0%, #6ba3d1 100%) !important;
+    background-image: url('/ba.jpg') !important;
+    background-size: cover !important;
+    background-position: center;
+    background-blend-mode: overlay;
+  }
+
   .overlay {
     background-color: rgba(204, 0, 0, 0.8);
     transition: background-color 0.8s ease-out;
@@ -102,6 +110,11 @@ const animationStyles = `
   .overlay.transition-korea {
     background-color: rgba(198, 12, 48, 0.6) !important;
   }
+
+  .overlay.transition-argentina {
+    /* Sunshine yellow tint */
+    background-color: rgba(255, 205, 0, 0.65) !important;
+  }
 `
 
 export default function LoginPage() {
@@ -113,16 +126,17 @@ export default function LoginPage() {
   const verification = useLoginVerification(login.email)
 
   useEffect(() => {
-    const locales = ['usa', 'china', 'korea']
+    // cycle through locales every 8 seconds for a smoother transition
+    const locales = ['usa', 'china', 'korea', 'argentina']
     let index = 0
-    
+
     const cycleLocales = () => {
       index = (index + 1) % locales.length
       setCurrentLocale(locales[index])
-      setTimeout(cycleLocales, 5000)
+      setTimeout(cycleLocales, 8000)
     }
-    
-    const timer = setTimeout(cycleLocales, 5000)
+
+    const timer = setTimeout(cycleLocales, 8000)
     return () => clearTimeout(timer)
   }, [])
 
@@ -164,7 +178,8 @@ export default function LoginPage() {
     const classMap = {
       usa: 'show-photo',
       china: 'transition-green',
-      korea: 'transition-korea'
+      korea: 'transition-korea',
+      argentina: 'transition-argentina'
     }
     return classMap[currentLocale] || 'show-photo'
   }
@@ -173,7 +188,8 @@ export default function LoginPage() {
     const textMap = {
       usa: 'Welcome',
       china: '欢迎',
-      korea: '어서 오세요'
+      korea: '어서 오세요',
+      argentina: 'Bienvenido'
     }
     return textMap[currentLocale] || 'Welcome'
   }
