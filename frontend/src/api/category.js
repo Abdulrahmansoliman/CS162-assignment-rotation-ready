@@ -1,7 +1,9 @@
-import apiFetch from "./apiFetch";
+import { apiFetch } from ".";
 
 export async function getCategories() {
-  return apiFetch("/api/v1/category/");
+  return await apiFetch("/category/", {
+    method: "GET",
+  });
 }
 
 
