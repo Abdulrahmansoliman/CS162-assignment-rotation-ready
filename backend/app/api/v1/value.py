@@ -18,16 +18,7 @@ def get_values():
     return jsonify([ValueSchemaResponse.model_validate(value).model_dump() for value in values]), 200
 
 
-@value_bp.route('/<int:value_id>', methods=['GET'])
-@jwt_required()
-def get_value_by_id(value_id):
-    """Get value by ID"""
-    value = service.get_value_by_id(value_id)
 
-    if not value:
-        return jsonify({'error': 'Value not found'}), 404
-    
-    return jsonify(ValueSchemaResponse.model_validate(value).model_dump()), 200
 
 
 @value_bp.route('/tag/<int:tag_id>', methods=['GET'])
@@ -44,6 +35,18 @@ def get_text_values_by_tag(tag_id):
         ValueSchemaResponse.model_validate(value).model_dump()
         for value in values
     ]), 200
+
+
+@value_bp.route('/<int:value_id>', methods=['GET'])
+@jwt_required()
+def get_value_by_id(value_id):
+    """Get value by ID"""
+    value = service.get_value_by_id(value_id)
+
+    if not value:
+        return jsonify({'error': 'Value not found'}), 404
+    
+    return jsonify(ValueSchemaResponse.model_validate(value).model_dump()), 200
 
 
 @value_bp.route('/', methods=['POST'])
