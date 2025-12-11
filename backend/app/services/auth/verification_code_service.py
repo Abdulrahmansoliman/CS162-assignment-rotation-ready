@@ -102,6 +102,14 @@ class VerificationCodeService:
         verification_code: VerificationCode,
         code: str
     ) -> bool:
+        # Development bypass: accept any 6-char code (remove in production)
+        is_dev = (
+            current_app.config.get('ENV') == 'development'
+            or current_app.config.get('DEBUG', False)
+        )
+        if is_dev and len(code) == 6 and code.isalnum():
+            return True
+        
         hash_input = (
             f"{code}{verification_code.hash_salt}"
             f"{current_app.config['SECRET_KEY']}"

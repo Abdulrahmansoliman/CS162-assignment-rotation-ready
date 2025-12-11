@@ -15,7 +15,7 @@ export function useSignup() {
     firstName: "",
     lastName: "",
     email: "",
-    cityId: "",
+    cityId: "1", // default to first rotation city
   })
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
@@ -33,6 +33,11 @@ export function useSignup() {
     const emailError = validateEmail(formData.email)
     if (emailError) {
       setErrors({ email: emailError })
+      return { success: false }
+    }
+
+    if (!formData.cityId) {
+      setErrors({ cityId: "Rotation city is required" })
       return { success: false }
     }
 

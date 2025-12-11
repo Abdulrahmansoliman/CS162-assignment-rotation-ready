@@ -210,7 +210,7 @@ export default function SignupPage() {
       usa: '#cc0000',
       china: '#2fb872',
       korea: '#e91e63',
-      argentina: '#6ba3d1',
+      argentina: '#d9a300',
       india: '#ffcc33',
       germany: '#7bb3e8'
     }
@@ -267,18 +267,19 @@ export default function SignupPage() {
   const getLocaleText = () => {
     const displayLocale = getDisplayLocale()
     const textMap = {
-      usa: 'Welcome',
-      china: '欢迎',
-      korea: '어서 오세요',
-      argentina: 'Bienvenido',
-      india: 'స్వాగతం',
-      germany: 'Willkommen'
+      usa: 'Ready for Rotation?',
+      china: '准备好轮换了吗？',
+      korea: '로테이션 준비되셨나요?',
+      argentina: '¿Listo para la rotación?',
+      india: 'రోటేషన్‌కు సిద్ధమా?',
+      germany: 'Bereit für die Rotation?'
     }
-    return textMap[displayLocale] || 'Welcome'
+    return textMap[displayLocale] || 'Ready for Rotation?'
   }
 
   const shouldSplitLetters = () => {
-    return getDisplayLocale() !== 'india'
+    // Keep full phrases intact (no per-letter split) so spaces and script shaping remain correct
+    return false
   }
 
   return (
@@ -288,7 +289,7 @@ export default function SignupPage() {
         <div className={`overlay absolute inset-0 ${getLocaleClass()}`}></div>
 
         <div className="relative z-10 flex flex-col items-center justify-center w-full px-6 sm:px-12 max-w-3xl">
-          <h1 className="text-white text-5xl sm:text-7xl font-extrabold leading-tight drop-shadow-md text-center mb-8" style={{fontFamily: 'Playfair Display, serif', letterSpacing: '0.02em'}}>
+          <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight text-center mb-8" style={{fontFamily: 'Fraunces, serif', letterSpacing: '0.003em'}}>
             {shouldSplitLetters() ? (
               getLocaleText().split('').map((letter, index) => (
                 <span key={index} className={`letter letter-${index}`}>
@@ -360,31 +361,31 @@ export default function SignupPage() {
                 <Field>
                   <FieldContent>
                     <FieldLabel htmlFor="city" className="text-lg font-semibold text-white">Rotation City</FieldLabel>
-                    <div className="flex flex-col gap-4">
-                      <div className="flex gap-4 justify-center p-2">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex gap-2 justify-center">
                         {ROTATION_CITIES.map((city) => (
                           <button
                             key={city.value}
                             type="button"
                             onClick={() => {
-                              signup.handleChange("city", city.value);
+                              signup.handleChange("cityId", city.value);
                               setSelectedCity(city.value);
                             }}
                             onMouseEnter={() => setHoveredCity(city.value)}
                             onMouseLeave={() => setHoveredCity(null)}
-                            className={`transition-all duration-300 p-1 rounded-lg ${
+                            className={`transition-all duration-150 rounded-xl ${
                               selectedCity === city.value
-                                ? "opacity-100 drop-shadow-xl scale-110"
+                                ? "opacity-100 drop-shadow-2xl scale-120"
                                 : hoveredCity === city.value
-                                  ? "opacity-100 drop-shadow-lg scale-105"
-                                  : "opacity-70 hover:opacity-100"
+                                  ? "opacity-100 drop-shadow-lg scale-112"
+                                  : "opacity-85 hover:opacity-100"
                             }`}
                           >
-                            <img src={city.icon} alt={city.label} className="w-16 h-16 object-cover rounded-md" />
+                            <img src={city.icon} alt={city.label} className="w-24 h-24 object-cover rounded-xl" />
                           </button>
                         ))}
                       </div>
-                      <FieldError errors={signup.errors.city ? [{ message: signup.errors.city }] : null} />
+                      <FieldError errors={signup.errors.cityId ? [{ message: signup.errors.cityId }] : null} />
                     </div>
                   </FieldContent>
                 </Field>

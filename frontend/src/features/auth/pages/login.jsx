@@ -227,7 +227,7 @@ export default function LoginPage() {
       usa: '#cc0000',
       china: '#2fb872',
       korea: '#e91e63',
-      argentina: '#6ba3d1',
+      argentina: '#d9a300',
       india: '#ffcc33',
       germany: '#7bb3e8'
     }
@@ -245,7 +245,7 @@ export default function LoginPage() {
         <div className={`overlay absolute inset-0 ${getLocaleClass()}`}></div>
 
         <div className="relative z-10 flex flex-col items-center justify-center w-full px-6 sm:px-12">
-          <h1 className="text-white text-6xl sm:text-8xl md:text-9xl font-extrabold leading-tight drop-shadow-md" style={{fontFamily: 'Playfair Display, serif', letterSpacing: '0.02em'}}>
+          <h1 className="text-white text-6xl sm:text-8xl md:text-9xl font-extrabold leading-tight" style={{fontFamily: 'Fraunces, serif', letterSpacing: '0.01em'}}>
             {shouldSplitLetters() ? (
               getLocaleText().split('').map((letter, index) => (
                 <span key={index} className={`letter letter-${index}`}>
