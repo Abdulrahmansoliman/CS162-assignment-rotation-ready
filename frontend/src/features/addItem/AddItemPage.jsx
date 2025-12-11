@@ -140,7 +140,7 @@ export default function AddItemPage() {
               .filter((c) => !selectedCategories.some((s) => s.category_id === c.category_id))
               .map((c) => (
                 <SelectItem key={c.category_id} value={String(c.category_id)}>
-                  {c.name}
+                  {c.category_name}
                 </SelectItem>
               ))}
           </SelectContent>
