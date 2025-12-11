@@ -192,45 +192,68 @@ export default function LoginPage() {
     }, 1000)
   }
 
+  const getLocaleClass = () => {
+    const classMap = {
+      usa: 'show-photo',
+      china: 'transition-green',
+      korea: 'transition-korea',
+      argentina: 'transition-argentina',
+      india: 'transition-india',
+      germany: 'transition-germany'
+    }
+    return classMap[currentLocale] || 'show-photo'
+  }
+
+  const getLocaleText = () => {
+    const textMap = {
+      usa: 'Welcome',
+      china: '欢迎',
+      korea: '어서 오세요',
+      argentina: 'Bienvenido',
+      india: 'స్వాగతం',
+      germany: 'Willkommen'
+    }
+    return textMap[currentLocale] || 'Welcome'
+  }
+
+  const getLocaleColor = () => {
+    const colorMap = {
+      usa: '#cc0000',
+      china: '#2fb872',
+      korea: '#e91e63',
+      argentina: '#d9a300',
+      india: '#ffcc33',
+      germany: '#7bb3e8'
+    }
+    return colorMap[currentLocale] || '#cc0000'
+  }
+
+  const shouldSplitLetters = () => {
+    return currentLocale !== 'india'
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black p-4 sm:p-6 md:p-12">
-      <Card className="w-full max-w-md sm:max-w-lg lg:max-w-xl bg-muted-50 dark:bg-muted-900 shadow-lg">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-lg sm:text-2xl font-bold text-white">
-            {isWaitingForOtp ? "Verify your email" : "Welcome back!"}
-          </CardTitle>
-          <CardDescription className="text-sm sm:text-base">
-            {isWaitingForOtp
-              ? "Enter the 6-character code sent to your email"
-              : "Enter your email to sign in"}
-          </CardDescription>
-        </CardHeader>
+    <>
+      <style>{animationStyles}</style>
+      <div className={`login-container min-h-screen w-full relative flex items-center justify-center ${getLocaleClass()}`}>
+        <div className={`overlay absolute inset-0 ${getLocaleClass()}`}></div>
 
-          {!isWaitingForOtp ? (
-          <form onSubmit={handleLogin} className="fade-in mt-8 w-full max-w-2xl flex flex-col items-center">
-            <div className="w-full">
-              <Input
-                id="email"
-                type="email"
-                placeholder="email..."
-                value={login.email}
-                onChange={(e) => login.handleChange(e.target.value)}
-                disabled={login.isLoading}
-                required
-                className="mx-auto block w-full max-w-3xl bg-white rounded-full px-8 py-4 text-gray-800 text-lg sm:text-xl placeholder-gray-400 shadow-lg"
-              />
-            </div>
+        <div className="relative z-10 flex flex-col items-center justify-center w-full px-6 sm:px-12">
+          <h1 className="text-white text-6xl sm:text-8xl md:text-9xl font-extrabold leading-tight" style={{fontFamily: 'Fraunces, serif', letterSpacing: '0.01em'}}>
+            {shouldSplitLetters() ? (
+              getLocaleText().split('').map((letter, index) => (
+                <span key={index} className={`letter letter-${index}`}>
+                  {letter}
+                </span>
+              ))
+            ) : (
+              <span className="letter letter-0" style={{fontFeatureSettings: '"liga" on, "kern" on'}}>{getLocaleText()}</span>
+            )}
+          </h1>
 
-            <div className="mt-6 w-full max-w-3xl flex items-center justify-between">
-              <Button type="button" className="rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} onClick={() => window.location.href = '/signup'}>
-                Sign up
-              </Button>
-              <Button type="submit" className="signin-btn ml-4 rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} disabled={login.isLoading}>
-                {login.isLoading ? <Spinner className="mr-2" /> : 'Sign in'}
-              </Button>
-            </div>
-          </form>
-        ) : (
+          {login.errors.submit && (
+            <div className="mt-4 text-sm text-white">{login.errors.submit}</div>
+          )}
           <form onSubmit={handleVerify} className="fade-in mt-8 w-full max-w-md flex flex-col items-center">
             <Input
               id="verification-code"
