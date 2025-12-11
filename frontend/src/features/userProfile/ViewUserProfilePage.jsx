@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getUserById } from "@/api/otherUser";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
 
 export default function ViewUserProfilePage() {
   const { id } = useParams();
@@ -25,7 +23,7 @@ export default function ViewUserProfilePage() {
     load();
   }, [id]);
 
-  // Error State
+  // Error UI
   if (error) {
     return (
       <div className="text-red-400 p-10 text-center">
@@ -36,7 +34,7 @@ export default function ViewUserProfilePage() {
     );
   }
 
-  // Loading spinner
+  // Loading UI
   if (!user) {
     return (
       <div className="flex justify-center p-10 text-white">
@@ -57,7 +55,7 @@ export default function ViewUserProfilePage() {
           ← Back
         </button>
 
-        {/* User Header */}
+        {/* User Info */}
         <div className="flex items-center gap-4 mb-6">
           <div className="w-20 h-20 rounded-full bg-gray-700" />
           <div>
@@ -66,7 +64,6 @@ export default function ViewUserProfilePage() {
             </h1>
             <p className="text-gray-400">{user.email}</p>
 
-            {/* FIXED — rotation_city is an object */}
             <p className="text-gray-400">
               City: {user.rotation_city?.name || "Unknown"}
             </p>
@@ -75,7 +72,7 @@ export default function ViewUserProfilePage() {
 
         <h2 className="text-xl font-semibold mb-3">Items</h2>
 
-        {/* Backend does NOT return items */}
+        {/* No items in backend schema */}
         <p className="text-gray-400">
           Items are not included in the backend response.
         </p>
