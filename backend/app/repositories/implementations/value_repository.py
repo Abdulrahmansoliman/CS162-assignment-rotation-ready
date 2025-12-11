@@ -1,7 +1,8 @@
 """Value repository implementation."""
-from typing import Optional, Union
+from typing import List, Optional, Union
 from app import db
 from app.models.value import Value
+from app.models.tag import Tag, TagValueType
 from app.repositories.base.value_repository_interface import ValueRepositoryInterface
 
 
@@ -36,21 +37,87 @@ class ValueRepository(ValueRepositoryInterface):
             db.select(Value).filter_by(value_id=value_id)
         ).scalar_one_or_none()
 
-    def find_existing_value(
+    def get_all_values(self) -> List[Value]:
+        """Get all values in the system.
+        
+        Returns:
+            List of all Value objects
+        """
+        return db.session.execute(db.select(Value)).scalars().all()
+
+    def get_text_values_by_tag(self, tag_id: int) -> List[Value]:
+        """Get all text values for a specific tag.
+        
+        Only returns values where:
+        - tag_id matches
+        - The tag's value_type is TEXT (code=1)
+        - name_val is not None
+        
+        Args:
+            tag_id: ID of the tag to filter by
+            
+        Returns:
+            List of text values for the tag
+        """
+        query = (
+            db.select(Value)
+            .join(Tag, Value.tag_id == Tag.tag_id)
+            .filter(Value.tag_id == tag_id)
+            .filter(Tag.value_type == TagValueType.TEXT.code)
+            .filter(Value.name_val.isnot(None))
+        )
+        
+        return db.session.execute(query).scalars().all()
+
+    def update_value(
+        self,
+        value_id: int,
+        tag_id: Optional[int] = None,
+        boolean_val: Optional[bool] = None,
+        name_val: Optional[str] = None,
+        numerical_value: Optional[float] = None
+    ) -> Optional[Value]:
+        """Update an existing value.
+        
+        Args:
+            value_id: ID of the value to update
+            tag_id: New tag ID (optional)
+            boolean_val: New boolean value (optional)
+            name_val: New text value (optional)
+            numerical_value: New numeric value (optional)
+            
+        Returns:
+            Updated Value object or None if not found
+        """
+        value = self.get_value_by_id(value_id)
+        if not value:
+            return None
+
+        # Only update provided fields
+        if tag_id is not None:
+            value.tag_id = tag_id
+        if boolean_val is not None:
+            value.boolean_val = boolean_val
+        if name_val is not None:
+            value.name_val = name_val
+        if numerical_value is not None:
+            value.numerical_value = numerical_value
+
+        db.session.commit()
+        db.session.refresh(value)
+        return value
+
+    def find_similar_text_values(
         self,
         tag_id: int,
-        value: Union[bool, str, float],
-        value_type: str
-    ) -> Optional[Value]:
-        """Find existing value for a tag."""
-        query = db.select(Value).filter_by(tag_id=tag_id)
-        
-        # Filter by the appropriate value column
-        if value_type == 'boolean':
-            query = query.filter_by(boolean_val=bool(value))
-        elif value_type == 'text':
-            query = query.filter_by(name_val=str(value))
-        elif value_type == 'numeric':
-            query = query.filter_by(numerical_value=float(value))
-        
-        return db.session.execute(query).scalar_one_or_none()
+        value: str
+    ) -> List[Value]:
+        """Find similar text values for a tag."""
+        # use like to allow partial matches
+        return db.session.execute(
+            db.select(Value)
+            .join(Tag, Value.tag_id == Tag.tag_id)
+            .filter(Value.tag_id == tag_id)
+            .filter(Tag.value_type == TagValueType.TEXT.code)
+            .filter(Value.name_val.ilike(f"%{value}%"))
+        ).scalars().all()
