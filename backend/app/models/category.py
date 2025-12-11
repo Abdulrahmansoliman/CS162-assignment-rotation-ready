@@ -2,7 +2,7 @@
 Category Model
 Categories for organizing items (e.g., Electronics, Furniture, etc.)
 """
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from app import db
@@ -21,7 +21,7 @@ class Category(db.Model):
     
     # Category Information
     category_name = Column(String(100), nullable=False, unique=True)
-    category_pic = Column(String(200), nullable=True)
+    category_pic = Column(Text, nullable=True)  # Base64 encoded image data
     
     # Relationships
     category_items = relationship(
