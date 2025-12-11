@@ -102,6 +102,14 @@ const animationStyles = `
     background-blend-mode: overlay;
   }
 
+  .login-container.transition-germany {
+    background: linear-gradient(135deg, #4a90e2 0%, #7bb3e8 100%) !important;
+    background-image: url('/br.jpg') !important;
+    background-size: cover !important;
+    background-position: center;
+    background-blend-mode: overlay;
+  }
+
   .overlay {
     background-color: rgba(204, 0, 0, 0.8);
     transition: background-color 0.8s ease-out;
@@ -127,6 +135,10 @@ const animationStyles = `
   .overlay.transition-india {
     background-color: rgba(255, 153, 51, 0.62) !important;
   }
+
+  .overlay.transition-germany {
+    background-color: rgba(122, 179, 232, 0.65) !important;
+  }
 `
 
 export default function LoginPage() {
@@ -139,7 +151,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     // cycle through locales every 8 seconds for a smoother transition
-    const locales = ['usa', 'china', 'korea', 'argentina', 'india']
+    const locales = ['usa', 'china', 'korea', 'argentina', 'india', 'germany']
     let index = 0
 
     const cycleLocales = () => {
@@ -191,8 +203,9 @@ export default function LoginPage() {
       usa: 'show-photo',
       china: 'transition-green',
       korea: 'transition-korea',
-      argentina: 'transition-argentina'
-      , india: 'transition-india'
+      argentina: 'transition-argentina',
+      india: 'transition-india',
+      germany: 'transition-germany'
     }
     return classMap[currentLocale] || 'show-photo'
   }
@@ -202,10 +215,15 @@ export default function LoginPage() {
       usa: 'Welcome',
       china: '欢迎',
       korea: '어서 오세요',
-      argentina: 'Bienvenido'
-      , india: 'स्वागत है'
+      argentina: 'Bienvenido',
+      india: 'స్వాగతం',
+      germany: 'Willkommen'
     }
     return textMap[currentLocale] || 'Welcome'
+  }
+
+  const shouldSplitLetters = () => {
+    return currentLocale !== 'india'
   }
 
   return (
@@ -216,11 +234,15 @@ export default function LoginPage() {
 
         <div className="relative z-10 flex flex-col items-center justify-center w-full px-6 sm:px-12">
           <h1 className="text-white text-6xl sm:text-8xl md:text-9xl font-extrabold leading-tight drop-shadow-md" style={{fontFamily: 'Georgia, serif', letterSpacing: '0.05em'}}>
-            {getLocaleText().split('').map((letter, index) => (
-              <span key={index} className={`letter letter-${index}`}>
-                {letter}
-              </span>
-            ))}
+            {shouldSplitLetters() ? (
+              getLocaleText().split('').map((letter, index) => (
+                <span key={index} className={`letter letter-${index}`}>
+                  {letter}
+                </span>
+              ))
+            ) : (
+              <span className="letter letter-0">{getLocaleText()}</span>
+            )}
           </h1>
 
           {!isWaitingForOtp ? (
@@ -240,9 +262,9 @@ export default function LoginPage() {
 
             <div className="mt-6 w-full max-w-3xl flex items-center justify-between">
               <div className="text-sm text-white/90">
-                Don't have an account? <Link to="/signup" className="underline font-medium">Sign up</Link>
+                Don't have an account? <Link to="/signup" className="signup-link underline font-medium">Sign up</Link>
               </div>
-              <Button type="submit" className="ml-4 rounded-full px-6 py-3 bg-white text-red-700 font-semibold shadow-lg" disabled={login.isLoading}>
+              <Button type="submit" className="signin-btn ml-4 rounded-full px-6 py-3 bg-white text-red-700 font-semibold shadow-lg" disabled={login.isLoading}>
                 {login.isLoading ? <Spinner className="mr-2" /> : 'Sign in'}
               </Button>
             </div>
