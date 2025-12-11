@@ -35,3 +35,6 @@ api_bp.register_blueprint(tag_bp, url_prefix='/tag')
 
 from .item import item_bp
 api_bp.register_blueprint(item_bp, url_prefix='/item')
+
+from .value import value_bp
+api_bp.register_blueprint(value_bp, url_prefix='/value')
