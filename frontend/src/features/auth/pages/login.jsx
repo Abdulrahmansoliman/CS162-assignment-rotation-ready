@@ -274,7 +274,7 @@ export default function LoginPage() {
 
             <div className="mt-6 w-full max-w-3xl flex items-center justify-between">
               <div className="text-sm text-white/90">
-                Don't have an account? <Link to="/signup" className="signup-link underline font-medium" style={{color: getLocaleColor()}}>Sign up</Link>
+                Don't have an account? <Link to="/signup" className="signup-link underline font-medium" style={{color: 'white'}}>Sign up</Link>
               </div>
               <Button type="submit" className="signin-btn ml-4 rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} disabled={login.isLoading}>
                 {login.isLoading ? <Spinner className="mr-2" /> : 'Sign in'}
@@ -300,14 +300,14 @@ export default function LoginPage() {
             />
 
             <div className="mt-4 w-full flex flex-col space-y-3">
-              <Button type="submit" className="rounded-full px-6 py-3 bg-white text-red-700 font-semibold shadow-lg" disabled={verification.isLoading || verification.verificationCode.length !== 6}>
+              <Button type="submit" className="rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} disabled={verification.isLoading || verification.verificationCode.length !== 6}>
                 {verification.isLoading ? <Spinner className="mr-2" /> : 'Verify'}
               </Button>
               <div className="flex gap-3">
                 <Button type="button" variant="ghost" className="flex-1 rounded-full bg-white/90 text-sm" onClick={handleResendWithCooldown} disabled={verification.isResending || verification.isLoading || resendCooldown > 0}>
                   {verification.isResending ? <Spinner className="mr-2" /> : (resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code')}
                 </Button>
-                <Button type="button" variant="outline" className="flex-1 rounded-full bg-transparent border border-white/60 text-white text-sm" onClick={handleBackToLogin} disabled={verification.isLoading}>
+                <Button type="button" variant="outline" className="flex-1 rounded-full bg-white text-sm font-semibold" style={{color: getLocaleColor()}} onClick={handleBackToLogin} disabled={verification.isLoading}>
                   Back
                 </Button>
               </div>
