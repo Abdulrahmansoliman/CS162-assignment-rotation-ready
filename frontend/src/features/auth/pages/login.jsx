@@ -86,30 +86,6 @@ const animationStyles = `
     background-blend-mode: overlay;
   }
 
-  .login-container.transition-argentina {
-    background: linear-gradient(135deg, #4b8dc9 0%, #6ba3d1 100%) !important;
-    background-image: url('/ba.jpg') !important;
-    background-size: cover !important;
-    background-position: center;
-    background-blend-mode: overlay;
-  }
-
-  .login-container.transition-india {
-    background: linear-gradient(135deg, #ff9933 0%, #ffcc33 100%) !important;
-    background-image: url('/hyd.jpg') !important;
-    background-size: cover !important;
-    background-position: center;
-    background-blend-mode: overlay;
-  }
-
-  .login-container.transition-germany {
-    background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%) !important;
-    background-image: url('/br.jpg') !important;
-    background-size: cover !important;
-    background-position: center;
-    background-blend-mode: overlay;
-  }
-
   .overlay {
     background-color: rgba(204, 0, 0, 0.8);
     transition: background-color 0.8s ease-out;
@@ -126,18 +102,6 @@ const animationStyles = `
   .overlay.transition-korea {
     background-color: rgba(198, 12, 48, 0.6) !important;
   }
-
-  .overlay.transition-argentina {
-    background-color: rgba(75, 141, 201, 0.6) !important;
-  }
-
-  .overlay.transition-india {
-    background-color: rgba(255, 153, 51, 0.6) !important;
-  }
-
-  .overlay.transition-germany {
-    background-color: rgba(26, 26, 26, 0.7) !important;
-  }
 `
 
 export default function LoginPage() {
@@ -149,22 +113,17 @@ export default function LoginPage() {
   const verification = useLoginVerification(login.email)
 
   useEffect(() => {
-    const runAnimation = () => {
-      const locales = ['usa', 'china', 'korea', 'argentina', 'india', 'germany']
-      let index = 0
-      
-      const cycleLocales = () => {
-        const nextIndex = (index + 1) % locales.length
-        setCurrentLocale(locales[nextIndex])
-        index = nextIndex
-        const nextTimer = setTimeout(cycleLocales, 5000)
-        return nextTimer
-      }
-      
-      return cycleLocales()
+    const locales = ['usa', 'china', 'korea']
+    let index = 0
+    
+    const cycleLocales = () => {
+      index = (index + 1) % locales.length
+      setCurrentLocale(locales[index])
+      setTimeout(cycleLocales, 5000)
     }
     
-    return () => {}
+    const timer = setTimeout(cycleLocales, 5000)
+    return () => clearTimeout(timer)
   }, [])
 
   const handleLogin = async (e) => {
@@ -201,27 +160,37 @@ export default function LoginPage() {
     }, 1000)
   }
 
+  const getLocaleClass = () => {
+    const classMap = {
+      usa: 'show-photo',
+      china: 'transition-green',
+      korea: 'transition-korea'
+    }
+    return classMap[currentLocale] || 'show-photo'
+  }
+
+  const getLocaleText = () => {
+    const textMap = {
+      usa: 'Welcome',
+      china: '欢迎',
+      korea: '어서 오세요'
+    }
+    return textMap[currentLocale] || 'Welcome'
+  }
+
   return (
     <>
       <style>{animationStyles}</style>
-      <div className={`login-container min-h-screen w-full relative flex items-center justify-center ${showPhoto ? 'show-photo' : ''} ${transitionGreen ? 'transition-green' : ''}`}>
-        <div className={`overlay absolute inset-0 ${showPhoto ? 'show-photo' : ''} ${transitionGreen ? 'transition-green' : ''}`}></div>
+      <div className={`login-container min-h-screen w-full relative flex items-center justify-center ${getLocaleClass()}`}>
+        <div className={`overlay absolute inset-0 ${getLocaleClass()}`}></div>
 
         <div className="relative z-10 flex flex-col items-center justify-center w-full px-6 sm:px-12">
           <h1 className="text-white text-6xl sm:text-8xl md:text-9xl font-extrabold leading-tight drop-shadow-md" style={{fontFamily: 'Georgia, serif', letterSpacing: '0.05em'}}>
-            {transitionGreen ? (
-              '欢迎'.split('').map((letter, index) => (
-                <span key={index} className={`chinese-letter chinese-letter-${index}`}>
-                  {letter}
-                </span>
-              ))
-            ) : (
-              'Welcome'.split('').map((letter, index) => (
-                <span key={index} className={`letter letter-${index}`}>
-                  {letter}
-                </span>
-              ))
-            )}
+            {getLocaleText().split('').map((letter, index) => (
+              <span key={index} className={`letter letter-${index}`}>
+                {letter}
+              </span>
+            ))}
           </h1>
 
           {!isWaitingForOtp ? (
