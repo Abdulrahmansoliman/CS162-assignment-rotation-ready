@@ -8,6 +8,11 @@ class CategoryRepositoryInterface(ABC):
     """Interface for category repository operations."""
 
     @abstractmethod
+    def get_all_categories(self) -> List[Category]:
+        """Get all categories."""
+        pass
+
+    @abstractmethod
     def get_category_by_id(self, category_id: int) -> Optional[Category]:
         """Get category by ID."""
         pass
@@ -20,4 +25,28 @@ class CategoryRepositoryInterface(ABC):
     @abstractmethod
     def category_exists(self, category_id: int) -> bool:
         """Check if category exists."""
+        pass
+
+    @abstractmethod
+    def add_category(
+        self,
+        category_name: str,
+        category_pic: str
+    ) -> Optional[Category]:
+        """Create a new category."""
+        pass
+
+    @abstractmethod
+    def update_category(
+        self,
+        category_id: int,
+        category_name: Optional[str] = None,
+        category_pic: Optional[str] = None
+    ) -> Optional[Category]:
+        """Update an existing category."""
+        pass
+
+    @abstractmethod
+    def delete_category(self, category_id: int) -> bool:
+        """Delete a category."""
         pass
