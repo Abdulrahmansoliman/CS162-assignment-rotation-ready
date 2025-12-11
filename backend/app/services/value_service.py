@@ -100,7 +100,6 @@ class ValueService:
     def update_value(
         self,
         value_id: int,
-        tag_id: Optional[int] = None,
         boolean_val: Optional[bool] = None,
         name_val: Optional[str] = None,
         numerical_value: Optional[float] = None
@@ -109,7 +108,6 @@ class ValueService:
         
         Args:
             value_id: ID of the value to update
-            tag_id: New tag ID (optional)
             boolean_val: New boolean value (optional)
             name_val: New text value (optional)
             numerical_value: New numeric value (optional)
@@ -117,25 +115,20 @@ class ValueService:
         Returns:
             Updated Value object or None if not found
         """
+        value = self.value_repository.get_value_by_id(value_id)
+
+        if not value:
+            return None
+
+        value_type = self.tag_repository.get_tag_by_id(value.tag_id).value_type
+
         return self.value_repository.update_value(
             value_id=value_id,
-            tag_id=tag_id,
+            value_type=value_type,
             boolean_val=boolean_val,
             name_val=name_val,
             numerical_value=numerical_value
         )
-
-    def delete_value(self, value_id: int) -> bool:
-        """Delete a value by ID.
-        
-        Args:
-            value_id: ID of the value to delete
-            
-        Returns:
-            True if deleted successfully, False if not found
-        """
-        return self.value_repository.delete_value(value_id)
-
     
     def find_similar_text_values(
         self,

@@ -82,7 +82,6 @@ def update_value(value_id):
 
     value = service.update_value(
         value_id=value_id,
-        tag_id=data.get('tag_id'),
         boolean_val=data.get('boolean_val'),
         name_val=data.get('name_val'),
         numerical_value=data.get('numerical_value')
@@ -93,14 +92,3 @@ def update_value(value_id):
     
     return jsonify(ValueSchemaResponse.model_validate(value).model_dump()), 200
 
-
-@value_bp.route('/<int:value_id>', methods=['DELETE'])
-@jwt_required()
-def delete_value(value_id):
-    """Delete value"""
-    success = service.delete_value(value_id)
-
-    if not success:
-        return jsonify({'error': 'Value not found'}), 404
-    
-    return jsonify({'message': 'Value deleted successfully'}), 200

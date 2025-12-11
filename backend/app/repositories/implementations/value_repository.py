@@ -72,7 +72,7 @@ class ValueRepository(ValueRepositoryInterface):
     def update_value(
         self,
         value_id: int,
-        tag_id: Optional[int] = None,
+        value_type: Optional[Union[str, int]] = None,
         boolean_val: Optional[bool] = None,
         name_val: Optional[str] = None,
         numerical_value: Optional[float] = None
@@ -81,7 +81,7 @@ class ValueRepository(ValueRepositoryInterface):
         
         Args:
             value_id: ID of the value to update
-            tag_id: New tag ID (optional)
+            value_type: New value type (optional)
             boolean_val: New boolean value (optional)
             name_val: New text value (optional)
             numerical_value: New numeric value (optional)
@@ -93,15 +93,23 @@ class ValueRepository(ValueRepositoryInterface):
         if not value:
             return None
 
-        # Only update provided fields
-        if tag_id is not None:
-            value.tag_id = tag_id
-        if boolean_val is not None:
-            value.boolean_val = boolean_val
-        if name_val is not None:
-            value.name_val = name_val
-        if numerical_value is not None:
-            value.numerical_value = numerical_value
+        if value_type is not None:
+            # Convert string labels to integer codes if needed
+            if isinstance(value_type, str):
+                value_type = TagValueType.from_label(value_type).code
+        
+            if value_type == TagValueType.BOOLEAN.code:
+                value.boolean_val = boolean_val
+                value.name_val = None
+                value.numerical_value = None
+            elif value_type == TagValueType.TEXT.code:
+                value.name_val = name_val
+                value.boolean_val = None
+                value.numerical_value = None
+            elif value_type == TagValueType.NUMERIC.code:
+                value.numerical_value = numerical_value
+                value.boolean_val = None
+                value.name_val = None
 
         db.session.commit()
         db.session.refresh(value)
