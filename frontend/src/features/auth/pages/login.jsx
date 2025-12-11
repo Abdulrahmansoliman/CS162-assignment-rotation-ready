@@ -222,6 +222,18 @@ export default function LoginPage() {
     return textMap[currentLocale] || 'Welcome'
   }
 
+  const getLocaleColor = () => {
+    const colorMap = {
+      usa: '#cc0000',
+      china: '#2fb872',
+      korea: '#e91e63',
+      argentina: '#6ba3d1',
+      india: '#ffcc33',
+      germany: '#7bb3e8'
+    }
+    return colorMap[currentLocale] || '#cc0000'
+  }
+
   const shouldSplitLetters = () => {
     return currentLocale !== 'india'
   }
@@ -262,9 +274,9 @@ export default function LoginPage() {
 
             <div className="mt-6 w-full max-w-3xl flex items-center justify-between">
               <div className="text-sm text-white/90">
-                Don't have an account? <Link to="/signup" className="signup-link underline font-medium">Sign up</Link>
+                Don't have an account? <Link to="/signup" className="signup-link underline font-medium" style={{color: getLocaleColor()}}>Sign up</Link>
               </div>
-              <Button type="submit" className="signin-btn ml-4 rounded-full px-6 py-3 bg-white text-red-700 font-semibold shadow-lg" disabled={login.isLoading}>
+              <Button type="submit" className="signin-btn ml-4 rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} disabled={login.isLoading}>
                 {login.isLoading ? <Spinner className="mr-2" /> : 'Sign in'}
               </Button>
             </div>
