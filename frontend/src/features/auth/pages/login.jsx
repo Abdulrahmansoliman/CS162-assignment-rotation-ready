@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { Button } from "@/shared/components/ui/button"
-import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field"
 import { Input } from "@/shared/components/ui/input"
 import { Spinner } from "@/shared/components/ui/spinner"
 import { useLogin } from "../hooks/useLogin"
@@ -87,7 +84,7 @@ const animationStyles = `
   }
 
   .login-container.transition-argentina {
-    background: linear-gradient(135deg, #4b8dc9 0%, #6ba3d1 100%) !important;
+    background: linear-gradient(135deg, #d4a500 0%, #e6b800 100%) !important;
     background-image: url('/ba.jpg') !important;
     background-size: cover !important;
     background-position: center;
@@ -128,8 +125,7 @@ const animationStyles = `
   }
 
   .overlay.transition-argentina {
-    /* Muted warm yellow (less perky) */
-    background-color: rgba(233, 174, 66, 0.62) !important;
+    background-color: rgba(217, 163, 0, 0.65) !important;
   }
 
   .overlay.transition-india {
@@ -144,13 +140,11 @@ const animationStyles = `
 export default function LoginPage() {
   const [isWaitingForOtp, setIsWaitingForOtp] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
-  const [showPhoto, setShowPhoto] = useState(true)
-  const [currentLocale, setCurrentLocale] = useState('usa') // usa, china, korea, argentina, india, germany
+  const [currentLocale, setCurrentLocale] = useState('usa')
   const login = useLogin()
   const verification = useLoginVerification(login.email)
 
   useEffect(() => {
-    // cycle through locales every 8 seconds for a smoother transition
     const locales = ['usa', 'china', 'korea', 'argentina', 'india', 'germany']
     let index = 0
 
@@ -198,68 +192,19 @@ export default function LoginPage() {
     }, 1000)
   }
 
-  const getLocaleClass = () => {
-    const classMap = {
-      usa: 'show-photo',
-      china: 'transition-green',
-      korea: 'transition-korea',
-      argentina: 'transition-argentina',
-      india: 'transition-india',
-      germany: 'transition-germany'
-    }
-    return classMap[currentLocale] || 'show-photo'
-  }
-
-  const getLocaleText = () => {
-    const textMap = {
-      usa: 'Welcome',
-      china: '欢迎',
-      korea: '어서 오세요',
-      argentina: 'Bienvenido',
-      india: 'స్వాగతం',
-      germany: 'Willkommen'
-    }
-    return textMap[currentLocale] || 'Welcome'
-  }
-
-  const getLocaleColor = () => {
-    const colorMap = {
-      usa: '#cc0000',
-      china: '#2fb872',
-      korea: '#e91e63',
-      argentina: '#d9a300',
-      india: '#ffcc33',
-      germany: '#7bb3e8'
-    }
-    return colorMap[currentLocale] || '#cc0000'
-  }
-
-  const shouldSplitLetters = () => {
-    return currentLocale !== 'india'
-  }
-
   return (
-    <>
-      <style>{animationStyles}</style>
-      <div className={`login-container min-h-screen w-full relative flex items-center justify-center ${getLocaleClass()}`}>
-        <div className={`overlay absolute inset-0 ${getLocaleClass()}`}></div>
-
-        <div className="relative z-10 flex flex-col items-center justify-center w-full px-6 sm:px-12">
-          <h1 className="text-white text-6xl sm:text-8xl md:text-9xl font-extrabold leading-tight" style={{fontFamily: 'Fraunces, serif', letterSpacing: '0.01em'}}>
-            {shouldSplitLetters() ? (
-              getLocaleText().split('').map((letter, index) => (
-                <span key={index} className={`letter letter-${index}`}>
-                  {letter}
-                </span>
-              ))
-            ) : (
-              <span className="letter letter-0" style={{fontFeatureSettings: '"liga" on, "kern" on'}}>{getLocaleText()}</span>
-            )}
-          </h1>
-
-          {login.errors.submit && (
-            <div className="mt-4 text-sm text-white">{login.errors.submit}</div>
-          )}
+    <div className="flex min-h-screen items-center justify-center bg-black p-4 sm:p-6 md:p-12">
+      <Card className="w-full max-w-md sm:max-w-lg lg:max-w-xl bg-muted-50 dark:bg-muted-900 shadow-lg">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-lg sm:text-2xl font-bold text-white">
+            {isWaitingForOtp ? "Verify your email" : "Welcome back!"}
+          </CardTitle>
+          <CardDescription className="text-sm sm:text-base">
+            {isWaitingForOtp
+              ? "Enter the 6-character code sent to your email"
+              : "Enter your email to sign in"}
+          </CardDescription>
+        </CardHeader>
 
           {!isWaitingForOtp ? (
           <form onSubmit={handleLogin} className="fade-in mt-8 w-full max-w-2xl flex flex-col items-center">

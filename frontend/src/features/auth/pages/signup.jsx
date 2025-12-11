@@ -138,8 +138,11 @@ export default function SignupPage() {
   const [isWaitingForOtp, setIsWaitingForOtp] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
   const [currentLocale, setCurrentLocale] = useState('usa')
+<<<<<<< HEAD
   const [hoveredCity, setHoveredCity] = useState(null)
   const [selectedCity, setSelectedCity] = useState(null)
+=======
+>>>>>>> 9f73737c27ab8e09dbdc43ba0109785d2cf616d1
   const signup = useSignup()
   const verification = useVerification(signup.formData.email)
 
@@ -192,7 +195,10 @@ export default function SignupPage() {
   }
 
   const getLocaleClass = () => {
+<<<<<<< HEAD
     const displayLocale = getDisplayLocale()
+=======
+>>>>>>> 9f73737c27ab8e09dbdc43ba0109785d2cf616d1
     const classMap = {
       usa: 'show-photo',
       china: 'transition-green',
@@ -201,15 +207,23 @@ export default function SignupPage() {
       india: 'transition-india',
       germany: 'transition-germany'
     }
+<<<<<<< HEAD
     return classMap[displayLocale] || 'show-photo'
   }
 
   const getLocaleColor = () => {
     const displayLocale = getDisplayLocale()
+=======
+    return classMap[currentLocale] || 'show-photo'
+  }
+
+  const getLocaleColor = () => {
+>>>>>>> 9f73737c27ab8e09dbdc43ba0109785d2cf616d1
     const colorMap = {
       usa: '#cc0000',
       china: '#2fb872',
       korea: '#e91e63',
+<<<<<<< HEAD
       argentina: '#d9a300',
       india: '#ffcc33',
       germany: '#7bb3e8'
@@ -280,6 +294,29 @@ export default function SignupPage() {
   const shouldSplitLetters = () => {
     // Keep full phrases intact (no per-letter split) so spaces and script shaping remain correct
     return false
+=======
+      argentina: '#6ba3d1',
+      india: '#ffcc33',
+      germany: '#7bb3e8'
+    }
+    return colorMap[currentLocale] || '#cc0000'
+  }
+
+  const getLocaleText = () => {
+    const textMap = {
+      usa: 'Welcome',
+      china: '欢迎',
+      korea: '어서 오세요',
+      argentina: 'Bienvenido',
+      india: 'స్వాగతం',
+      germany: 'Willkommen'
+    }
+    return textMap[currentLocale] || 'Welcome'
+  }
+
+  const shouldSplitLetters = () => {
+    return currentLocale !== 'india'
+>>>>>>> 9f73737c27ab8e09dbdc43ba0109785d2cf616d1
   }
 
   return (
@@ -289,7 +326,11 @@ export default function SignupPage() {
         <div className={`overlay absolute inset-0 ${getLocaleClass()}`}></div>
 
         <div className="relative z-10 flex flex-col items-center justify-center w-full px-6 sm:px-12 max-w-3xl">
+<<<<<<< HEAD
           <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight text-center mb-8" style={{fontFamily: 'Fraunces, serif', letterSpacing: '0.003em'}}>
+=======
+          <h1 className="text-white text-5xl sm:text-7xl font-extrabold leading-tight drop-shadow-md text-center mb-8" style={{fontFamily: 'Georgia, serif'}}>
+>>>>>>> 9f73737c27ab8e09dbdc43ba0109785d2cf616d1
             {shouldSplitLetters() ? (
               getLocaleText().split('').map((letter, index) => (
                 <span key={index} className={`letter letter-${index}`}>
@@ -297,7 +338,11 @@ export default function SignupPage() {
                 </span>
               ))
             ) : (
+<<<<<<< HEAD
               <span className="letter letter-0" style={{fontFeatureSettings: '"liga" on, "kern" on'}}>{getLocaleText()}</span>
+=======
+              <span className="letter letter-0">{getLocaleText()}</span>
+>>>>>>> 9f73737c27ab8e09dbdc43ba0109785d2cf616d1
             )}
           </h1>
 
@@ -361,6 +406,7 @@ export default function SignupPage() {
                 <Field>
                   <FieldContent>
                     <FieldLabel htmlFor="city" className="text-lg font-semibold text-white">Rotation City</FieldLabel>
+<<<<<<< HEAD
                     <div className="flex flex-col gap-2">
                       <div className="flex gap-2 justify-center">
                         {ROTATION_CITIES.map((city) => (
@@ -387,6 +433,21 @@ export default function SignupPage() {
                       </div>
                       <FieldError errors={signup.errors.cityId ? [{ message: signup.errors.cityId }] : null} />
                     </div>
+=======
+                    <Select value={signup.formData.city} onValueChange={(value) => signup.handleChange("city", value)}>
+                      <SelectTrigger className="bg-white rounded-full px-8 py-4 text-gray-800 text-lg shadow-lg">
+                        <SelectValue placeholder="Select a city" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ROTATION_CITIES.map((city) => (
+                          <SelectItem key={city.value} value={city.value}>
+                            {city.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FieldError errors={signup.errors.city ? [{ message: signup.errors.city }] : null} />
+>>>>>>> 9f73737c27ab8e09dbdc43ba0109785d2cf616d1
                   </FieldContent>
                 </Field>
               </div>
