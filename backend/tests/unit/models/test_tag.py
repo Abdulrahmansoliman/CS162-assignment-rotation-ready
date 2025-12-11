@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 
 from app import db
-from app.models.tag import Tag
+from app.models.tag import Tag, TagValueType
 
 
 @pytest.fixture(scope='module')
@@ -39,7 +39,7 @@ class TestTag:
         """Test creating a tag"""
         tag = Tag(
             name="Price",
-            value_type="numerical",
+            value_type=TagValueType.NUMERIC.code,
             can_add_new_value=True
         )
         session.add(tag)
@@ -47,41 +47,44 @@ class TestTag:
 
         assert tag.tag_id is not None
         assert tag.name == "Price"
-        assert tag.value_type == "numerical"
+        assert tag.value_type == TagValueType.NUMERIC.code
+        assert tag.value_type_label == "numeric"
         assert tag.can_add_new_value is True
 
     def test_tag_with_boolean_type(self, session):
         """Test creating tag with boolean value type"""
         tag = Tag(
             name="Is Open",
-            value_type="boolean",
+            value_type=TagValueType.BOOLEAN.code,
             can_add_new_value=False
         )
         session.add(tag)
         session.commit()
 
-        assert tag.value_type == "boolean"
+        assert tag.value_type == TagValueType.BOOLEAN.code
+        assert tag.value_type_label == "boolean"
         assert tag.can_add_new_value is False
 
     def test_tag_with_name_type(self, session):
-        """Test creating tag with name value type"""
+        """Test creating tag with text value type"""
         tag = Tag(
             name="Color",
-            value_type="name",
+            value_type=TagValueType.TEXT.code,
             can_add_new_value=True
         )
         session.add(tag)
         session.commit()
 
-        assert tag.value_type == "name"
+        assert tag.value_type == TagValueType.TEXT.code
+        assert tag.value_type_label == "text"
 
     def test_unique_tag_name(self, session):
         """Test that tag names must be unique"""
-        tag1 = Tag(name="Hours", value_type="name")
+        tag1 = Tag(name="Hours", value_type=TagValueType.TEXT.code)
         session.add(tag1)
         session.commit()
 
-        tag2 = Tag(name="Hours", value_type="numerical")
+        tag2 = Tag(name="Hours", value_type=TagValueType.NUMERIC.code)
         session.add(tag2)
 
         with pytest.raises(IntegrityError):
@@ -89,8 +92,8 @@ class TestTag:
 
     def test_tag_id_auto_increment(self, session):
         """Test that tag_id auto-increments"""
-        tag1 = Tag(name="Rating", value_type="numerical")
-        tag2 = Tag(name="Status", value_type="name")
+        tag1 = Tag(name="Rating", value_type=TagValueType.NUMERIC.code)
+        tag2 = Tag(name="Status", value_type=TagValueType.TEXT.code)
         session.add_all([tag1, tag2])
         session.commit()
 
@@ -98,10 +101,11 @@ class TestTag:
 
     def test_repr_method(self, session):
         """Test string representation"""
-        tag = Tag(name="WiFi", value_type="boolean")
+        tag = Tag(name="WiFi", value_type=TagValueType.BOOLEAN.code)
         session.add(tag)
         session.commit()
 
         repr_str = repr(tag)
         assert "Tag" in repr_str
         assert "WiFi" in repr_str
+        assert "boolean" in repr_str

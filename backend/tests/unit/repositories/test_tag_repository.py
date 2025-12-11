@@ -1,7 +1,7 @@
 """Unit tests for TagRepository."""
 import pytest
 from app.repositories.implementations.tag_repository import TagRepository
-from app.models.tag import Tag
+from app.models.tag import Tag, TagValueType
 
 
 @pytest.mark.unit
@@ -20,9 +20,9 @@ class TestTagRepository:
         repo = TagRepository()
         
         # Create tags in random order
-        tag1 = repo.create_tag(name="Zebra", value_type="text")
-        tag2 = repo.create_tag(name="Apple", value_type="boolean")
-        tag3 = repo.create_tag(name="Mango", value_type="numeric")
+        tag1 = repo.create_tag(name="Zebra", value_type=TagValueType.TEXT.code)
+        tag2 = repo.create_tag(name="Apple", value_type=TagValueType.BOOLEAN.code)
+        tag3 = repo.create_tag(name="Mango", value_type=TagValueType.NUMERIC.code)
         
         tags = repo.get_all_tags()
         
@@ -34,14 +34,14 @@ class TestTagRepository:
     def test_get_tag_by_id_success(self, db_session):
         """Test getting tag by valid ID."""
         repo = TagRepository()
-        created_tag = repo.create_tag(name="Condition", value_type="text")
+        created_tag = repo.create_tag(name="Condition", value_type=TagValueType.TEXT.code)
         
         retrieved_tag = repo.get_tag_by_id(created_tag.tag_id)
         
         assert retrieved_tag is not None
         assert retrieved_tag.tag_id == created_tag.tag_id
         assert retrieved_tag.name == "Condition"
-        assert retrieved_tag.value_type == "text"
+        assert retrieved_tag.value_type == TagValueType.TEXT.code
 
     def test_get_tag_by_id_not_found(self, db_session):
         """Test getting tag with non-existent ID."""
@@ -52,7 +52,7 @@ class TestTagRepository:
     def test_get_tag_by_name_case_insensitive(self, db_session):
         """Test getting tag by name is case-insensitive."""
         repo = TagRepository()
-        repo.create_tag(name="Available", value_type="boolean")
+        repo.create_tag(name="Available", value_type=TagValueType.BOOLEAN.code)
         
         # Test different cases
         tag1 = repo.get_tag_by_name("available")
@@ -73,26 +73,26 @@ class TestTagRepository:
     def test_create_tag_text_type(self, db_session):
         """Test creating tag with text value type."""
         repo = TagRepository()
-        tag = repo.create_tag(name="Material", value_type="text")
+        tag = repo.create_tag(name="Material", value_type=TagValueType.TEXT.code)
         
         assert tag.tag_id is not None
         assert tag.name == "Material"
-        assert tag.value_type == "text"
+        assert tag.value_type == TagValueType.TEXT.code
 
     def test_create_tag_boolean_type(self, db_session):
         """Test creating tag with boolean value type."""
         repo = TagRepository()
-        tag = repo.create_tag(name="Available", value_type="boolean")
+        tag = repo.create_tag(name="Available", value_type=TagValueType.BOOLEAN.code)
         
         assert tag.tag_id is not None
         assert tag.name == "Available"
-        assert tag.value_type == "boolean"
+        assert tag.value_type == TagValueType.BOOLEAN.code
 
     def test_create_tag_numeric_type(self, db_session):
         """Test creating tag with numeric value type."""
         repo = TagRepository()
-        tag = repo.create_tag(name="Price", value_type="numeric")
+        tag = repo.create_tag(name="Price", value_type=TagValueType.NUMERIC.code)
         
         assert tag.tag_id is not None
         assert tag.name == "Price"
-        assert tag.value_type == "numeric"
+        assert tag.value_type == TagValueType.NUMERIC.code

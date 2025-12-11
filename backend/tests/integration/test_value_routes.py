@@ -4,6 +4,7 @@ from flask import json
 from app.repositories.implementations.tag_repository import TagRepository
 from app.repositories.implementations.value_repository import ValueRepository
 from app.services.auth.token_service import TokenService
+from app.models.tag import TagValueType
 
 
 @pytest.mark.integration
@@ -18,7 +19,7 @@ class TestValueRoutes:
         
         # Create a text tag
         tag_repo = TagRepository()
-        text_tag = tag_repo.create_tag(name="Brand", value_type="text")
+        text_tag = tag_repo.create_tag(name="Brand", value_type=TagValueType.TEXT.code)
         
         # Create some text values for this tag
         value_repo = ValueRepository()
@@ -62,8 +63,8 @@ class TestValueRoutes:
         
         # Create tags of different types
         tag_repo = TagRepository()
-        text_tag = tag_repo.create_tag(name="Color", value_type="text")
-        bool_tag = tag_repo.create_tag(name="Available", value_type="boolean")
+        text_tag = tag_repo.create_tag(name="Color", value_type=TagValueType.TEXT.code)
+        bool_tag = tag_repo.create_tag(name="Available", value_type=TagValueType.BOOLEAN.code)
         
         # Create values
         value_repo = ValueRepository()
