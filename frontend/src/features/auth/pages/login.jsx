@@ -257,6 +257,10 @@ export default function LoginPage() {
             )}
           </h1>
 
+          {login.errors.submit && (
+            <div className="mt-4 text-sm text-white">{login.errors.submit}</div>
+          )}
+
           {!isWaitingForOtp ? (
           <form onSubmit={handleLogin} className="fade-in mt-8 w-full max-w-2xl flex flex-col items-center">
             <div className="w-full">
@@ -280,9 +284,6 @@ export default function LoginPage() {
                 {login.isLoading ? <Spinner className="mr-2" /> : 'Sign in'}
               </Button>
             </div>
-            {login.errors.submit && (
-              <div className="mt-4 text-sm text-white">{login.errors.submit}</div>
-            )}
           </form>
         ) : (
           <form onSubmit={handleVerify} className="fade-in mt-8 w-full max-w-md flex flex-col items-center">
