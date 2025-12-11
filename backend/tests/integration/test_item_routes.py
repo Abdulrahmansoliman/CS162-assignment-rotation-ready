@@ -344,8 +344,8 @@ class TestItemRoutes:
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
         # Create categories
-        category1 = Category(name="Electronics")
-        category2 = Category(name="Furniture")
+        category1 = Category(category_name="Electronics")
+        category2 = Category(category_name="Furniture")
         db.session.add_all([category1, category2])
         db.session.commit()
         
@@ -392,7 +392,7 @@ class TestItemRoutes:
         headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
         
         # Create category and item
-        category = Category(name="Books")
+        category = Category(category_name="Books")
         db.session.add(category)
         db.session.commit()
         
