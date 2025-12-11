@@ -273,15 +273,15 @@ export default function LoginPage() {
             </div>
 
             <div className="mt-6 w-full max-w-3xl flex items-center justify-between">
-              <div className="text-sm text-white/90">
-                Don't have an account? <Link to="/signup" className="signup-link underline font-medium" style={{color: 'white'}}>Sign up</Link>
-              </div>
+              <Button type="button" className="rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} onClick={() => window.location.href = '/signup'}>
+                Sign up
+              </Button>
               <Button type="submit" className="signin-btn ml-4 rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} disabled={login.isLoading}>
                 {login.isLoading ? <Spinner className="mr-2" /> : 'Sign in'}
               </Button>
             </div>
             {login.errors.submit && (
-              <div className="mt-4 text-sm text-yellow-200">{login.errors.submit}</div>
+              <div className="mt-4 text-sm text-white">{login.errors.submit}</div>
             )}
           </form>
         ) : (
@@ -304,7 +304,7 @@ export default function LoginPage() {
                 {verification.isLoading ? <Spinner className="mr-2" /> : 'Verify'}
               </Button>
               <div className="flex gap-3">
-                <Button type="button" variant="ghost" className="flex-1 rounded-full bg-white/90 text-sm" onClick={handleResendWithCooldown} disabled={verification.isResending || verification.isLoading || resendCooldown > 0}>
+                  <Button type="button" variant="ghost" className="flex-1 rounded-full bg-white/90 text-sm font-semibold" style={{color: getLocaleColor()}} onClick={handleResendWithCooldown} disabled={verification.isResending || verification.isLoading || resendCooldown > 0}>
                   {verification.isResending ? <Spinner className="mr-2" /> : (resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code')}
                 </Button>
                 <Button type="button" variant="outline" className="flex-1 rounded-full bg-white text-sm font-semibold" style={{color: getLocaleColor()}} onClick={handleBackToLogin} disabled={verification.isLoading}>
