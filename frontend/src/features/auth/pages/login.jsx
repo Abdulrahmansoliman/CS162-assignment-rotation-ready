@@ -94,6 +94,14 @@ const animationStyles = `
     background-blend-mode: overlay;
   }
 
+  .login-container.transition-india {
+    background: linear-gradient(135deg, #ff9933 0%, #ffcc33 100%) !important;
+    background-image: url('/hyd.jpg') !important;
+    background-size: cover !important;
+    background-position: center;
+    background-blend-mode: overlay;
+  }
+
   .overlay {
     background-color: rgba(204, 0, 0, 0.8);
     transition: background-color 0.8s ease-out;
@@ -112,8 +120,12 @@ const animationStyles = `
   }
 
   .overlay.transition-argentina {
-    /* Sunshine yellow tint */
-    background-color: rgba(255, 205, 0, 0.65) !important;
+    /* Muted warm yellow (less perky) */
+    background-color: rgba(233, 174, 66, 0.62) !important;
+  }
+
+  .overlay.transition-india {
+    background-color: rgba(255, 153, 51, 0.62) !important;
   }
 `
 
@@ -127,7 +139,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     // cycle through locales every 8 seconds for a smoother transition
-    const locales = ['usa', 'china', 'korea', 'argentina']
+    const locales = ['usa', 'china', 'korea', 'argentina', 'india']
     let index = 0
 
     const cycleLocales = () => {
@@ -180,6 +192,7 @@ export default function LoginPage() {
       china: 'transition-green',
       korea: 'transition-korea',
       argentina: 'transition-argentina'
+      , india: 'transition-india'
     }
     return classMap[currentLocale] || 'show-photo'
   }
@@ -190,6 +203,7 @@ export default function LoginPage() {
       china: '欢迎',
       korea: '어서 오세요',
       argentina: 'Bienvenido'
+      , india: 'स्वागत है'
     }
     return textMap[currentLocale] || 'Welcome'
   }
