@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { Button } from "@/shared/components/ui/button"
@@ -8,11 +8,164 @@ import { Spinner } from "@/shared/components/ui/spinner"
 import { useLogin } from "../hooks/useLogin"
 import { useLoginVerification } from "../hooks/useLoginVerification"
 
+const animationStyles = `
+  @keyframes letterFlyIn {
+    from {
+      opacity: 0;
+      transform: translateX(-60px) translateY(-40px) rotateZ(-15deg);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) translateY(0) rotateZ(0deg);
+    }
+  }
+
+  @keyframes fadeInSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .letter {
+    display: inline-block;
+  }
+
+  .letter-0 { }
+  .letter-1 { }
+  .letter-2 { }
+  .letter-3 { }
+  .letter-4 { }
+  .letter-5 { }
+  .letter-6 { }
+
+  .chinese-letter {
+    display: inline-block;
+  }
+
+  .chinese-letter-0 { }
+  .chinese-letter-1 { }
+
+  .fade-in {
+    animation: fadeInSlideUp 0.8s ease-out 1.2s forwards;
+    opacity: 0;
+  }
+
+  .login-container {
+    background: linear-gradient(135deg, #cc0000 0%, #ff4444 100%);
+    background-size: cover;
+    background-position: center;
+    transition: background-image 0.8s ease-out, background 0.8s ease-out;
+  }
+
+  .login-container.show-photo {
+    background-image: url('/sf.jpg');
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay;
+  }
+
+  .login-container.transition-green {
+    background: linear-gradient(135deg, #1d9a5c 0%, #2fb872 100%) !important;
+    background-image: url('/tp.jpg') !important;
+    background-size: 120% !important;
+    background-repeat: no-repeat !important;
+    background-position: center;
+    background-blend-mode: overlay;
+  }
+
+  .login-container.transition-korea {
+    background: linear-gradient(135deg, #c60c30 0%, #e91e63 100%) !important;
+    background-image: url('/sl.jpg') !important;
+    background-size: cover !important;
+    background-position: center;
+    background-blend-mode: overlay;
+  }
+
+  .login-container.transition-argentina {
+    background: linear-gradient(135deg, #4b8dc9 0%, #6ba3d1 100%) !important;
+    background-image: url('/ba.jpg') !important;
+    background-size: cover !important;
+    background-position: center;
+    background-blend-mode: overlay;
+  }
+
+  .login-container.transition-india {
+    background: linear-gradient(135deg, #ff9933 0%, #ffcc33 100%) !important;
+    background-image: url('/hyd.jpg') !important;
+    background-size: cover !important;
+    background-position: center;
+    background-blend-mode: overlay;
+  }
+
+  .login-container.transition-germany {
+    background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%) !important;
+    background-image: url('/br.jpg') !important;
+    background-size: cover !important;
+    background-position: center;
+    background-blend-mode: overlay;
+  }
+
+  .overlay {
+    background-color: rgba(204, 0, 0, 0.8);
+    transition: background-color 0.8s ease-out;
+  }
+
+  .overlay.show-photo {
+    background-color: rgba(204, 0, 0, 0.5);
+  }
+
+  .overlay.transition-green {
+    background-color: rgba(29, 154, 92, 0.7) !important;
+  }
+
+  .overlay.transition-korea {
+    background-color: rgba(198, 12, 48, 0.6) !important;
+  }
+
+  .overlay.transition-argentina {
+    background-color: rgba(75, 141, 201, 0.6) !important;
+  }
+
+  .overlay.transition-india {
+    background-color: rgba(255, 153, 51, 0.6) !important;
+  }
+
+  .overlay.transition-germany {
+    background-color: rgba(26, 26, 26, 0.7) !important;
+  }
+`
+
 export default function LoginPage() {
   const [isWaitingForOtp, setIsWaitingForOtp] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
+  const [showPhoto, setShowPhoto] = useState(true)
+  const [currentLocale, setCurrentLocale] = useState('usa') // usa, china, korea, argentina, india, germany
   const login = useLogin()
   const verification = useLoginVerification(login.email)
+
+  useEffect(() => {
+    const runAnimation = () => {
+      const locales = ['usa', 'china', 'korea', 'argentina', 'india', 'germany']
+      let index = 0
+      
+      const cycleLocales = () => {
+        const nextIndex = (index + 1) % locales.length
+        setCurrentLocale(locales[nextIndex])
+        index = nextIndex
+        const nextTimer = setTimeout(cycleLocales, 5000)
+        return nextTimer
+      }
+      
+      return cycleLocales()
+    }
+    
+    return () => {}
+  }, [])
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -49,16 +202,30 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen w-full relative bg-cover bg-center flex items-center justify-center" style={{backgroundImage: "url('/sf.jpg')"}}>
-      <div className="absolute inset-0 bg-red-700 opacity-80"></div>
+    <>
+      <style>{animationStyles}</style>
+      <div className={`login-container min-h-screen w-full relative flex items-center justify-center ${showPhoto ? 'show-photo' : ''} ${transitionGreen ? 'transition-green' : ''}`}>
+        <div className={`overlay absolute inset-0 ${showPhoto ? 'show-photo' : ''} ${transitionGreen ? 'transition-green' : ''}`}></div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center w-full px-6 sm:px-12">
-        <h1 className="text-white text-6xl sm:text-8xl md:text-9xl font-extrabold leading-tight drop-shadow-md" style={{fontFamily: 'Georgia, serif'}}>
-          Welcome
-        </h1>
+        <div className="relative z-10 flex flex-col items-center justify-center w-full px-6 sm:px-12">
+          <h1 className="text-white text-6xl sm:text-8xl md:text-9xl font-extrabold leading-tight drop-shadow-md" style={{fontFamily: 'Georgia, serif', letterSpacing: '0.05em'}}>
+            {transitionGreen ? (
+              '欢迎'.split('').map((letter, index) => (
+                <span key={index} className={`chinese-letter chinese-letter-${index}`}>
+                  {letter}
+                </span>
+              ))
+            ) : (
+              'Welcome'.split('').map((letter, index) => (
+                <span key={index} className={`letter letter-${index}`}>
+                  {letter}
+                </span>
+              ))
+            )}
+          </h1>
 
-        {!isWaitingForOtp ? (
-          <form onSubmit={handleLogin} className="mt-8 w-full max-w-2xl flex flex-col items-center">
+          {!isWaitingForOtp ? (
+          <form onSubmit={handleLogin} className="fade-in mt-8 w-full max-w-2xl flex flex-col items-center">
             <div className="w-full">
               <Input
                 id="email"
@@ -85,7 +252,7 @@ export default function LoginPage() {
             )}
           </form>
         ) : (
-          <form onSubmit={handleVerify} className="mt-8 w-full max-w-md flex flex-col items-center">
+          <form onSubmit={handleVerify} className="fade-in mt-8 w-full max-w-md flex flex-col items-center">
             <Input
               id="verification-code"
               type="text"
@@ -114,7 +281,8 @@ export default function LoginPage() {
             </div>
           </form>
         )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
