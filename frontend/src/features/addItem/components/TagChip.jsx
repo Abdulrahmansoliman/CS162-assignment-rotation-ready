@@ -2,9 +2,12 @@ export default function TagChip({ tag, value, onValueChange, onRemove }) {
   function handleChange(e) {
     let val = e.target.value;
 
-    // Convert boolean dropdown to actual boolean strings
     if (tag.value_type === "boolean") {
       val = val === "true";
+    }
+
+    if (tag.value_type === "numeric") {
+      val = Number(val);
     }
 
     onValueChange(tag.tag_id, val);
@@ -22,7 +25,7 @@ export default function TagChip({ tag, value, onValueChange, onRemove }) {
         </button>
       </div>
 
-      {/* INPUT BASED ON VALUE TYPE */}
+      {/* NUMERIC */}
       {tag.value_type === "numeric" && (
         <input
           type="number"
@@ -33,6 +36,7 @@ export default function TagChip({ tag, value, onValueChange, onRemove }) {
         />
       )}
 
+      {/* BOOLEAN */}
       {tag.value_type === "boolean" && (
         <select
           className="bg-gray-700 text-white px-3 py-2 rounded-md"
@@ -45,6 +49,7 @@ export default function TagChip({ tag, value, onValueChange, onRemove }) {
         </select>
       )}
 
+      {/* TEXT */}
       {tag.value_type === "text" && (
         <input
           type="text"
@@ -57,6 +62,7 @@ export default function TagChip({ tag, value, onValueChange, onRemove }) {
     </div>
   );
 }
+
 
 
 

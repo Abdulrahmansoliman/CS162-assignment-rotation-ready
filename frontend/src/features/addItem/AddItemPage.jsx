@@ -35,7 +35,6 @@ export default function AddItemPage() {
     load();
   }, []);
 
-  // ------------------ CATEGORY HANDLERS ------------------
   function addCategory(id) {
     const cat = categories.find((c) => c.category_id === id);
     if (!cat) return;
@@ -46,7 +45,6 @@ export default function AddItemPage() {
     setSelectedCategories((prev) => prev.filter((c) => c.category_id !== id));
   }
 
-  // ------------------ TAG HANDLERS ------------------
   function addTag(id) {
     const tag = tags.find((t) => t.tag_id === id);
     if (!tag) return;
@@ -71,7 +69,6 @@ export default function AddItemPage() {
     setNewTags((prev) => [...prev, tagObj]);
   }
 
-  // ------------------ SUBMIT ------------------
   async function handleSubmit() {
     const body = {
       name,
@@ -82,7 +79,7 @@ export default function AddItemPage() {
 
       existing_tags: selectedTags.map((tag) => ({
         tag_id: tag.tag_id,
-        value: existingTagValues[tag.tag_id] ?? "",
+        value: existingTagValues[tag.tag_id] || "",
       })),
 
       new_tags: newTags.map((tag) => ({
@@ -96,15 +93,13 @@ export default function AddItemPage() {
     alert("Item created!");
   }
 
-  // ------------------ UI ------------------
-
   return (
     <div className="flex justify-center p-10">
       <div className="bg-gray-900 p-10 rounded-xl shadow-xl w-[650px]">
 
         <h1 className="text-3xl font-bold text-white mb-8">Add Item</h1>
 
-        {/* Name */}
+        {/* NAME */}
         <label className="text-gray-300">Name</label>
         <input
           className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-6"
@@ -112,7 +107,7 @@ export default function AddItemPage() {
           onChange={(e) => setName(e.target.value)}
         />
 
-        {/* Location */}
+        {/* LOCATION */}
         <label className="text-gray-300">Location</label>
         <input
           className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-6"
@@ -120,7 +115,6 @@ export default function AddItemPage() {
           onChange={(e) => setLocation(e.target.value)}
         />
 
-        {/* Walking Distance */}
         <label className="text-gray-300">Walking Distance (meters)</label>
         <input
           className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-6"
@@ -128,55 +122,67 @@ export default function AddItemPage() {
           onChange={(e) => setWalkingDistance(e.target.value)}
         />
 
-        {/* ------------------ CATEGORY SELECT ------------------ */}
+        {/* CATEGORIES */}
         <label className="text-gray-300">Categories</label>
-
         <SearchSelect
-          items={categories.filter(
-            (c) => !selectedCategories.some((s) => s.category_id === c.category_id)
-          )}
-          displayField="category_name"
-          valueField="category_id"
           placeholder="Search categories..."
-          onSelect={(v) => addCategory(parseInt(v))}
+          items={categories.map((c) => ({
+            id: c.category_id,
+            label: c.category_name,
+          }))}
+          onSelect={(id) => addCategory(parseInt(id))}
+          selectedItems={selectedCategories.map((c) => c.category_id)}
         />
 
-        <div className="flex flex-wrap gap-2 mb-6 mt-2">
+        <div className="flex flex-wrap gap-2 mb-6">
           {selectedCategories.map((cat) => (
-            <CategoryChip
-              key={cat.category_id}
-              category={cat}
-              onRemove={removeCategory}
-            />
+            <CategoryChip key={cat.category_id} category={cat} onRemove={removeCategory} />
           ))}
         </div>
 
-        {/* ------------------ TAG SELECT ------------------ */}
+        {/* TAGS */}
         <label className="text-gray-300">Tags</label>
-
         <SearchSelect
-          items={tags.filter(
-            (t) => !selectedTags.some((s) => s.tag_id === t.tag_id)
-          )}
-          displayField="name"
-          valueField="tag_id"
           placeholder="Search tags..."
-          onSelect={(v) => addTag(parseInt(v))}
+          items={tags.map((t) => ({
+            id: t.tag_id,
+            label: t.name,
+          }))}
+          onSelect={(id) => addTag(parseInt(id))}
+          selectedItems={selectedTags.map((t) => t.tag_id)}
         />
 
-        <div className="flex flex-col gap-3 mb-6 mt-2">
+        {/* EXISTING TAGS */}
+        <div className="flex flex-col gap-3 mb-6">
           {selectedTags.map((tag) => (
             <TagChip
               key={tag.tag_id}
               tag={tag}
-              value={existingTagValues[tag.tag_id] ?? ""}
+              value={existingTagValues[tag.tag_id] || ""}
               onValueChange={handleExistingTagValueChange}
               onRemove={removeTag}
             />
           ))}
+
+          {/* NEW TAGS — must show in UI */}
+          {newTags.map((tag, index) => (
+            <TagChip
+              key={`new-${index}`}
+              tag={tag}
+              value={tag.value}
+              onValueChange={(ignoredId, value) => {
+                const updated = [...newTags];
+                updated[index].value = value;
+                setNewTags(updated);
+              }}
+              onRemove={() => {
+                setNewTags((prev) => prev.filter((_, i) => i !== index));
+              }}
+            />
+          ))}
         </div>
 
-        {/* Create new tag */}
+        {/* CREATE TAG */}
         <button
           className="text-blue-400 mb-6"
           onClick={() => setModalOpen(true)}
@@ -184,7 +190,7 @@ export default function AddItemPage() {
           + Create new tag
         </button>
 
-        {/* Submit */}
+        {/* SUBMIT */}
         <button
           className="bg-blue-600 hover:bg-blue-700 text-white w-full py-3 rounded-md"
           onClick={handleSubmit}
@@ -192,6 +198,7 @@ export default function AddItemPage() {
           Create Item
         </button>
 
+        {/* MODAL */}
         <CreateTagModal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
@@ -201,6 +208,7 @@ export default function AddItemPage() {
     </div>
   );
 }
+
 
 
 
