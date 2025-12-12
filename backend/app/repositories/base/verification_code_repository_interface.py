@@ -37,3 +37,11 @@ class IVerificationCodeRepository(ABC):
         since_minutes: int
     ) -> int:
         pass
+
+    def get_recent_codes_time_window(
+        self,
+        user_id: int,
+        code_type: str,
+        since_minutes: int
+    ) -> list[VerificationCode]:
+        pass
