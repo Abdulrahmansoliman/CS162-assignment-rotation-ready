@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/shared/components/ui/select";
-import { Spinner } from "@/shared/components/ui/spinner";
+import SearchSelect from "./components/SearchSelect";
 
 import { getCategories } from "@/api/category";
 import { getTags } from "@/api/tag";
@@ -36,6 +35,7 @@ export default function AddItemPage() {
     load();
   }, []);
 
+  // ------------------ CATEGORY HANDLERS ------------------
   function addCategory(id) {
     const cat = categories.find((c) => c.category_id === id);
     if (!cat) return;
@@ -46,6 +46,7 @@ export default function AddItemPage() {
     setSelectedCategories((prev) => prev.filter((c) => c.category_id !== id));
   }
 
+  // ------------------ TAG HANDLERS ------------------
   function addTag(id) {
     const tag = tags.find((t) => t.tag_id === id);
     if (!tag) return;
@@ -53,20 +54,13 @@ export default function AddItemPage() {
   }
 
   function removeTag(id) {
-    setSelectedTagValues((prev) => {
+    setExistingTagValues((prev) => {
       const copy = { ...prev };
       delete copy[id];
       return copy;
     });
 
     setSelectedTags((prev) => prev.filter((t) => t.tag_id !== id));
-  }
-
-  function setSelectedTagValues(updater) {
-    setExistingTagValues((prev) => {
-      const updated = typeof updater === "function" ? updater(prev) : updater;
-      return updated;
-    });
   }
 
   function handleExistingTagValueChange(id, value) {
@@ -77,6 +71,7 @@ export default function AddItemPage() {
     setNewTags((prev) => [...prev, tagObj]);
   }
 
+  // ------------------ SUBMIT ------------------
   async function handleSubmit() {
     const body = {
       name,
@@ -87,7 +82,7 @@ export default function AddItemPage() {
 
       existing_tags: selectedTags.map((tag) => ({
         tag_id: tag.tag_id,
-        value: existingTagValues[tag.tag_id] || "",
+        value: existingTagValues[tag.tag_id] ?? "",
       })),
 
       new_tags: newTags.map((tag) => ({
@@ -101,12 +96,15 @@ export default function AddItemPage() {
     alert("Item created!");
   }
 
+  // ------------------ UI ------------------
+
   return (
     <div className="flex justify-center p-10">
       <div className="bg-gray-900 p-10 rounded-xl shadow-xl w-[650px]">
 
         <h1 className="text-3xl font-bold text-white mb-8">Add Item</h1>
 
+        {/* Name */}
         <label className="text-gray-300">Name</label>
         <input
           className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-6"
@@ -114,6 +112,7 @@ export default function AddItemPage() {
           onChange={(e) => setName(e.target.value)}
         />
 
+        {/* Location */}
         <label className="text-gray-300">Location</label>
         <input
           className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-6"
@@ -121,6 +120,7 @@ export default function AddItemPage() {
           onChange={(e) => setLocation(e.target.value)}
         />
 
+        {/* Walking Distance */}
         <label className="text-gray-300">Walking Distance (meters)</label>
         <input
           className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-6"
@@ -128,60 +128,55 @@ export default function AddItemPage() {
           onChange={(e) => setWalkingDistance(e.target.value)}
         />
 
-        {/* Categories */}
+        {/* ------------------ CATEGORY SELECT ------------------ */}
         <label className="text-gray-300">Categories</label>
 
-        <Select onValueChange={(v) => addCategory(parseInt(v))}>
-          <SelectTrigger className="bg-gray-700 text-white w-full mb-3">
-            <SelectValue placeholder="Select a category" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories
-              .filter((c) => !selectedCategories.some((s) => s.category_id === c.category_id))
-              .map((c) => (
-                <SelectItem key={c.category_id} value={String(c.category_id)}>
-                  {c.category_name}
-                </SelectItem>
-              ))}
-          </SelectContent>
-        </Select>
+        <SearchSelect
+          items={categories.filter(
+            (c) => !selectedCategories.some((s) => s.category_id === c.category_id)
+          )}
+          displayField="category_name"
+          valueField="category_id"
+          placeholder="Search categories..."
+          onSelect={(v) => addCategory(parseInt(v))}
+        />
 
-        <div className="flex flex-wrap gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-6 mt-2">
           {selectedCategories.map((cat) => (
-            <CategoryChip key={cat.category_id} category={cat} onRemove={removeCategory} />
+            <CategoryChip
+              key={cat.category_id}
+              category={cat}
+              onRemove={removeCategory}
+            />
           ))}
         </div>
 
-        {/* Tags */}
+        {/* ------------------ TAG SELECT ------------------ */}
         <label className="text-gray-300">Tags</label>
 
-        <Select onValueChange={(v) => addTag(parseInt(v))}>
-          <SelectTrigger className="bg-gray-700 text-white w-full mb-3">
-            <SelectValue placeholder="Select a tag" />
-          </SelectTrigger>
-          <SelectContent>
-            {tags
-              .filter((t) => !selectedTags.some((s) => s.tag_id === t.tag_id))
-              .map((t) => (
-                <SelectItem key={t.tag_id} value={String(t.tag_id)}>
-                  {t.name}
-                </SelectItem>
-              ))}
-          </SelectContent>
-        </Select>
+        <SearchSelect
+          items={tags.filter(
+            (t) => !selectedTags.some((s) => s.tag_id === t.tag_id)
+          )}
+          displayField="name"
+          valueField="tag_id"
+          placeholder="Search tags..."
+          onSelect={(v) => addTag(parseInt(v))}
+        />
 
-        <div className="flex flex-col gap-3 mb-6">
+        <div className="flex flex-col gap-3 mb-6 mt-2">
           {selectedTags.map((tag) => (
             <TagChip
               key={tag.tag_id}
               tag={tag}
-              value={existingTagValues[tag.tag_id] || ""}
+              value={existingTagValues[tag.tag_id] ?? ""}
               onValueChange={handleExistingTagValueChange}
               onRemove={removeTag}
             />
           ))}
         </div>
 
+        {/* Create new tag */}
         <button
           className="text-blue-400 mb-6"
           onClick={() => setModalOpen(true)}
@@ -189,6 +184,7 @@ export default function AddItemPage() {
           + Create new tag
         </button>
 
+        {/* Submit */}
         <button
           className="bg-blue-600 hover:bg-blue-700 text-white w-full py-3 rounded-md"
           onClick={handleSubmit}
@@ -205,6 +201,8 @@ export default function AddItemPage() {
     </div>
   );
 }
+
+
 
 
 

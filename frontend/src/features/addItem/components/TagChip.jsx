@@ -1,22 +1,63 @@
 export default function TagChip({ tag, value, onValueChange, onRemove }) {
+  function handleChange(e) {
+    let val = e.target.value;
+
+    // Convert boolean dropdown to actual boolean strings
+    if (tag.value_type === "boolean") {
+      val = val === "true";
+    }
+
+    onValueChange(tag.tag_id, val);
+  }
+
   return (
     <div className="flex flex-col gap-2 bg-gray-800 p-3 rounded-lg">
       <div className="flex justify-between items-center">
         <span className="text-white">{tag.name}</span>
-        <button onClick={() => onRemove(tag.tag_id)} className="text-red-400">
+        <button 
+          onClick={() => onRemove(tag.tag_id)} 
+          className="text-red-400"
+        >
           ✕
         </button>
       </div>
 
-      <input
-        className="bg-gray-700 text-white px-3 py-2 rounded-md"
-        placeholder={`Enter ${tag.value_type} value`}
-        value={value}
-        onChange={(e) => onValueChange(tag.tag_id, e.target.value)}
-      />
+      {/* INPUT BASED ON VALUE TYPE */}
+      {tag.value_type === "numeric" && (
+        <input
+          type="number"
+          className="bg-gray-700 text-white px-3 py-2 rounded-md"
+          placeholder="Enter numeric value"
+          value={value}
+          onChange={handleChange}
+        />
+      )}
+
+      {tag.value_type === "boolean" && (
+        <select
+          className="bg-gray-700 text-white px-3 py-2 rounded-md"
+          value={value === true ? "true" : value === false ? "false" : ""}
+          onChange={handleChange}
+        >
+          <option value="">Select yes/no</option>
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+      )}
+
+      {tag.value_type === "text" && (
+        <input
+          type="text"
+          className="bg-gray-700 text-white px-3 py-2 rounded-md"
+          placeholder="Enter text value"
+          value={value}
+          onChange={handleChange}
+        />
+      )}
     </div>
   );
 }
+
 
 
 

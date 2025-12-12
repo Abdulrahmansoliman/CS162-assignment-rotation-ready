@@ -8,12 +8,17 @@ export default function CreateTagModal({ isOpen, onClose, onCreate }) {
   if (!isOpen) return null;
 
   function handleSubmit() {
-    if (!name || !valueType || !value) return;
+    if (!name || !valueType || value === "") return;
 
     onCreate({
       name,
       value_type: valueType,
-      value,
+      value:
+        valueType === "boolean"
+          ? value === "true"
+          : valueType === "numeric"
+          ? Number(value)
+          : value,
     });
 
     setName("");
@@ -25,8 +30,11 @@ export default function CreateTagModal({ isOpen, onClose, onCreate }) {
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
       <div className="bg-gray-900 p-6 rounded-xl w-[400px] shadow-xl">
-        <h2 className="text-xl font-semibold text-white mb-4">Create New Tag</h2>
+        <h2 className="text-xl font-semibold text-white mb-4">
+          Create New Tag
+        </h2>
 
+        {/* Tag Name */}
         <label className="text-gray-300">Tag Name</label>
         <input
           className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-4"
@@ -34,11 +42,15 @@ export default function CreateTagModal({ isOpen, onClose, onCreate }) {
           onChange={(e) => setName(e.target.value)}
         />
 
+        {/* Value Type */}
         <label className="text-gray-300">Value Type</label>
         <select
           className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-4"
           value={valueType}
-          onChange={(e) => setValueType(e.target.value)}
+          onChange={(e) => {
+            setValueType(e.target.value);
+            setValue(""); // reset value when type changes
+          }}
         >
           <option value="">Select type</option>
           <option value="text">Text</option>
@@ -46,16 +58,48 @@ export default function CreateTagModal({ isOpen, onClose, onCreate }) {
           <option value="numeric">Numeric</option>
         </select>
 
+        {/* Value Input — dynamic */}
         <label className="text-gray-300">Value</label>
-        <input
-          className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-6"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
 
+        {valueType === "numeric" && (
+          <input
+            type="number"
+            className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-6"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+          />
+        )}
+
+        {valueType === "boolean" && (
+          <select
+            className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-6"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+          >
+            <option value="">Select yes/no</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        )}
+
+        {valueType === "text" && (
+          <input
+            type="text"
+            className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-6"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+          />
+        )}
+
+        {/* Buttons */}
         <div className="flex justify-end gap-3">
-          <button className="text-gray-300" onClick={onClose}>Cancel</button>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-md" onClick={handleSubmit}>
+          <button className="text-gray-300" onClick={onClose}>
+            Cancel
+          </button>
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded-md"
+            onClick={handleSubmit}
+          >
             Create Tag
           </button>
         </div>
