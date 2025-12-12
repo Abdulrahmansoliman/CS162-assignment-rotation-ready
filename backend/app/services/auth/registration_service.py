@@ -99,7 +99,8 @@ class RegistrationService:
             verification_code=code,
             expiry_minutes=current_app.config[
                 'VERIFICATION_CODE_EXPIRY_MINUTES'
-            ]
+            ],
+            code_type="registration"
         )
 
         return user

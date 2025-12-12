@@ -51,7 +51,8 @@ class LoginService:
             verification_code=code,
             expiry_minutes=current_app.config[
                 'VERIFICATION_CODE_EXPIRY_MINUTES'
-            ]
+            ],
+            code_type='login'
         )
 
     def verify_login(self, email: str, verification_code: str) -> User:
