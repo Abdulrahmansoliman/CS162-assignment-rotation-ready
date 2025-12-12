@@ -12,8 +12,9 @@ def get_rotation_cities():
 
     cities = service.get_all_rotation_cities()
 
+    # Return empty array if no cities (standard REST practice)
     if not cities:
-        return jsonify({"error": "No rotation cities found"}), 404
+        return jsonify([]), 200
 
     return jsonify([RotationCityResponse.model_validate(city).model_dump() for city in cities]), 200
 
