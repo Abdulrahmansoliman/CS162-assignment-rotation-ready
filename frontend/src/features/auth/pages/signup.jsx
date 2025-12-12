@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { Button } from "@/shared/components/ui/button"
@@ -8,21 +8,38 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from "@/shared/components/ui/spinner"
 import { useSignup } from "../hooks/useSignup"
 import { useVerification } from "../hooks/useVerification"
-
-const ROTATION_CITIES = [
-  { value: "1", label: "San Francisco" },
-  { value: "2", label: "Taipei" },
-  { value: "3", label: "Seoul" },
-  { value: "4", label: "Buenos Aires" },
-  { value: "5", label: "India" },
-  { value: "6", label: "Berlin" },
-]
+import { getCities } from "@/api/cities"
 
 export default function SignupPage() {
   const [isWaitingForOtp, setIsWaitingForOtp] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
+  const [rotationCities, setRotationCities] = useState([])
+  const [citiesLoading, setCitiesLoading] = useState(true)
+  const [citiesError, setCitiesError] = useState(null)
   const signup = useSignup()
   const verification = useVerification(signup.formData.email)
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        setCitiesLoading(true)
+        setCitiesError(null)
+        const cities = await getCities()
+        const formattedCities = cities.map(city => ({
+          value: String(city.city_id),
+          label: city.name || 'Unknown City'
+        }))
+        setRotationCities(formattedCities)
+      } catch (error) {
+        console.error("Failed to fetch cities:", error)
+        setCitiesError("Failed to load cities. Please try again.")
+      } finally {
+        setCitiesLoading(false)
+      }
+    }
+    
+    fetchCities()
+  }, [])
 
   const handleRegister = async (e) => {
     e.preventDefault()
@@ -56,6 +73,24 @@ export default function SignupPage() {
         return prev - 1
       })
     }, 1000)
+  }
+
+  const handleRetryFetchCities = async () => {
+    try {
+      setCitiesLoading(true)
+      setCitiesError(null)
+      const cities = await getCities()
+      const formattedCities = cities.map(city => ({
+        value: String(city.city_id),
+        label: city.name || 'Unknown City'
+      }))
+      setRotationCities(formattedCities)
+    } catch (error) {
+      console.error("Failed to fetch cities:", error)
+      setCitiesError("Failed to load cities. Please try again.")
+    } finally {
+      setCitiesLoading(false)
+    }
   }
 
   return (
@@ -129,23 +164,39 @@ export default function SignupPage() {
               <Field>
                 <FieldContent>
                   <FieldLabel htmlFor="rotation-city" className="text-base sm:text-lg font-semibold text-slate-200">Rotation City</FieldLabel>
-                  <Select
-                    value={signup.formData.cityId}
-                    onValueChange={(value) => signup.handleChange("cityId", value)}
-                    disabled={signup.isLoading}
-                    required
-                  >
-                    <SelectTrigger id="rotation-city" className="w-full text-lg sm:text-xl h-10 sm:h-12 bg-slate-700/50 border-slate-600" >
-                      <SelectValue placeholder="Select your rotation city" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-700">
-                      {ROTATION_CITIES.map((city) => (
-                        <SelectItem key={city.value} value={city.value} className="text-lg sm:text-xl text-white hover:bg-slate-700">
-                          {city.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {citiesError ? (
+                    <div className="space-y-2">
+                      <p className="text-red-400 text-sm">{citiesError}</p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleRetryFetchCities}
+                        disabled={citiesLoading}
+                        className="w-full bg-slate-700/50 hover:bg-slate-700 text-white border-slate-600"
+                      >
+                        {citiesLoading ? <Spinner className="mr-2" /> : null}
+                        Retry Loading Cities
+                      </Button>
+                    </div>
+                  ) : (
+                    <Select
+                      value={signup.formData.cityId}
+                      onValueChange={(value) => signup.handleChange("cityId", value)}
+                      disabled={signup.isLoading || citiesLoading}
+                      required
+                    >
+                      <SelectTrigger id="rotation-city" className="w-full text-lg sm:text-xl h-10 sm:h-12 bg-slate-700/50 border-slate-600" >
+                        <SelectValue placeholder={citiesLoading ? "Loading cities..." : "Select your rotation city"} />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-800 border-slate-700">
+                        {rotationCities.map((city) => (
+                          <SelectItem key={city.value} value={city.value} className="text-lg sm:text-xl text-white hover:bg-slate-700">
+                            {city.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                   <FieldError errors={signup.errors.cityId ? [{ message: signup.errors.cityId }] : null} />
                 </FieldContent>
               </Field>
