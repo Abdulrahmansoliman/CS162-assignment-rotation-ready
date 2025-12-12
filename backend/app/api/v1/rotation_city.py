@@ -12,7 +12,7 @@ def get_rotation_cities():
 
     cities = service.get_all_rotation_cities()
 
-    # Return empty array if no cities (standard REST practice)
+    # Return empty array if no cities
     if not cities:
         return jsonify([]), 200
 
