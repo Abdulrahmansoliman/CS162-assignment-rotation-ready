@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
-import SignupPage from '../signup'
-import * as useSignupModule from '../../hooks/useSignup'
-import * as useVerificationModule from '../../hooks/useVerification'
+import SignupPage from '@/features/auth/pages/signup'
+import * as useSignupModule from '@/features/auth/hooks/useSignup'
+import * as useVerificationModule from '@/features/auth/hooks/useVerification'
 
 // Mock the hooks
-vi.mock('../../hooks/useSignup')
-vi.mock('../../hooks/useVerification')
+vi.mock('@/features/auth/hooks/useSignup')
+vi.mock('@/features/auth/hooks/useVerification')
 
 describe('SignupPage', () => {
   const mockSignup = {

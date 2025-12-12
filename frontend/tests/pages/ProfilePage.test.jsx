@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import ProfilePage from '../ProfilePage'
+import ProfilePage from '@/features/profile/ProfilePage'
 import * as userApi from '@/api/user'
 import * as citiesApi from '@/api/cities'
 

@@ -3,7 +3,6 @@ import { cleanup } from '@testing-library/react'
 import * as matchers from '@testing-library/jest-dom/matchers'
 import React from 'react'
 
-// Make React available globally
 global.React = React
 
 expect.extend(matchers)
