@@ -28,7 +28,7 @@ export function useLoginVerification(email) {
         verificationCode,
       })
 
-      navigate("/")
+      navigate("/home")
       return { success: true }
     } catch (error) {
       setErrors({ submit: error.message })
