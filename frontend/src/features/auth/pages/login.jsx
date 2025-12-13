@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
 import { Button } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
 import { Spinner } from "@/shared/components/ui/spinner"
@@ -254,35 +255,64 @@ export default function LoginPage() {
           {login.errors.submit && (
             <div className="mt-4 text-sm text-white">{login.errors.submit}</div>
           )}
-          <form onSubmit={handleVerify} className="fade-in mt-8 w-full max-w-md flex flex-col items-center">
-            <Input
-              id="verification-code"
-              type="text"
-              placeholder="ABC123"
-              value={verification.verificationCode}
-              onChange={(e) => verification.handleVerificationCodeChange(e.target.value)}
-              disabled={verification.isLoading}
-              required
-              maxLength={6}
-              className="mx-auto block w-full bg-white rounded-full px-8 py-4 text-gray-800 text-lg tracking-widest text-center font-mono uppercase shadow-lg"
-              autoComplete="off"
-            />
-
-            <div className="mt-4 w-full flex flex-col space-y-3">
-              <Button type="submit" className="rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} disabled={verification.isLoading || verification.verificationCode.length !== 6}>
-                {verification.isLoading ? <Spinner className="mr-2" /> : 'Verify'}
-              </Button>
-              <div className="flex gap-3">
-                  <Button type="button" variant="ghost" className="flex-1 rounded-full bg-white/90 text-sm font-semibold" style={{color: getLocaleColor()}} onClick={handleResendWithCooldown} disabled={verification.isResending || verification.isLoading || resendCooldown > 0}>
-                  {verification.isResending ? <Spinner className="mr-2" /> : (resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code')}
-                </Button>
-                <Button type="button" variant="outline" className="flex-1 rounded-full bg-white text-sm font-semibold" style={{color: getLocaleColor()}} onClick={handleBackToLogin} disabled={verification.isLoading}>
-                  Back
+          
+          {!isWaitingForOtp ? (
+            <form onSubmit={handleLogin} className="fade-in mt-8 w-full max-w-2xl flex flex-col items-center gap-4">
+              <Input
+                id="email"
+                type="email"
+                placeholder="your.email@example.com"
+                value={login.email}
+                onChange={(e) => login.handleChange(e.target.value)}
+                disabled={login.isLoading}
+                required
+                className="w-full bg-white rounded-full px-8 py-3 text-gray-800 text-lg text-center shadow-lg"
+                autoComplete="email"
+              />
+              {login.errors.email && (
+                <div className="mt-2 text-sm text-white">{login.errors.email}</div>
+              )}
+              <div className="flex items-center justify-between w-full gap-4 mt-2">
+                <div className="text-white text-sm font-medium whitespace-nowrap">
+                  Don't have an account? <Link to="/signup" className="underline hover:opacity-80 transition">Sign up</Link>
+                </div>
+                <Button type="submit" className="rounded-full px-8 py-3 bg-white font-semibold shadow-lg whitespace-nowrap" style={{color: getLocaleColor()}} disabled={login.isLoading}>
+                  {login.isLoading ? <Spinner className="mr-2" /> : 'Sign In'}
                 </Button>
               </div>
-            </div>
-          </form>
-        )}
+            </form>
+          ) : (
+            <form onSubmit={handleVerify} className="fade-in mt-8 w-full max-w-md flex flex-col items-center">
+              <Input
+                id="verification-code"
+                type="text"
+                placeholder="ABC123"
+                value={verification.verificationCode}
+                onChange={(e) => verification.handleVerificationCodeChange(e.target.value)}
+                disabled={verification.isLoading}
+                required
+                maxLength={6}
+                className="mx-auto block w-full bg-white rounded-full px-8 py-4 text-gray-800 text-lg tracking-widest text-center font-mono uppercase shadow-lg"
+                autoComplete="off"
+              />
+              {verification.errors.submit && (
+                <div className="mt-2 text-sm text-white">{verification.errors.submit}</div>
+              )}
+              <div className="mt-4 w-full flex flex-col space-y-3">
+                <Button type="submit" className="rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} disabled={verification.isLoading || verification.verificationCode.length !== 6}>
+                  {verification.isLoading ? <Spinner className="mr-2" /> : 'Verify'}
+                </Button>
+                <div className="flex gap-3">
+                    <Button type="button" variant="ghost" className="flex-1 rounded-full bg-white/90 text-sm font-semibold" style={{color: getLocaleColor()}} onClick={handleResendWithCooldown} disabled={verification.isResending || verification.isLoading || resendCooldown > 0}>
+                    {verification.isResending ? <Spinner className="mr-2" /> : (resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code')}
+                  </Button>
+                  <Button type="button" variant="outline" className="flex-1 rounded-full bg-white text-sm font-semibold" style={{color: getLocaleColor()}} onClick={handleBackToLogin} disabled={verification.isLoading}>
+                    Back
+                  </Button>
+                </div>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </>
