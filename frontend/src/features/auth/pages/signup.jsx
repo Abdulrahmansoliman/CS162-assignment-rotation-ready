@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from "@/shared/components/ui/spinner"
 import { useSignup } from "../hooks/useSignup"
 import { useVerification } from "../hooks/useVerification"
+import { getCities } from "@/api/cities"
 
 const animationStyles = `
   @keyframes letterFlyIn {
@@ -125,21 +126,37 @@ const animationStyles = `
   }
 `
 
-const ROTATION_CITIES = [
-  { value: "1", label: "San Francisco", icon: "/sf.png" },
-  { value: "2", label: "Taipei", icon: "/tp.png" },
-  { value: "3", label: "Seoul", icon: "/sl.png" },
-  { value: "4", label: "Buenos Aires", icon: "/ba.png" },
-  { value: "5", label: "India", icon: "/hy.png" },
-  { value: "6", label: "Berlin", icon: "/br.png" },
-]
+const ROTATION_CITIES = [] // This line is no longer needed, cities will be fetched
 
 export default function SignupPage() {
   const [isWaitingForOtp, setIsWaitingForOtp] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
   const [currentLocale, setCurrentLocale] = useState('usa')
+  const [rotationCities, setRotationCities] = useState([])
+  const [citiesLoading, setCitiesLoading] = useState(true)
+  const [citiesError, setCitiesError] = useState("")
   const signup = useSignup()
   const verification = useVerification(signup.formData.email)
+
+  useEffect(() => {
+    const loadCities = async () => {
+      try {
+        const cities = await getCities()
+        setRotationCities(cities)
+        // If no city selected yet, default to first from backend
+        if (!signup.formData.cityId && cities.length > 0) {
+          signup.handleChange("cityId", String(cities[0].city_id))
+        }
+      } catch (error) {
+        console.error('Failed to fetch cities:', error)
+        setRotationCities([])
+        setCitiesError("Failed to load rotation cities from server")
+      } finally {
+        setCitiesLoading(false)
+      }
+    }
+    loadCities()
+  }, [])
 
   useEffect(() => {
     const locales = ['usa', 'china', 'korea', 'argentina', 'india', 'germany']
@@ -206,7 +223,7 @@ export default function SignupPage() {
       usa: '#cc0000',
       china: '#2fb872',
       korea: '#e91e63',
-      argentina: '#6ba3d1',
+      argentina: '#d9a300',
       india: '#ffcc33',
       germany: '#7bb3e8'
     }
@@ -308,25 +325,32 @@ export default function SignupPage() {
                 <Field>
                   <FieldContent>
                     <FieldLabel htmlFor="city" className="text-lg font-semibold text-white">Rotation City</FieldLabel>
-                    <Select value={signup.formData.city} onValueChange={(value) => signup.handleChange("city", value)}>
+                    <Select value={signup.formData.cityId} onValueChange={(value) => signup.handleChange("cityId", value)}>
                       <SelectTrigger className="bg-white rounded-full px-8 py-4 text-gray-800 text-lg shadow-lg">
-                        <SelectValue placeholder="Select a city" />
+                        <SelectValue placeholder={citiesLoading ? "Loading cities..." : (citiesError ? citiesError : "Select a city")} />
                       </SelectTrigger>
                       <SelectContent>
-                        {ROTATION_CITIES.map((city) => (
-                          <SelectItem key={city.value} value={city.value}>
-                            {city.label}
-                          </SelectItem>
-                        ))}
+                        {citiesLoading ? (
+                          <div className="px-4 py-2 text-gray-500">Loading...</div>
+                        ) : (
+                          rotationCities.map((city) => (
+                            <SelectItem key={city.city_id} value={String(city.city_id)}>
+                              {city.name}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
-                    <FieldError errors={signup.errors.city ? [{ message: signup.errors.city }] : null} />
+                    {citiesError && (
+                      <div className="mt-2 text-sm text-white">{citiesError}</div>
+                    )}
+                    <FieldError errors={signup.errors.cityId ? [{ message: signup.errors.cityId }] : null} />
                   </FieldContent>
                 </Field>
               </div>
 
               <div className="mt-8 w-full max-w-2xl flex items-center justify-center">
-                <Button type="submit" className="rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} disabled={signup.isLoading}>
+                <Button type="submit" className="rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} disabled={signup.isLoading || citiesLoading || rotationCities.length === 0}>
                   {signup.isLoading ? <Spinner className="mr-2" /> : 'Sign up'}
                 </Button>
               </div>

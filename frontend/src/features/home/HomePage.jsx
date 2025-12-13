@@ -123,7 +123,8 @@ function HomePage() {
     const [search, setSearch] = useState("");
     const [filteredPlaces, setFilteredPlaces] = useState([]);
     const [view, setView] = useState("list");
-        const [currentLocale, setCurrentLocale] = useState('usa');
+    const [currentLocale, setCurrentLocale] = useState('usa');
+    const [activeCategoryId, setActiveCategoryId] = useState(null);
 
     useEffect(() => {
         const loadData = async () => {
@@ -164,6 +165,7 @@ function HomePage() {
                     verifiedCount: item.number_of_verifications || 0,
                     lastVerified: item.created_at ? new Date(item.created_at).toLocaleDateString() : null,
                     priceLevel: 1,
+                    categories: (item.categories || []).map(c => ({ id: c.category_id, name: c.category_name })),
                 })));
             } catch (e) {
                 console.error(e);
@@ -175,12 +177,10 @@ function HomePage() {
     // Locale is set from backend and remains stable for the session
 
     useEffect(() => {
-        setFilteredPlaces(
-            places.filter(place =>
-                place.name.toLowerCase().includes(search.toLowerCase())
-            )
-        );
-    }, [search, places]);
+        const bySearch = (p) => p.name.toLowerCase().includes(search.toLowerCase());
+        const byCategory = (p) => !activeCategoryId || (p.categories || []).some(c => c.id === activeCategoryId);
+        setFilteredPlaces(places.filter(p => bySearch(p) && byCategory(p)));
+    }, [search, places, activeCategoryId]);
 
     const getLocaleClass = () => {
         const classMap = {
@@ -249,37 +249,44 @@ function HomePage() {
                     </button>
                 </div>
                 <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem", overflowX: "auto", paddingBottom: "0.5rem" }}>
-                    {categories.map((cat, idx) => (
-                        <div key={cat.id}
-                            style={{
-                                background: categoryColors[idx % categoryColors.length],
-                                width: 90, height: 90, borderRadius: 16,
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                flexShrink: 0,
-                                cursor: "pointer",
-                                transition: "transform 0.2s",
-                                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                                overflow: "hidden",
-                                position: "relative"
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
-                            onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
-                        >
-                            {cat.image ? (
-                                <img 
-                                    src={`data:image/png;base64,${cat.image}`}
-                                    alt={cat.name}
-                                    style={{
-                                        width: "60%",
-                                        height: "60%",
-                                        objectFit: "contain"
-                                    }}
-                                />
-                            ) : (
-                                <span style={{ fontSize: 40 }}>{iconMap[idx % iconMap.length]}</span>
-                            )}
-                        </div>
-                    ))}
+                    {categories.map((cat, idx) => {
+                        const palette = localeCategoryPalettes[currentLocale] || localeCategoryPalettes['usa'];
+                        const bg = palette[idx % palette.length];
+                        const isActive = activeCategoryId === cat.id;
+                        return (
+                            <div key={cat.id}
+                                onClick={() => setActiveCategoryId(isActive ? null : cat.id)}
+                                style={{
+                                    background: bg,
+                                    width: 90, height: 90, borderRadius: 16,
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                    flexShrink: 0,
+                                    cursor: "pointer",
+                                    transition: "transform 0.2s, box-shadow 0.2s",
+                                    boxShadow: isActive ? "0 0 0 3px rgba(255,255,255,0.9)" : "0 2px 8px rgba(0,0,0,0.1)",
+                                    overflow: "hidden",
+                                    position: "relative",
+                                    border: isActive ? "2px solid #fff" : "none"
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
+                                onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+                            >
+                                {cat.image ? (
+                                    <img 
+                                        src={`data:image/png;base64,${cat.image}`}
+                                        alt={cat.name}
+                                        style={{
+                                            width: "60%",
+                                            height: "60%",
+                                            objectFit: "contain"
+                                        }}
+                                    />
+                                ) : (
+                                    <span style={{ fontSize: 14, color: "#fff", fontWeight: 700 }}>{cat.name}</span>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             <div style={{ display: "flex", alignItems: "center", marginBottom: 20 }}>
                 <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 600 }}>All Places <span style={{ color: "#999" }}>({filteredPlaces.length})</span></h3>
