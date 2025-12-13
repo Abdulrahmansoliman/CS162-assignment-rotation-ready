@@ -4,7 +4,7 @@ import { getItemById } from '@/api/item';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import { Spinner } from '@/shared/components/ui/spinner';
-import { MapPin, Clock, User, CheckCircle, Tag, ArrowLeft, Heart, Share2, Bookmark } from 'lucide-react';
+import { MapPin, Clock, User, CheckCircle, Tag, ArrowLeft, Share2, Bookmark } from 'lucide-react';
 import { colorSchemes, defaultScheme } from '@/lib/themes';
 
 export default function ItemDetailPage() {
