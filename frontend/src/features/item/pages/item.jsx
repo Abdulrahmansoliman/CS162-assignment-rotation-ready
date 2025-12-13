@@ -129,7 +129,7 @@ export default function ItemDetailPage() {
                 {item.walking_distance && (
                   <div className="flex items-center gap-2 text-white/90">
                     <Clock className="w-5 h-5" />
-                    <span className="text-lg">{Math.round(item.walking_distance / 80)} min walk</span>
+                    <span className="text-lg">{Math.round(item.walking_distance / 80)} min walk</span> {/* Average walking speed to be 80 meters per minute */}
                   </div>
                 )}
               </div>
