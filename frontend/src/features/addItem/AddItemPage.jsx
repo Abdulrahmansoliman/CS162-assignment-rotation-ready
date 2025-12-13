@@ -27,10 +27,17 @@ export default function AddItemPage() {
 
   useEffect(() => {
     async function load() {
-      const cat = await getCategories();
-      const tg = await getTags();
-      setCategories(cat);
-      setTags(tg);
+      try {
+        const cat = await getCategories();
+        const tg = await getTags();
+        setCategories(cat);
+        setTags(tg);
+      } catch (error) {
+        console.error("Failed to load categories/tags:", error);
+        // Set empty arrays so component doesn't crash
+        setCategories([]);
+        setTags([]);
+      }
     }
     load();
   }, []);
@@ -94,7 +101,7 @@ export default function AddItemPage() {
   }
 
   return (
-    <div className="flex justify-center p-10">
+    <div className="flex justify-center">
       <div className="bg-gray-900 p-10 rounded-xl shadow-xl w-[650px]">
 
         <h1 className="text-3xl font-bold text-white mb-8">Add Item</h1>
@@ -130,6 +137,8 @@ export default function AddItemPage() {
             id: c.category_id,
             label: c.category_name,
           }))}
+          displayField="label"
+          valueField="id"
           onSelect={(id) => addCategory(parseInt(id))}
           selectedItems={selectedCategories.map((c) => c.category_id)}
         />
@@ -148,6 +157,8 @@ export default function AddItemPage() {
             id: t.tag_id,
             label: t.name,
           }))}
+          displayField="label"
+          valueField="id"
           onSelect={(id) => addTag(parseInt(id))}
           selectedItems={selectedTags.map((t) => t.tag_id)}
         />

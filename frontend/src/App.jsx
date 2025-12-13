@@ -8,6 +8,7 @@ import { getAccessToken } from './features/auth/services/authservice'
 import AddItemPage from './features/addItem/AddItemPage';
 import ViewUserProfilePage from "./features/userProfile/ViewUserProfilePage";
 import ItemDetailPage from './features/item/pages/item';
+import AppLayout from './shared/layout/AppLayout'
 
 
 function ProtectedRoute({ element, requiresProfile }) {
@@ -29,7 +30,7 @@ function ProtectedRoute({ element, requiresProfile }) {
     return <Navigate to="/login" replace />
   }
 
-  return element
+  return <AppLayout>{element}</AppLayout>
 }
 
 function App() {
