@@ -5,6 +5,8 @@ import LoginPage from './features/auth/pages/login'
 import ProfilePage from './features/profile/ProfilePage';
 import HomePage from './features/home/HomePage';
 import { getAccessToken } from './features/auth/services/authservice'
+import ViewUserProfilePage from "./features/userProfile/ViewUserProfilePage";
+
 
 function ProtectedRoute({ element, requiresProfile }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -37,6 +39,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/home" element={<ProtectedRoute element={<HomePage />} />} />
         <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />
+        <Route path="/user/:id" element={<ProtectedRoute element={<ViewUserProfilePage />} />} />
       </Routes>
     </Router>
   )
