@@ -1,4 +1,4 @@
-import { apiFetch } from "./index.js";
+import { apiFetch } from ".";
 
 export async function getItems() {
   return await apiFetch("/item", {
@@ -12,9 +12,9 @@ export async function getItemById(item_id) {
   });
 }
 
-export async function createItem(itemData) {
-  return await apiFetch("/item", {
+export async function createItem(body) {
+  return await apiFetch("/item/", {
     method: "POST",
-    body: JSON.stringify(itemData),
+    body: JSON.stringify(body),
   });
 }
