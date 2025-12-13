@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { Button } from "@/shared/components/ui/button"
 import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field"
 import { Input } from "@/shared/components/ui/input"
@@ -8,37 +7,56 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from "@/shared/components/ui/spinner"
 import { useSignup } from "../hooks/useSignup"
 import { useVerification } from "../hooks/useVerification"
-import { getCities } from "@/api/cities"
+import { getCities } from "../../../api/cities"
+import "../../../shared/styles/localeTransitions.css"
+
+// Map city names to icon paths
+const CITY_ICONS = {
+  'san francisco': '/sf.png',
+  'taipei': '/tp.png',
+  'seoul': '/sl.png',
+  'buenos aires': '/ba.png',
+  'hyderabad': '/hy.png',
+  'berlin': '/br.png'
+}
 
 export default function SignupPage() {
   const [isWaitingForOtp, setIsWaitingForOtp] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
+  const [currentLocale, setCurrentLocale] = useState('usa')
   const [rotationCities, setRotationCities] = useState([])
-  const [citiesLoading, setCitiesLoading] = useState(true)
-  const [citiesError, setCitiesError] = useState(null)
   const signup = useSignup()
   const verification = useVerification(signup.formData.email)
 
+  // Fetch rotation cities on mount
   useEffect(() => {
     const fetchCities = async () => {
       try {
-        setCitiesLoading(true)
-        setCitiesError(null)
         const cities = await getCities()
-        const formattedCities = cities.map(city => ({
+        setRotationCities(cities.map(city => ({
           value: String(city.city_id),
-          label: city.name || 'Unknown City'
-        }))
-        setRotationCities(formattedCities)
+          label: city.name,
+          icon: CITY_ICONS[city.name.toLowerCase()] || null
+        })))
       } catch (error) {
         console.error("Failed to fetch cities:", error)
-        setCitiesError("Failed to load cities. Please try again.")
-      } finally {
-        setCitiesLoading(false)
       }
     }
-    
     fetchCities()
+  }, [])
+
+  useEffect(() => {
+    const locales = ['usa', 'china', 'korea', 'argentina', 'india', 'germany']
+    let index = 0
+
+    const cycleLocales = () => {
+      index = (index + 1) % locales.length
+      setCurrentLocale(locales[index])
+      setTimeout(cycleLocales, 8000)
+    }
+
+    const timer = setTimeout(cycleLocales, 8000)
+    return () => clearTimeout(timer)
   }, [])
 
   const handleRegister = async (e) => {
@@ -75,212 +93,203 @@ export default function SignupPage() {
     }, 1000)
   }
 
-  const handleRetryFetchCities = async () => {
-    try {
-      setCitiesLoading(true)
-      setCitiesError(null)
-      const cities = await getCities()
-      const formattedCities = cities.map(city => ({
-        value: String(city.city_id),
-        label: city.name || 'Unknown City'
-      }))
-      setRotationCities(formattedCities)
-    } catch (error) {
-      console.error("Failed to fetch cities:", error)
-      setCitiesError("Failed to load cities. Please try again.")
-    } finally {
-      setCitiesLoading(false)
+  const getLocaleClass = () => {
+    const classMap = {
+      usa: 'show-photo',
+      china: 'transition-green',
+      korea: 'transition-korea',
+      argentina: 'transition-argentina',
+      india: 'transition-india',
+      germany: 'transition-germany'
     }
+    return classMap[currentLocale] || 'show-photo'
+  }
+
+  const getLocaleColor = () => {
+    const colorMap = {
+      usa: '#cc0000',
+      china: '#2fb872',
+      korea: '#e91e63',
+      argentina: '#6ba3d1',
+      india: '#ffcc33',
+      germany: '#7bb3e8'
+    }
+    return colorMap[currentLocale] || '#cc0000'
+  }
+
+  const getLocaleText = () => {
+    const textMap = {
+      usa: 'Welcome',
+      china: '欢迎',
+      korea: '어서 오세요',
+      argentina: 'Bienvenido',
+      india: 'స్వాగతం',
+      germany: 'Willkommen'
+    }
+    return textMap[currentLocale] || 'Welcome'
+  }
+
+  const shouldSplitLetters = () => {
+    return currentLocale !== 'india'
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-900 p-4 sm:p-6 md:p-12">
-      <Card className="w-full max-w-md sm:max-w-lg lg:max-w-2xl bg-slate-800/90 backdrop-blur-sm border-slate-700 shadow-2xl">
-        <CardHeader className="space-y-3 text-center pb-8">
-          <CardTitle className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight">
-            {isWaitingForOtp ? "Verify your email" : "Let's start the journey!"}
-          </CardTitle>
-          <CardDescription className="text-base sm:text-lg lg:text-xl text-slate-300">
-            {isWaitingForOtp
-              ? "Enter the 6-character code sent to your email"
-              : "Enter your information to get started with your rotation"}
-          </CardDescription>
-        </CardHeader>
+    <>
+      <div className={`locale-container min-h-screen w-full relative flex items-center justify-center ${getLocaleClass()}`}>
+        <div className={`locale-overlay absolute inset-0 ${getLocaleClass()}`}></div>
 
-        {!isWaitingForOtp ? (
-          <form onSubmit={handleRegister}>
-            <CardContent className="space-y-6 sm:space-y-7">
-              <Field>
-                <FieldContent>
-                  <FieldLabel htmlFor="firstName" className="text-lg sm:text-lg font-semibold text-slate-200">First Name</FieldLabel>
-                  <Input
-                    id="firstName"
-                    type="text"
-                    placeholder="John"
-                    value={signup.formData.firstName}
-                    onChange={(e) => signup.handleChange("firstName", e.target.value)}
-                    disabled={signup.isLoading}
-                    required
-                    className="w-full text-lg sm:text-xl h-12 sm:h-14 font-semibold bg-slate-700/50 border-slate-600"
-                  />
-                  <FieldError errors={signup.errors.firstName ? [{ message: signup.errors.firstName }] : null} />
-                </FieldContent>
-              </Field>
+        <div className="relative z-10 flex flex-col items-center justify-center w-full px-6 sm:px-12 max-w-3xl">
+          <h1 className="text-white text-5xl sm:text-7xl font-extrabold leading-tight drop-shadow-md text-center mb-8" style={{fontFamily: 'Georgia, serif'}}>
+            {shouldSplitLetters() ? (
+              getLocaleText().split('').map((letter, index) => (
+                <span key={index} className={`letter letter-${index}`}>
+                  {letter}
+                </span>
+              ))
+            ) : (
+              <span className="letter letter-0">{getLocaleText()}</span>
+            )}
+          </h1>
 
-              <Field>
-                <FieldContent>
-                  <FieldLabel htmlFor="lastName" className="text-base sm:text-lg font-semibold text-slate-200">Last Name</FieldLabel>
-                  <Input
-                    id="lastName"
-                    type="text"
-                    placeholder="Doe"
-                    value={signup.formData.lastName}
-                    onChange={(e) => signup.handleChange("lastName", e.target.value)}
-                    disabled={signup.isLoading}
-                    required
-                    className="w-full text-lg sm:text-xl h-12 sm:h-14 bg-slate-700/50 border-slate-600 text-white"
-                  />
-                  <FieldError errors={signup.errors.lastName ? [{ message: signup.errors.lastName }] : null} />
-                </FieldContent>
-              </Field>
-
-              <Field>
-                <FieldContent>
-                  <FieldLabel htmlFor="email" className="text-base sm:text-lg font-semibold text-slate-200">Email</FieldLabel>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="john@uni.minerva.edu"
-                    value={signup.formData.email}
-                    onChange={(e) => signup.handleChange("email", e.target.value)}
-                    disabled={signup.isLoading}
-                    required
-                    className="w-full text-lg sm:text-xl h-12 sm:h-14 bg-slate-700/50 border-slate-600 text-white"
-                  />
-                  <FieldError errors={signup.errors.email ? [{ message: signup.errors.email }] : null} />
-                </FieldContent>
-              </Field>
-
-              <Field>
-                <FieldContent>
-                  <FieldLabel htmlFor="rotation-city" className="text-base sm:text-lg font-semibold text-slate-200">Rotation City</FieldLabel>
-                  {citiesError ? (
-                    <div className="space-y-2">
-                      <p className="text-red-400 text-sm">{citiesError}</p>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleRetryFetchCities}
-                        disabled={citiesLoading}
-                        className="w-full bg-slate-700/50 hover:bg-slate-700 text-white border-slate-600"
-                      >
-                        {citiesLoading ? <Spinner className="mr-2" /> : null}
-                        Retry Loading Cities
-                      </Button>
-                    </div>
-                  ) : (
-                    <Select
-                      value={signup.formData.cityId}
-                      onValueChange={(value) => signup.handleChange("cityId", value)}
-                      disabled={signup.isLoading || citiesLoading}
+          {signup.errors.submit && (
+            <div className="text-sm text-white">{signup.errors.submit}</div>
+          )}
+          {!isWaitingForOtp ? (
+            <form onSubmit={handleRegister} className="fade-in w-full flex flex-col items-center">
+              <div className="w-full max-w-2xl space-y-6">
+                <Field>
+                  <FieldContent>
+                    <FieldLabel htmlFor="firstName" className="text-lg font-semibold text-white">First Name</FieldLabel>
+                    <Input
+                      id="firstName"
+                      type="text"
+                      placeholder="John"
+                      value={signup.formData.firstName}
+                      onChange={(e) => signup.handleChange("firstName", e.target.value)}
+                      disabled={signup.isLoading}
                       required
-                    >
-                      <SelectTrigger id="rotation-city" className="w-full text-lg sm:text-xl h-10 sm:h-12 bg-slate-700/50 border-slate-600" >
-                        <SelectValue placeholder={citiesLoading ? "Loading cities..." : "Select your rotation city"} />
+                      className="bg-white rounded-full px-8 py-4 text-gray-800 text-lg placeholder-gray-400 shadow-lg"
+                    />
+                    <FieldError errors={signup.errors.firstName ? [{ message: signup.errors.firstName }] : null} />
+                  </FieldContent>
+                </Field>
+
+                <Field>
+                  <FieldContent>
+                    <FieldLabel htmlFor="lastName" className="text-lg font-semibold text-white">Last Name</FieldLabel>
+                    <Input
+                      id="lastName"
+                      type="text"
+                      placeholder="Doe"
+                      value={signup.formData.lastName}
+                      onChange={(e) => signup.handleChange("lastName", e.target.value)}
+                      disabled={signup.isLoading}
+                      required
+                      className="bg-white rounded-full px-8 py-4 text-gray-800 text-lg placeholder-gray-400 shadow-lg"
+                    />
+                    <FieldError errors={signup.errors.lastName ? [{ message: signup.errors.lastName }] : null} />
+                  </FieldContent>
+                </Field>
+
+                <Field>
+                  <FieldContent>
+                    <FieldLabel htmlFor="email" className="text-lg font-semibold text-white">Email</FieldLabel>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="john@example.com"
+                      value={signup.formData.email}
+                      onChange={(e) => signup.handleChange("email", e.target.value)}
+                      disabled={signup.isLoading}
+                      required
+                      className="bg-white rounded-full px-8 py-4 text-gray-800 text-lg placeholder-gray-400 shadow-lg"
+                    />
+                    <FieldError errors={signup.errors.email ? [{ message: signup.errors.email }] : null} />
+                  </FieldContent>
+                </Field>
+
+                <Field>
+                  <FieldContent>
+                    <FieldLabel htmlFor="city" className="text-lg font-semibold text-white">Rotation City</FieldLabel>
+                    <Select value={signup.formData.city} onValueChange={(value) => signup.handleChange("city", value)}>
+                      <SelectTrigger className="bg-white rounded-full px-8 py-4 text-gray-800 text-lg shadow-lg">
+                        <SelectValue placeholder="Select a city" />
                       </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-slate-700">
+                      <SelectContent>
                         {rotationCities.map((city) => (
-                          <SelectItem key={city.value} value={city.value} className="text-lg sm:text-xl text-white hover:bg-slate-700">
+                          <SelectItem key={city.value} value={city.value}>
                             {city.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                  )}
-                  <FieldError errors={signup.errors.cityId ? [{ message: signup.errors.cityId }] : null} />
-                </FieldContent>
-              </Field>
+                    <FieldError errors={signup.errors.city ? [{ message: signup.errors.city }] : null} />
+                  </FieldContent>
+                </Field>
+              </div>
 
-              {signup.errors.submit && (
-                <FieldError errors={[{ message: signup.errors.submit }]} />
-              )}
-            </CardContent>
-            <CardFooter className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:space-x-4 pt-6">
-              <Button type="submit" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg font-semibold h-12 sm:h-14 px-8" disabled={signup.isLoading}>
-                {signup.isLoading && <Spinner className="mr-2" />}
-                Create account
-              </Button>
-              <p className="text-sm sm:text-base text-slate-300 text-center sm:text-left">
-                Already have an account?{" "}
-                <Link to="/login" className="text-blue-400 hover:text-blue-300 hover:underline font-semibold">
-                  Sign in
-                </Link>
-              </p>
-            </CardFooter>
-          </form>
-        ) : (
-          <form onSubmit={handleVerify}>
-            <CardContent className="space-y-6 sm:space-y-7">
-              <Field>
-                <FieldContent>
-                  <FieldLabel htmlFor="verification-code" className="text-base sm:text-lg font-semibold text-slate-200">Verification Code</FieldLabel>
-                  <Input
-                    id="verification-code"
-                    type="text"
-                    placeholder="ABC123"
-                    value={verification.verificationCode}
-                    onChange={(e) => verification.handleVerificationCodeChange(e.target.value)}
-                    disabled={verification.isLoading}
-                    required
-                    maxLength={6}
-                    className="w-full text-xl sm:text-2xl h-14 sm:h-16 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 font-mono tracking-widest text-center uppercase focus:border-blue-500 focus:ring-blue-500"
-                    autoComplete="off"
-                  />
-                  <FieldDescription className="text-sm sm:text-base text-slate-300 mt-2">
-                    Enter the 6-character code sent to {signup.formData.email}
-                  </FieldDescription>
-                  <FieldError errors={verification.errors.verification ? [{ message: verification.errors.verification }] : null} />
-                </FieldContent>
-              </Field>
+              <div className="mt-8 w-full max-w-2xl flex items-center justify-center">
+                <Button type="submit" className="rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} disabled={signup.isLoading}>
+                  {signup.isLoading ? <Spinner className="mr-2" /> : 'Sign up'}
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <form onSubmit={handleVerify} className="fade-in w-full flex flex-col items-center">
+              <div className="w-full max-w-2xl space-y-6">
+                <Field>
+                  <FieldContent>
+                    <FieldLabel htmlFor="verification-code" className="text-lg font-semibold text-white">Verification Code</FieldLabel>
+                    <Input
+                      id="verification-code"
+                      type="text"
+                      placeholder="ABC123"
+                      value={verification.verificationCode}
+                      onChange={(e) => verification.handleVerificationCodeChange(e.target.value)}
+                      disabled={verification.isLoading}
+                      required
+                      maxLength={6}
+                      className="bg-white rounded-full px-8 py-4 text-gray-800 text-lg text-center placeholder-gray-400 shadow-lg"
+                      autoComplete="off"
+                    />
+                    <FieldDescription className="text-white/90">
+                      Enter the 6-character code sent to {signup.formData.email}
+                    </FieldDescription>
+                    <FieldError errors={verification.errors.verification ? [{ message: verification.errors.verification }] : null} />
+                  </FieldContent>
+                </Field>
 
-              {verification.resendMessage && (
-                <div className="text-base sm:text-lg text-green-400 font-medium">
-                  {verification.resendMessage}
+                {verification.resendMessage && (
+                  <div className="text-lg text-green-200 font-medium">
+                    {verification.resendMessage}
+                  </div>
+                )}
+
+                {verification.errors.submit && (
+                  <FieldError errors={[{ message: verification.errors.submit }]} />
+                )}
+              </div>
+
+              <div className="mt-8 w-full max-w-2xl flex flex-col space-y-3">
+                <Button type="submit" className="rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} disabled={verification.isLoading || verification.verificationCode.length !== 6}>
+                  {verification.isLoading ? <Spinner className="mr-2" /> : 'Verify'}
+                </Button>
+                <div className="flex gap-3">
+                  <Button type="button" variant="ghost" className="flex-1 rounded-full bg-white/90 text-sm font-semibold" style={{color: getLocaleColor()}} onClick={handleResendWithCooldown} disabled={verification.isResending || verification.isLoading || resendCooldown > 0}>
+                    {verification.isResending ? <Spinner className="mr-2" /> : (resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code')}
+                  </Button>
+                  <Button type="button" variant="outline" className="flex-1 rounded-full bg-white text-sm font-semibold" style={{color: getLocaleColor()}} onClick={handleBackToRegistration} disabled={verification.isLoading}>
+                    Back
+                  </Button>
                 </div>
-              )}
-
-              {verification.errors.submit && (
-                <FieldError errors={[{ message: verification.errors.submit }]} />
-              )}
-            </CardContent>
-            <CardFooter className="flex flex-col space-y-4 pt-6">
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg font-semibold h-12 sm:h-14" disabled={verification.isLoading || verification.verificationCode.length !== 6}>
-                {verification.isLoading && <Spinner className="mr-2" />}
-                Verify
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                className="w-full bg-slate-700/50 hover:bg-slate-700 text-white text-base sm:text-lg font-semibold h-12 sm:h-14"
-                onClick={handleResendWithCooldown}
-                disabled={verification.isResending || verification.isLoading || resendCooldown > 0}
-              >
-                {verification.isResending && <Spinner className="mr-2" />}
-                {resendCooldown > 0 ? `Resend code in ${resendCooldown}s` : "Resend code"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full bg-transparent border-slate-600 hover:bg-slate-700/50 text-white text-base sm:text-lg font-semibold h-12 sm:h-14"
-                onClick={handleBackToRegistration}
-                disabled={verification.isLoading}
-              >
-                Back to registration
-              </Button>
-            </CardFooter>
-          </form>
-        )}
-      </Card>
-    </div>
+              </div>
+            </form>
+          )}
+          <div className="mt-6 text-white text-center">
+            <p>Already have an account? <Link to="/login" className="font-semibold underline hover:opacity-80 transition">Sign in</Link></p>
+          </div>
+        </div>
+      </div>
+    </>
   )
 }

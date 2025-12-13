@@ -1,7 +1,7 @@
 import { apiFetch } from ".";
 
 export async function getItems() {
-  return await apiFetch("/item", {
+  return await apiFetch("/item/", {
     method: "GET",
   });
 }

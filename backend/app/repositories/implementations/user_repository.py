@@ -5,6 +5,7 @@ from app.models.verification_stutus_enum import VerificationStatusEnum
 from app.repositories.base.user_repository_interface import (
     IUserRepository
 )
+from sqlalchemy.orm import joinedload
 
 
 class UserRepository(IUserRepository):
@@ -42,7 +43,7 @@ class UserRepository(IUserRepository):
         return user
     
     def get_user_by_id(self, user_id: int) -> Optional[User]:
-        return db.session.get(User, user_id)
+        return User.query.options(joinedload(User.rotation_city)).filter_by(user_id=user_id).first()
     
     def get_all_users(self) -> List[User]:
         return User.query.all()
