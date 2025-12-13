@@ -325,11 +325,8 @@ export default function SignupPage() {
                 </Field>
               </div>
 
-              <div className="mt-8 w-full max-w-2xl flex items-center justify-between">
-                <Button type="button" className="rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} onClick={() => window.location.href = '/login'}>
-                  Sign in
-                </Button>
-                <Button type="submit" className="ml-4 rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} disabled={signup.isLoading}>
+              <div className="mt-8 w-full max-w-2xl flex items-center justify-center">
+                <Button type="submit" className="rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} disabled={signup.isLoading}>
                   {signup.isLoading ? <Spinner className="mr-2" /> : 'Sign up'}
                 </Button>
               </div>
@@ -385,6 +382,9 @@ export default function SignupPage() {
               </div>
             </form>
           )}
+          <div className="mt-6 text-white text-center">
+            <p>Already have an account? <Link to="/login" className="font-semibold underline hover:opacity-80 transition">Sign in</Link></p>
+          </div>
         </div>
       </div>
     </>
