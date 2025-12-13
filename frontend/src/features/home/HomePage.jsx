@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { getCurrentUser } from "../../api/user";
-import { apiFetch } from "../../api";
-
-// Example API endpoints
-const CATEGORIES_API = "/api/categories";
-const PLACES_API = "/api/places";
+import { fetchHomePageData } from "./services/homeService";
+import { DEFAULT_LOCALE } from "../../config/localeConfig";
+import "../../shared/styles/localeTransitions.css";
 
 const categoryColors = [
     "#B80000", "#C97B2B", "#F3E2C7", "#002147", "#2D0036", "#B80000", "#C97B2B", "#002147", "#2D0036"
@@ -14,108 +10,6 @@ const categoryColors = [
 const iconMap = [
     "🏠", "🏛️", "🍽️", "🛒", "☕", "📖", "💊", "🚚", "🔗"
 ];
-const animationStyles = `
-    @keyframes fadeInSlideUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .home-container {
-        background: linear-gradient(135deg, #cc0000 0%, #ff4444 100%);
-        background-size: cover;
-        background-position: center;
-        transition: background-image 0.8s ease-out, background 0.8s ease-out;
-        position: relative;
-    }
-
-    .home-container.show-photo {
-        background-image: url('/sf.jpg');
-        background-size: cover;
-        background-position: center;
-        background-blend-mode: overlay;
-    }
-
-    .home-container.transition-green {
-        background: linear-gradient(135deg, #1d9a5c 0%, #2fb872 100%) !important;
-        background-image: url('/tp.jpg') !important;
-        background-size: 120% !important;
-        background-repeat: no-repeat !important;
-        background-position: center;
-        background-blend-mode: overlay;
-    }
-
-    .home-container.transition-korea {
-        background: linear-gradient(135deg, #c60c30 0%, #e91e63 100%) !important;
-        background-image: url('/sl.jpg') !important;
-        background-size: cover !important;
-        background-position: center;
-        background-blend-mode: overlay;
-    }
-
-    .home-container.transition-argentina {
-        background: linear-gradient(135deg, #d9a300 0%, #e6b800 100%) !important;
-        background-image: url('/ba.jpg') !important;
-        background-size: cover !important;
-        background-position: center;
-        background-blend-mode: overlay;
-    }
-
-    .home-container.transition-india {
-        background: linear-gradient(135deg, #ff9933 0%, #ffcc33 100%) !important;
-        background-image: url('/hyd.jpg') !important;
-        background-size: cover !important;
-        background-position: center;
-        background-blend-mode: overlay;
-    }
-
-    .home-container.transition-germany {
-        background: linear-gradient(135deg, #4a90e2 0%, #7bb3e8 100%) !important;
-        background-image: url('/br.jpg') !important;
-        background-size: cover !important;
-        background-position: center;
-        background-blend-mode: overlay;
-    }
-
-    .overlay {
-        background-color: rgba(204, 0, 0, 0.8);
-        transition: background-color 0.8s ease-out;
-    }
-
-    .overlay.show-photo {
-        background-color: rgba(204, 0, 0, 0.5);
-    }
-
-    .overlay.transition-green {
-        background-color: rgba(29, 154, 92, 0.7) !important;
-    }
-
-    .overlay.transition-korea {
-        background-color: rgba(198, 12, 48, 0.6) !important;
-    }
-
-    .overlay.transition-argentina {
-        background-color: rgba(217, 163, 0, 0.65) !important;
-    }
-
-    .overlay.transition-india {
-        background-color: rgba(255, 153, 51, 0.62) !important;
-    }
-
-    .overlay.transition-germany {
-        background-color: rgba(122, 179, 232, 0.65) !important;
-    }
-
-    .fade-in {
-        animation: fadeInSlideUp 0.8s ease-out 1.2s forwards;
-        opacity: 0;
-    }
-`;
 
 function HomePage() {
     const [categories, setCategories] = useState([]);
@@ -123,50 +17,19 @@ function HomePage() {
     const [search, setSearch] = useState("");
     const [filteredPlaces, setFilteredPlaces] = useState([]);
     const [view, setView] = useState("list");
-        const [currentLocale, setCurrentLocale] = useState('usa');
+    const [locale, setLocale] = useState(DEFAULT_LOCALE);
+    const [userName, setUserName] = useState("User");
 
     useEffect(() => {
         const loadData = async () => {
             try {
-                // Fetch current user
-                const user = await getCurrentUser();
-                console.log("User data from backend:", user);
-                
-                // Set user name from first_name and last_name
-                const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
-                setUserName(fullName || user.email || "User");
-
-                // Map rotation city id to locale - get city_id from rotation_city object
-                const cityId = user.rotation_city?.city_id;
-                console.log("Extracted city_id:", cityId);
-                const localeMap = { 1: 'usa', 2: 'china', 3: 'korea', 4: 'argentina', 5: 'india', 6: 'germany' };
-                const selectedLocale = localeMap[cityId] || 'usa';
-                console.log("Selected locale:", selectedLocale);
-                setCurrentLocale(selectedLocale);
-
-                // Fetch categories with images
-                const cats = await apiFetch("/category/", { method: "GET" });
-                setCategories(cats.map(c => ({ 
-                    id: c.category_id, 
-                    name: c.category_name,
-                    image: c.category_pic // base64 image data
-                })));
-
-                // Fetch items for user's rotation city
-                const items = await apiFetch("/item/", { method: "GET" });
-                console.log("Items from backend:", items);
-                setPlaces(items.map(item => ({
-                    id: item.item_id,
-                    name: item.name,
-                    address: item.location,
-                    distance: item.walking_distance ? (item.walking_distance / 1000).toFixed(1) : null,
-                    tags: (item.tags || []).map(t => t.tag_name || t.name),
-                    verifiedCount: item.number_of_verifications || 0,
-                    lastVerified: item.created_at ? new Date(item.created_at).toLocaleDateString() : null,
-                    priceLevel: 1,
-                })));
+                const data = await fetchHomePageData();
+                setUserName(data.userName);
+                setLocale(data.locale);
+                setCategories(data.categories);
+                setPlaces(data.places);
             } catch (e) {
-                console.error(e);
+                console.error("Failed to load home page data:", e);
             }
         };
         loadData();
@@ -182,50 +45,11 @@ function HomePage() {
         );
     }, [search, places]);
 
-    const getLocaleClass = () => {
-        const classMap = {
-            usa: 'show-photo',
-            china: 'transition-green',
-            korea: 'transition-korea',
-            argentina: 'transition-argentina',
-            india: 'transition-india',
-            germany: 'transition-germany'
-        }
-        return classMap[currentLocale] || 'show-photo'
-    }
-
-    const getLocaleColor = () => {
-        const colorMap = {
-            usa: '#cc0000',
-            china: '#2fb872',
-            korea: '#e91e63',
-            argentina: '#d9a300',
-            india: '#ffcc33',
-            germany: '#7bb3e8'
-        }
-        return colorMap[currentLocale] || '#cc0000'
-    }
-
-    const [userName, setUserName] = useState("User");
-
-    const getLocaleText = () => {
-        const textMap = {
-            usa: 'Welcome',
-            china: '欢迎',
-            korea: '어서 오세요',
-            argentina: 'Bienvenido',
-            india: 'స్వాగతం',
-            germany: 'Willkommen'
-        };
-        return textMap[currentLocale] || 'Welcome';
-    };
-
     return (
         <div style={{ paddingBottom: "2rem" }}>
-            <style>{animationStyles}</style>
-            <div className={`home-container ${getLocaleClass()}`} style={{ color: "white", padding: "3rem 2rem 2rem 2rem" }}>
-                <div className={`overlay absolute inset-0 ${getLocaleClass()}`}></div>
-                <h1 style={{ fontSize: "2.5rem", margin: 0, fontWeight: 300, letterSpacing: "1px", position: "relative", zIndex: 10, fontFamily: 'Fraunces, serif' }}>{getLocaleText()}, {userName}</h1>
+            <div className={`locale-container ${locale.cssClass}`} style={{ color: "white", padding: "3rem 2rem 2rem 2rem" }}>
+                <div className={`locale-overlay absolute inset-0 ${locale.cssClass}`}></div>
+                <h1 style={{ fontSize: "2.5rem", margin: 0, fontWeight: 300, letterSpacing: "1px", position: "relative", zIndex: 10, fontFamily: 'Fraunces, serif' }}>{locale.welcomeText}, {userName}</h1>
             </div>
             <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
                 <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem" }}>
@@ -241,7 +65,7 @@ function HomePage() {
                         }}
                     />
                     <button style={{
-                        background: getLocaleColor(), color: "white", border: "none",
+                        background: locale.color, color: "white", border: "none",
                         borderRadius: "8px", padding: "1rem 2rem", fontSize: "1rem", fontWeight: 600,
                         cursor: "pointer", transition: "background 0.3s"
                     }}>
@@ -287,7 +111,7 @@ function HomePage() {
                     <button
                         onClick={() => setView("list")}
                         style={{
-                            background: view === "list" ? getLocaleColor() : "#fff",
+                            background: view === "list" ? locale.color : "#fff",
                             color: view === "list" ? "#fff" : "#999",
                             border: "1px solid #ddd", borderRadius: 8, padding: 8,
                             cursor: "pointer", fontSize: "0.9rem", width: 36, height: 36,
@@ -298,7 +122,7 @@ function HomePage() {
                     <button
                         onClick={() => setView("grid")}
                         style={{
-                            background: view === "grid" ? getLocaleColor() : "#fff",
+                            background: view === "grid" ? locale.color : "#fff",
                             color: view === "grid" ? "#fff" : "#999",
                             border: "1px solid #ddd", borderRadius: 8, padding: 8,
                             cursor: "pointer", fontSize: "0.9rem", width: 36, height: 36,
@@ -345,7 +169,7 @@ function HomePage() {
                                 {"$".repeat(place.priceLevel || 1)}
                             </div>
                             <button style={{
-                                background: getLocaleColor(), color: "#fff", border: "none",
+                                background: locale.color, color: "#fff", border: "none",
                                 borderRadius: 6, padding: "8px 16px", fontWeight: 600, fontSize: "0.85rem",
                                 cursor: "pointer", transition: "background 0.3s", width: view === "list" ? "auto" : "100%"
                             }}>

@@ -7,139 +7,43 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from "@/shared/components/ui/spinner"
 import { useSignup } from "../hooks/useSignup"
 import { useVerification } from "../hooks/useVerification"
+import { getCities } from "../../../api/cities"
+import "../../../shared/styles/localeTransitions.css"
 
-const animationStyles = `
-  @keyframes letterFlyIn {
-    from {
-      opacity: 0;
-      transform: translateX(-60px) translateY(-40px) rotateZ(-15deg);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0) translateY(0) rotateZ(0deg);
-    }
-  }
-
-  @keyframes fadeInSlideUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .letter {
-    display: inline-block;
-  }
-
-  .fade-in {
-    animation: fadeInSlideUp 0.8s ease-out 1.2s forwards;
-    opacity: 0;
-  }
-
-  .signup-container {
-    background: linear-gradient(135deg, #cc0000 0%, #ff4444 100%);
-    background-size: cover;
-    background-position: center;
-    transition: background-image 0.8s ease-out, background 0.8s ease-out;
-  }
-
-  .signup-container.show-photo {
-    background-image: url('/sf.jpg');
-    background-size: cover;
-    background-position: center;
-    background-blend-mode: overlay;
-  }
-
-  .signup-container.transition-green {
-    background: linear-gradient(135deg, #1d9a5c 0%, #2fb872 100%) !important;
-    background-image: url('/tp.jpg') !important;
-    background-size: 120% !important;
-    background-repeat: no-repeat !important;
-    background-position: center;
-    background-blend-mode: overlay;
-  }
-
-  .signup-container.transition-korea {
-    background: linear-gradient(135deg, #c60c30 0%, #e91e63 100%) !important;
-    background-image: url('/sl.jpg') !important;
-    background-size: cover !important;
-    background-position: center;
-    background-blend-mode: overlay;
-  }
-
-  .signup-container.transition-argentina {
-    background: linear-gradient(135deg, #4b8dc9 0%, #6ba3d1 100%) !important;
-    background-image: url('/ba.jpg') !important;
-    background-size: cover !important;
-    background-position: center;
-    background-blend-mode: overlay;
-  }
-
-  .signup-container.transition-india {
-    background: linear-gradient(135deg, #ff9933 0%, #ffcc33 100%) !important;
-    background-image: url('/hyd.jpg') !important;
-    background-size: cover !important;
-    background-position: center;
-    background-blend-mode: overlay;
-  }
-
-  .signup-container.transition-germany {
-    background: linear-gradient(135deg, #4a90e2 0%, #7bb3e8 100%) !important;
-    background-image: url('/br.jpg') !important;
-    background-size: cover !important;
-    background-position: center;
-    background-blend-mode: overlay;
-  }
-
-  .overlay {
-    background-color: rgba(204, 0, 0, 0.8);
-    transition: background-color 0.8s ease-out;
-  }
-
-  .overlay.show-photo {
-    background-color: rgba(204, 0, 0, 0.5);
-  }
-
-  .overlay.transition-green {
-    background-color: rgba(29, 154, 92, 0.7) !important;
-  }
-
-  .overlay.transition-korea {
-    background-color: rgba(198, 12, 48, 0.6) !important;
-  }
-
-  .overlay.transition-argentina {
-    background-color: rgba(233, 174, 66, 0.62) !important;
-  }
-
-  .overlay.transition-india {
-    background-color: rgba(255, 153, 51, 0.62) !important;
-  }
-
-  .overlay.transition-germany {
-    background-color: rgba(122, 179, 232, 0.65) !important;
-  }
-`
-
-const ROTATION_CITIES = [
-  { value: "1", label: "San Francisco", icon: "/sf.png" },
-  { value: "2", label: "Taipei", icon: "/tp.png" },
-  { value: "3", label: "Seoul", icon: "/sl.png" },
-  { value: "4", label: "Buenos Aires", icon: "/ba.png" },
-  { value: "5", label: "India", icon: "/hy.png" },
-  { value: "6", label: "Berlin", icon: "/br.png" },
-]
+// Map city names to icon paths
+const CITY_ICONS = {
+  'san francisco': '/sf.png',
+  'taipei': '/tp.png',
+  'seoul': '/sl.png',
+  'buenos aires': '/ba.png',
+  'hyderabad': '/hy.png',
+  'berlin': '/br.png'
+}
 
 export default function SignupPage() {
   const [isWaitingForOtp, setIsWaitingForOtp] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
   const [currentLocale, setCurrentLocale] = useState('usa')
+  const [rotationCities, setRotationCities] = useState([])
   const signup = useSignup()
   const verification = useVerification(signup.formData.email)
+
+  // Fetch rotation cities on mount
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const cities = await getCities()
+        setRotationCities(cities.map(city => ({
+          value: String(city.city_id),
+          label: city.name,
+          icon: CITY_ICONS[city.name.toLowerCase()] || null
+        })))
+      } catch (error) {
+        console.error("Failed to fetch cities:", error)
+      }
+    }
+    fetchCities()
+  }, [])
 
   useEffect(() => {
     const locales = ['usa', 'china', 'korea', 'argentina', 'india', 'germany']
@@ -231,9 +135,8 @@ export default function SignupPage() {
 
   return (
     <>
-      <style>{animationStyles}</style>
-      <div className={`signup-container min-h-screen w-full relative flex items-center justify-center ${getLocaleClass()}`}>
-        <div className={`overlay absolute inset-0 ${getLocaleClass()}`}></div>
+      <div className={`locale-container min-h-screen w-full relative flex items-center justify-center ${getLocaleClass()}`}>
+        <div className={`locale-overlay absolute inset-0 ${getLocaleClass()}`}></div>
 
         <div className="relative z-10 flex flex-col items-center justify-center w-full px-6 sm:px-12 max-w-3xl">
           <h1 className="text-white text-5xl sm:text-7xl font-extrabold leading-tight drop-shadow-md text-center mb-8" style={{fontFamily: 'Georgia, serif'}}>
@@ -313,7 +216,7 @@ export default function SignupPage() {
                         <SelectValue placeholder="Select a city" />
                       </SelectTrigger>
                       <SelectContent>
-                        {ROTATION_CITIES.map((city) => (
+                        {rotationCities.map((city) => (
                           <SelectItem key={city.value} value={city.value}>
                             {city.label}
                           </SelectItem>
