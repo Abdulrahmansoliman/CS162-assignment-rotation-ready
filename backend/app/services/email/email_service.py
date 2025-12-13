@@ -18,7 +18,6 @@ from app.services.email.templates.template_engine import TemplateEngine
 from app.services.email.templates.verification_templates import VerificationTemplates
 from app.services.email.exceptions import (
     EmailError,
-    EmailConfigurationError,
     EmailDeliveryError,
 )
 
@@ -56,7 +55,6 @@ class EmailService:
     """
     
     _instance: Optional['EmailService'] = None
-    _initialized: bool = False
     
     def __new__(cls, *args, **kwargs):
         """Singleton pattern for EmailService."""
@@ -71,19 +69,23 @@ class EmailService:
         Args:
             provider: Optional email provider. If not provided, will auto-select
                      based on configuration.
+        
+        Note:
+            Uses instance variable _initialized to track initialization state.
+            This ensures proper reset behavior when testing with different providers.
         """
-        if self._initialized:
+        # Check instance variable, not class variable, for thread safety
+        if getattr(self, '_initialized', False):
             return
         
         self._provider = provider
         self._register_templates()
-        self._initialized = True
+        self._initialized = True 
     
     @classmethod
     def reset(cls) -> None:
         """Reset the singleton instance. Useful for testing."""
         cls._instance = None
-        cls._initialized = False
     
     def _register_templates(self) -> None:
         """Register all email templates."""
@@ -108,19 +110,25 @@ class EmailService:
             if mail_enabled:
                 provider = FlaskMailProvider()
                 if provider.is_configured():
-                    return provider
+                    self._provider = provider
                 else:
                     logger.warning(
                         "MAIL_ENABLED is True but Flask-Mail is not properly configured. "
                         "Falling back to ConsoleProvider."
                     )
-                    return ConsoleProvider()
+                    self._provider = ConsoleProvider()
             else:
-                return ConsoleProvider()
+                self._provider = ConsoleProvider()
+            
+            return self._provider
                 
         except RuntimeError:
             # No application context
-            return ConsoleProvider()
+            self._provider = ConsoleProvider()
+            logger.warning(
+                "No Flask application context. Falling back to ConsoleProvider."
+            )
+            return self._provider
     
     @property
     def sender(self) -> str:

@@ -5,14 +5,11 @@ Tests for EmailMessage, EmailRecipient, TemplateEngine, and EmailService.
 Focused on core functionality without external dependencies.
 """
 import pytest
-from unittest.mock import Mock, patch, MagicMock
 
 from app.services.email.email_message import EmailMessage, EmailRecipient
 from app.services.email.templates.template_engine import TemplateEngine
 from app.services.email.exceptions import (
-    EmailError,
     EmailTemplateError,
-    EmailDeliveryError,
 )
 
 

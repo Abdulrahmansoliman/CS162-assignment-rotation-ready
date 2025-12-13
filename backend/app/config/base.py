@@ -19,8 +19,8 @@ class Config:
     MAX_VERIFICATION_ATTEMPTS = 5
     
     # Rate Limiting for Verification Codes
-    VERIFICATION_CODE_MAX_PER_HOUR = 3
-    VERIFICATION_CODE_RATE_LIMIT_WINDOW_MINUTES = 60
+    VERIFICATION_CODE_MAX_PER_HOUR = int(os.getenv('VERIFICATION_CODE_MAX_PER_HOUR', 3))
+    VERIFICATION_CODE_RATE_LIMIT_WINDOW_MINUTES = int(os.getenv('VERIFICATION_CODE_RATE_LIMIT_WINDOW_MINUTES', 60))
 
     # Security
     SECRET_KEY = os.getenv('SECRET_KEY', 'your-default-secret-key')
