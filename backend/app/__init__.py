@@ -1,11 +1,13 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
+from flask_mail import Mail
 from flask_cors import CORS
 import os
 
 db = SQLAlchemy()
 jwt = JWTManager()
+mail = Mail()
 
 
 def create_app(config_name='development'):
@@ -27,6 +29,7 @@ def create_app(config_name='development'):
     # Initialize extensions
     db.init_app(app)
     jwt.init_app(app)
+    mail.init_app(app)
     
     # Enable CORS with configurable origins
     cors_origins = os.getenv('CORS_ORIGINS', 'http://localhost:5173').split(',')

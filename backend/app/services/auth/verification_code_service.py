@@ -1,3 +1,4 @@
+from datetime import datetime
 from app.models.verification_code import VerificationCode, VerificationCodeType
 from app.repositories.implementations.verification_code_repository import (
     VerificationCodeRepository
@@ -128,14 +129,18 @@ class VerificationCodeService:
         max_codes = current_app.config.get('VERIFICATION_CODE_MAX_PER_HOUR', 3)
         time_window = current_app.config.get('VERIFICATION_CODE_RATE_LIMIT_WINDOW_MINUTES', 60)
         
-        recent_count = self.repo.count_recent_codes(
+        recent_codes = self.repo.get_recent_codes_time_window(
             user_id=user_id,
             code_type=code_type,
             since_minutes=time_window
         )
         
-        if recent_count >= max_codes:
+        remain_time = round(time_window - (
+            datetime.utcnow() - recent_codes[-1].created_at
+        ).total_seconds() / 60 if recent_codes else 0)
+
+        if recent_codes and len(recent_codes) >= max_codes:
             raise RateLimitExceededError(
                 f"Too many verification code requests. "
-                f"Please wait {time_window} minutes before requesting again."
+                f"Please wait {remain_time} minutes before requesting again."
             )

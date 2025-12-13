@@ -4,11 +4,13 @@ Integration Tests for LoginService
 Tests user login flow with email verification codes.
 Uses real database and service instances - tests actual business logic, not mocks.
 """
+from flask import current_app
 import pytest
 from unittest.mock import patch
 from app.services.auth.login_service import LoginService
 from app.models.user import User
 from app.models.verification_code import VerificationCodeType, VerificationCode
+from app.services.auth.verification_code_service import RateLimitExceededError
 from app import db
 
 
@@ -240,3 +242,23 @@ class TestLoginServiceIntegration:
         result = service.verify_login(email=verified_user.email, verification_code=code2)
         assert result.user_id == verified_user.user_id
         assert code2_obj.is_used is True
+
+
+    def test_initiate_login_exceeded_attempts_raises_error(
+        self,
+        service,
+        verified_user,
+        db_session,
+        app_context
+    ):
+        """
+        Test that exceeding max attempts prevents code verification
+        This should raise RateLimitExceededError on further attempts.
+        """
+        wait_minutes = current_app.config.get('VERIFICATION_CODE_RATE_LIMIT_WINDOW_MINUTES', 60)
+        max_codes = current_app.config.get('VERIFICATION_CODE_MAX_PER_HOUR', 3)
+        for _ in range(max_codes):
+            service.initiate_login(email=verified_user.email)
+        
+        with pytest.raises(RateLimitExceededError):
+            service.initiate_login(email=verified_user.email)

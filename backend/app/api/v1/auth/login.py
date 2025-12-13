@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from app.utils.decorators import require_params
 from app.services.auth.login_service import LoginService
 from app.services.auth.token_service import TokenService
+from app.services.auth.verification_code_service import RateLimitExceededError
 from app.api.v1.auth import auth_bp
 
 
@@ -21,6 +22,9 @@ def login():
 
     except ValueError as ve:
         return jsonify({'message': str(ve)}), 400
+    
+    except RateLimitExceededError as rle:
+        return jsonify({'message': str(rle)}), 429  
 
     except Exception as e:
         return jsonify({'message': 'An error occurred during login initiation.'}), 500
