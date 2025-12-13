@@ -43,7 +43,7 @@ function App() {
         <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />
         <Route path="/user/:id" element={<ProtectedRoute element={<ViewUserProfilePage />} />} />
         <Route path="/add-item" element={<ProtectedRoute element={<AddItemPage />} />} />
-        <Route path="/item/:id" element={<ProtectedRoute element={<ItemDetailPage />} />}} />
+        <Route path="/item/:id" element={<ProtectedRoute element={<ItemDetailPage />} />} />
       </Routes>
     </Router>
   )

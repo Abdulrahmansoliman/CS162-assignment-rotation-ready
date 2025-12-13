@@ -151,7 +151,7 @@ export default function ItemDetailPage() {
 
             {/* Right: Quick Stats Card */}
             <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl min-w-[280px]">
-              <div className="flex items-center gap-3 mb-4">
+              {/* <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center">
                   <CheckCircle className="w-7 h-7 text-white" />
                 </div>
@@ -159,7 +159,7 @@ export default function ItemDetailPage() {
                   <div className="text-3xl font-bold text-gray-900">{item.number_of_verifications}</div>
                   <div className="text-sm text-gray-600">Students verified this</div>
                 </div>
-              </div>
+              </div> */}
               
               <div className="border-t border-gray-200 pt-4 space-y-3">
                 <div className="flex items-center justify-between">
@@ -307,7 +307,7 @@ export default function ItemDetailPage() {
             )}
 
             {/* Community Trust */}
-            <Card className={`${scheme.trustBg} ${scheme.trustBorder} backdrop-blur-sm`}>
+            {/* <Card className={`${scheme.trustBg} ${scheme.trustBorder} backdrop-blur-sm`}>
               <CardContent className="pt-6">
                 <div className="text-center">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-600 mb-4">
@@ -339,7 +339,7 @@ export default function ItemDetailPage() {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
 
             {/* Quick Info */}
             <Card className={`${scheme.cardBg} ${scheme.border} backdrop-blur-sm`}>
