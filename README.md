@@ -1,2 +1,85 @@
-# CS162-assignment-rotation-ready
-Minerva rotation cities helper
+# Minerva Rotation Cities Helper
+
+A full-stack web application helping Minerva University students manage and share rotation city items.
+
+## Architecture
+
+- **Backend**: Flask REST API with SQLAlchemy ORM, JWT authentication
+- **Frontend**: React + Vite
+- **Database**: SQLite (development), PostgreSQL-ready
+- **Testing**: Pytest with 230+ tests
+
+## Quick Start
+
+### Prerequisites
+- Python 3.11+
+- Node.js 16+
+
+### Backend Setup
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python run.py
+```
+
+Backend runs at `http://localhost:5000`
+
+### Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend runs at `http://localhost:5173`
+
+## 📚 API Documentation
+
+### Authentication
+- `POST /api/v1/auth/register` - User registration
+- `POST /api/v1/auth/login` - User login
+- `POST /api/v1/auth/verify` - Email verification
+
+### Resources
+- `GET /api/v1/category/` - List all categories
+- `GET /api/v1/item/` - List all items
+- `GET /api/v1/tag/` - List all tags
+- `GET /api/v1/value/tag/<tag_id>` - Get text values for tag
+- `GET /api/v1/rotation-city/` - List rotation cities
+
+All resource endpoints require JWT authentication via `Authorization: Bearer <token>` header.
+
+## 🧪 Testing
+
+```bash
+cd backend
+pytest                    # Run all tests
+pytest tests/unit/        # Unit tests only
+pytest tests/integration/ # Integration tests only
+```
+
+## 📁 Project Structure
+
+```
+├── backend/
+│   ├── app/
+│   │   ├── api/v1/          # REST endpoints
+│   │   ├── models/          # SQLAlchemy models
+│   │   ├── services/        # Business logic
+│   │   ├── repositories/    # Data access layer
+│   │   └── config/          # Environment configs
+│   ├── tests/
+│   └── run.py
+└── frontend/
+    ├── src/
+    │   ├── components/
+    │   ├── pages/
+    │   └── services/
+    └── package.json
+```
+
+## 🛠️ Development
+
+See [backend/README.md](backend/README.md) for detailed backend setup and [backend/TESTING.md](backend/TESTING.md) for testing guidelines.

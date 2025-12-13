@@ -7,7 +7,21 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:unit": "vitest run --coverage",
+    "test:integration": "vitest run --coverage src/api",
+    "test:components": "vitest run --coverage src/shared/components src/features",
+    "test:feature:auth": "vitest run --coverage src/features/auth",
+    "test:feature:places": "vitest run --coverage src/features/places",
+    "test:feature:categories": "vitest run --coverage src/features/categories",
+    "test:feature:profile": "vitest run --coverage src/features/profile",
+    "test:feature:verifications": "vitest run --coverage src/features/verifications",
+    "test:api": "vitest run --coverage src/api",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.12",
@@ -28,17 +42,23 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@vitejs/plugin-react": "^5.1.0",
+    "@vitest/coverage-v8": "^3.0.0",
     "autoprefixer": "^10.4.22",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "jsdom": "^26.0.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.18",
     "vite": "^7.2.7"
+    "vitest": "^3.0.0"
   }
 }
