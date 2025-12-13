@@ -7,6 +7,7 @@ import HomePage from './features/home/HomePage';
 import { getAccessToken } from './features/auth/services/authservice'
 import AddItemPage from './features/addItem/AddItemPage';
 import ViewUserProfilePage from "./features/userProfile/ViewUserProfilePage";
+import ItemDetailPage from './features/item/pages/item';
 
 
 function ProtectedRoute({ element, requiresProfile }) {
@@ -42,6 +43,7 @@ function App() {
         <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />
         <Route path="/user/:id" element={<ProtectedRoute element={<ViewUserProfilePage />} />} />
         <Route path="/add-item" element={<ProtectedRoute element={<AddItemPage />} />} />
+        <Route path="/item/:id" element={<ProtectedRoute element={<ItemDetailPage />} />} />
       </Routes>
     </Router>
   )
