@@ -16,7 +16,16 @@ export default function ItemDetailPage() {
   const [copied, setCopied] = useState(false);
 
   const scheme = item && item.rotation_city ? colorSchemes[item.rotation_city.name] || defaultScheme : defaultScheme;
+  
+  const handleShare = async () => {
+    await navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
 
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  };
+  
   useEffect(() => {
     const fetchItem = async () => {
       try {
@@ -94,7 +103,7 @@ export default function ItemDetailPage() {
             variant="ghost"
             className="mb-6 text-white hover:bg-white/20 transition-all border border-white/25 rounded-lg"
           >
-            <ArrowLeft className="w-4 h-4 mr-2 " />
+            <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
 
@@ -168,13 +177,13 @@ export default function ItemDetailPage() {
               {/* Action Buttons */}
               <div className="mt-6 space-y-2">
                 <div className="flex gap-2">
-                  <Button variant="outline" className="flex-1" onClick={() => { navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 2000); }}>
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={handleShare}
+                  >
                     <Share2 className="w-4 h-4 mr-2" />
-                    {copied ? 'Copied!' : 'Share'}
-                  </Button>
-                  <Button variant="outline" className="flex-1">
-                    <Bookmark className="w-4 h-4 mr-2" />
-                    Save
+                    {copied ? "Copied!" : "Share"}
                   </Button>
                 </div>
               </div>
@@ -316,16 +325,16 @@ export default function ItemDetailPage() {
                   <div className="space-y-2">
                     <Button 
                       className={`w-full ${scheme.heroBg} text-white hover:opacity-90`} 
-                      onClick={() => alert('backend not implemented yet')}
+                      onClick={() => alert('Coming soon')}
                     >
                       Recommend!
                     </Button>
                     <Button 
                       variant="outline" 
                       className="w-full" 
-                      onClick={() => alert('backend not implemented yet')}
+                      onClick={() => alert('Comming soon')}
                     >
-                      Not Recommend
+                      Not Recommended
                     </Button>
                   </div>
                 </div>
