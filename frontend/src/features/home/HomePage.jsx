@@ -7,9 +7,15 @@ import { apiFetch } from "../../api";
 const CATEGORIES_API = "/api/categories";
 const PLACES_API = "/api/places";
 
-const categoryColors = [
-    "#B80000", "#C97B2B", "#F3E2C7", "#002147", "#2D0036", "#B80000", "#C97B2B", "#002147", "#2D0036"
-];
+// Locale-based category palettes (from provided swatches)
+const localeCategoryPalettes = {
+    usa: ["#E31B23", "#9A2623", "#5C2A28", "#E53935", "#A63A3A"],
+    china: ["#55B89C", "#5AD4A8", "#49C792", "#6AD9A7", "#7AE3B0"],
+    korea: ["#FF7890", "#F3A1B6", "#E67A94", "#FF9AB0", "#F8B0C6"],
+    argentina: ["#D9A300", "#F7A721", "#E5B74A", "#C8922E", "#B47F21"],
+    india: ["#F7A721", "#E58B20", "#D0771D", "#C16A1B", "#A85A18"],
+    germany: ["#005493", "#85A0CB", "#5688C0", "#1E5F90", "#0A3F66"],
+};
 
 const iconMap = [
     "🏠", "🏛️", "🍽️", "🛒", "☕", "📖", "💊", "🚚", "🔗"
@@ -120,11 +126,14 @@ const animationStyles = `
 function HomePage() {
     const [categories, setCategories] = useState([]);
     const [places, setPlaces] = useState([]);
+    const [tags, setTags] = useState([]);
     const [search, setSearch] = useState("");
     const [filteredPlaces, setFilteredPlaces] = useState([]);
     const [view, setView] = useState("list");
     const [currentLocale, setCurrentLocale] = useState('usa');
     const [activeCategoryId, setActiveCategoryId] = useState(null);
+    const [selectedTagIds, setSelectedTagIds] = useState([]);
+    const [showFilterMenu, setShowFilterMenu] = useState(false);
 
     useEffect(() => {
         const loadData = async () => {
@@ -167,6 +176,10 @@ function HomePage() {
                     priceLevel: 1,
                     categories: (item.categories || []).map(c => ({ id: c.category_id, name: c.category_name })),
                 })));
+
+                // Fetch tags from backend
+                const tagList = await apiFetch("/tag/", { method: "GET" });
+                setTags(tagList.map(t => ({ id: t.tag_id, name: t.name || t.tag_name })));
             } catch (e) {
                 console.error(e);
             }
@@ -179,8 +192,16 @@ function HomePage() {
     useEffect(() => {
         const bySearch = (p) => p.name.toLowerCase().includes(search.toLowerCase());
         const byCategory = (p) => !activeCategoryId || (p.categories || []).some(c => c.id === activeCategoryId);
-        setFilteredPlaces(places.filter(p => bySearch(p) && byCategory(p)));
-    }, [search, places, activeCategoryId]);
+        const selectedTagNames = selectedTagIds
+            .map(id => (tags.find(t => t.id === id)?.name || "").toLowerCase())
+            .filter(Boolean);
+        const byTags = (p) => selectedTagNames.length === 0 || selectedTagNames.some(tag => (p.tags || []).map(t => t.toLowerCase()).includes(tag));
+        setFilteredPlaces(places.filter(p => bySearch(p) && byCategory(p) && byTags(p)));
+    }, [search, places, activeCategoryId, selectedTagIds, tags]);
+
+    const toggleTag = (id) => {
+        setSelectedTagIds(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]);
+    };
 
     const getLocaleClass = () => {
         const classMap = {
@@ -197,11 +218,11 @@ function HomePage() {
     const getLocaleColor = () => {
         const colorMap = {
             usa: '#cc0000',
-            china: '#2fb872',
-            korea: '#e91e63',
-            argentina: '#d9a300',
-            india: '#ffcc33',
-            germany: '#7bb3e8'
+            china: '#006779',
+            korea: '#e67ba5',
+            argentina: '#eac640',
+            india: '#f7a721',
+            germany: '#005493'
         }
         return colorMap[currentLocale] || '#cc0000'
     }
@@ -240,13 +261,64 @@ function HomePage() {
                             boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
                         }}
                     />
-                    <button style={{
-                        background: getLocaleColor(), color: "white", border: "none",
-                        borderRadius: "8px", padding: "1rem 2rem", fontSize: "1rem", fontWeight: 600,
-                        cursor: "pointer", transition: "background 0.3s"
-                    }}>
-                        Filter
-                    </button>
+                    <div style={{ position: "relative" }}>
+                        <button onClick={() => setShowFilterMenu(!showFilterMenu)} style={{
+                            background: getLocaleColor(), color: "white", border: "none",
+                            borderRadius: "8px", padding: "1rem 2rem", fontSize: "1rem", fontWeight: 600,
+                            cursor: "pointer", transition: "background 0.3s"
+                        }}>
+                            Filters ▾
+                        </button>
+                        {showFilterMenu && (
+                            <div style={{
+                                position: "absolute",
+                                right: 0,
+                                marginTop: "0.5rem",
+                                background: "#ffffff",
+                                borderRadius: "12px",
+                                boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+                                padding: "1rem",
+                                minWidth: "260px",
+                                zIndex: 20
+                            }}>
+                                <div style={{ fontWeight: 700, marginBottom: "0.5rem", color: "#333" }}>Tags</div>
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", maxHeight: "200px", overflowY: "auto" }}>
+                                    {tags.map(tag => {
+                                        const isOn = selectedTagIds.includes(tag.id);
+                                        return (
+                                            <button
+                                                key={tag.id}
+                                                onClick={() => toggleTag(tag.id)}
+                                                style={{
+                                                    border: "1px solid #ddd",
+                                                    background: isOn ? getLocaleColor() : "#f7f7f8",
+                                                    color: isOn ? "#fff" : "#444",
+                                                    borderRadius: "999px",
+                                                    padding: "6px 12px",
+                                                    fontSize: "0.85rem",
+                                                    cursor: "pointer",
+                                                    transition: "all 0.2s"
+                                                }}
+                                            >
+                                                {tag.name}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.75rem" }}>
+                                    <button onClick={() => { setSelectedTagIds([]); }} style={{
+                                        background: "#f1f1f4", border: "1px solid #e0e0e5", color: "#444",
+                                        borderRadius: "8px", padding: "0.5rem 0.9rem", cursor: "pointer"
+                                    }}>Clear</button>
+                                    <button onClick={() => setShowFilterMenu(false)} style={{
+                                        background: getLocaleColor(), border: "none", color: "#fff",
+                                        borderRadius: "8px", padding: "0.5rem 0.9rem", cursor: "pointer",
+                                        fontWeight: 600
+                                    }}>Done</button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
                 <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem", overflowX: "auto", paddingBottom: "0.5rem" }}>
                     {categories.map((cat, idx) => {
