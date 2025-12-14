@@ -43,17 +43,6 @@ current_app.logger.critical('Critical issues')
 current_app.logger.info(f'User {user_id} performed action: {action}')
 ```
 
-## Production Deployment
-
-In production, stdout logs should be collected by your infrastructure:
-
-- **Docker/Kubernetes**: Logs automatically go to container runtime
-- **Heroku**: Logs available via `heroku logs --tail`
-- **AWS/GCP**: Configure log collection to CloudWatch/Cloud Logging
-- **Self-hosted**: Use tools like systemd journal, fluentd, or logrotate
-
-## 12-Factor Compliance
-
 ✅ **Logs as event streams**: All logs write to stdout  
 ✅ **Environment-based config**: Log level via `LOG_LEVEL` env var  
 ✅ **No file writing**: Application doesn't manage log files  
