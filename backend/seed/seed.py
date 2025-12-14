@@ -62,9 +62,14 @@ def seed_rotation_cities():
             'res_hall_location': '16 Turk St, San Francisco, CA'
         },
         {
-            'name': 'Berlin',
-            'time_zone': 'Europe/Berlin',
-            'res_hall_location': 'Kreuzberg District, Berlin, Germany'
+            'name': 'Taipei',
+            'time_zone': 'Asia/Taipei',
+            'res_hall_location': 'Xinyi District, Taipei, Taiwan'
+        },
+        {
+            'name': 'Seoul',
+            'time_zone': 'Asia/Seoul',
+            'res_hall_location': 'Gangnam-gu, Seoul, South Korea'
         },
         {
             'name': 'Buenos Aires',
@@ -72,15 +77,15 @@ def seed_rotation_cities():
             'res_hall_location': '920 Esmeralda St, Buenos Aires, Argentina'
         },
         {
-            'name': 'Tokyo',
-            'time_zone': 'Asia/Tokyo',
-            'res_hall_location': 'Shibuya, Tokyo, Japan'
+            'name': 'Hyderabad',
+            'time_zone': 'India/Kolkata',
+            'res_hall_location': 'Hitech City, Hyderabad, India'
         },
         {
-            'name': 'London',
-            'time_zone': 'Europe/London',
-            'res_hall_location': 'South Kensington, London, UK'
-        }
+            'name': 'Berlin',
+            'time_zone': 'Europe/Berlin',
+            'res_hall_location': 'Mitte, Berlin, Germany'
+        },
     ]
     
     # Create and add cities

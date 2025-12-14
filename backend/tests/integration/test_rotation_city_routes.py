@@ -27,9 +27,10 @@ class TestRotationCityRoutes:
         """Test GET /api/v1/rotation-city/ with no cities"""
         response = client.get('/api/v1/rotation-city/')
         
-        assert response.status_code == 404
+        assert response.status_code == 200
         data = response.get_json()
-        assert 'error' in data
+        assert isinstance(data, list)
+        assert len(data) == 0
 
     def test_get_rotation_city_by_id_success(self, client, rotation_city):
         """Test GET /api/v1/rotation-city/<id> returns specific city"""

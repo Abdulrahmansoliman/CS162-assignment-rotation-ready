@@ -3,16 +3,16 @@ import { apiFetch } from "../../../api/index.js"
 const AUTH_PREFIX = "/auth"
 
 const saveTokens = (accessToken, refreshToken) => {
-  sessionStorage.setItem('access_token', accessToken)
-  sessionStorage.setItem('refresh_token', refreshToken)
+  localStorage.setItem('access_token', accessToken)
+  localStorage.setItem('refresh_token', refreshToken)
 }
 
-export const getAccessToken = () => sessionStorage.getItem('access_token')
-export const getRefreshToken = () => sessionStorage.getItem('refresh_token')
+export const getAccessToken = () => localStorage.getItem('access_token')
+export const getRefreshToken = () => localStorage.getItem('refresh_token')
 
 export const clearTokens = () => {
-  sessionStorage.removeItem('access_token')
-  sessionStorage.removeItem('refresh_token')
+  localStorage.removeItem('access_token')
+  localStorage.removeItem('refresh_token')
 }
 
 export const authService = {
