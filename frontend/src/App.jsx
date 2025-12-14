@@ -19,13 +19,23 @@ function ProtectedRoute({ element }) {
   return element
 }
 
+function PublicRoute({ element }) {
+  const token = getAccessToken()
+  
+  if (token) {
+    return <Navigate to="/home" replace />
+  }
+
+  return element
+}
+
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Navigate to={getAccessToken() ? "/home" : "/login"} replace />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<PublicRoute element={<SignupPage />} />} />
+        <Route path="/login" element={<PublicRoute element={<LoginPage />} />} />
         <Route path="/home" element={<ProtectedRoute element={<HomePage />} />} />
         <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />
         <Route path="/user/:id" element={<ProtectedRoute element={<ViewUserProfilePage />} />} />
