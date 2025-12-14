@@ -13,8 +13,13 @@ _tag_service = TagService()
 @tag_bp.route('/', methods=['GET'])
 @jwt_required()
 def get_all_tags():
-    """
-    Get all available tags.
+    """Get all available tags.
+    
+    Returns all tags that can be applied to items, including their value types.
+    Tags are sorted alphabetically by name.
+    
+    Headers:
+        Authorization: Bearer <access_token>
     
     Returns:
         200: List of all tags with their value types

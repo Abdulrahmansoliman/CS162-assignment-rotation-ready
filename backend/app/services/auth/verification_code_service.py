@@ -12,20 +12,46 @@ import hashlib
 
 
 class RateLimitExceededError(Exception):
-    """Raised when verification code send rate limit is exceeded."""
+    """Exception raised when verification code send rate limit is exceeded.
+    
+    Used to prevent abuse by limiting how many verification codes
+    can be sent within a specific time window.
+    """
     pass
 
 
 class VerificationCodeService:
+    """Service for verification code operations.
+    
+    Handles creation, validation, and lifecycle management of verification codes
+    used for email verification during registration and login.
+    """
+    
     def __init__(
         self,
         verification_code_repository: VerificationCodeRepository = None
     ):
+        """Initialize service with optional dependency injection.
+        
+        Args:
+            verification_code_repository: Optional VerificationCodeRepository for testing/DI
+        """
         self.repo = (
             verification_code_repository or VerificationCodeRepository()
         )
     
     def create_registration_code(self, user: User) -> VerificationCode:
+        """Create a verification code for registration.
+        
+        Args:
+            user: The User object to create the code for
+            
+        Returns:
+            Tuple of (VerificationCode object, plain text code string)
+            
+        Raises:
+            RateLimitExceededError: If rate limit is exceeded
+        """
         # Check rate limit before creating new code
         self._check_rate_limit(user.user_id, VerificationCodeType.REGISTRATION.code)
         
@@ -40,6 +66,17 @@ class VerificationCodeService:
         return verification_code, code
     
     def create_login_code(self, user: User) -> VerificationCode:
+        """Create a verification code for login.
+        
+        Args:
+            user: The User object to create the code for
+            
+        Returns:
+            Tuple of (VerificationCode object, plain text code string)
+            
+        Raises:
+            RateLimitExceededError: If rate limit is exceeded
+        """
         # Check rate limit before creating new code
         self._check_rate_limit(user.user_id, VerificationCodeType.LOGIN.code)
         
@@ -54,6 +91,15 @@ class VerificationCodeService:
         return verification_code, code
     
     def verify_registration_code(self, user: User, code: str) -> bool:
+        """Verify a registration verification code.
+        
+        Args:
+            user: The User object to verify the code for
+            code: The plain text verification code to validate
+            
+        Returns:
+            True if code is valid, False otherwise
+        """
         return self._verify_code(
             user=user,
             code=code,
@@ -61,6 +107,15 @@ class VerificationCodeService:
         )
     
     def verify_login_code(self, user: User, code: str) -> bool:
+        """Verify a login verification code.
+        
+        Args:
+            user: The User object to verify the code for
+            code: The plain text verification code to validate
+            
+        Returns:
+            True if code is valid, False otherwise
+        """
         return self._verify_code(
             user=user,
             code=code,
@@ -68,6 +123,16 @@ class VerificationCodeService:
         )
 
     def _verify_code(self, user: User, code: str, code_type: str) -> bool:
+        """Internal method to verify a code of any type.
+        
+        Args:
+            user: The User object to verify the code for
+            code: The plain text verification code to validate
+            code_type: The type code from VerificationCodeType enum
+            
+        Returns:
+            True if code is valid and not expired, False otherwise
+        """
         verification_code: VerificationCode = (
             self.repo.find_most_recent_active_code(
                 user_id=user.user_id,
