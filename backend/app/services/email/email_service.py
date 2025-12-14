@@ -6,6 +6,7 @@ Provides a clean API for sending transactional emails.
 Supports async (fire-and-forget) sending for non-blocking operations.
 """
 
+import atexit
 import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor
@@ -49,6 +50,20 @@ def _get_executor() -> ThreadPoolExecutor:
                     thread_name_prefix="email_worker"
                 )
     return _executor
+
+
+def _shutdown_executor() -> None:
+    """Shutdown the thread pool executor gracefully."""
+    global _executor
+    if _executor is not None:
+        logger.info("Shutting down email executor...")
+        _executor.shutdown(wait=True)
+        _executor = None
+        logger.info("Email executor shutdown complete.")
+
+
+# Register shutdown handler to cleanup on application exit
+atexit.register(_shutdown_executor)
 
 
 class EmailService:
