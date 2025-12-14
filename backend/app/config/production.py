@@ -10,3 +10,5 @@ class Production(Config):
     )
     DEBUG = False
     TESTING = False
+    ENV = 'production'
+    LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')

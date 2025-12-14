@@ -4,10 +4,44 @@ from flask_jwt_extended import JWTManager
 from flask_mail import Mail
 from flask_cors import CORS
 import os
+import logging
+import sys
 
 db = SQLAlchemy()
 jwt = JWTManager()
 mail = Mail()
+
+
+def setup_logging(app):
+    """Configure structured logging to stdout"""
+    # Remove default Flask handlers
+    app.logger.handlers.clear()
+    
+    # Create stdout handler
+    handler = logging.StreamHandler(sys.stdout)
+    
+    # Set format based on environment
+    if app.config.get('ENV') == 'production':
+        # JSON-like format for production
+        formatter = logging.Formatter(
+            '{"time":"%(asctime)s", "level":"%(levelname)s", '
+            '"name":"%(name)s", "message":"%(message)s"}'
+        )
+    else:
+        # Human-readable format for development
+        formatter = logging.Formatter(
+            '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
+        )
+    
+    handler.setFormatter(formatter)
+    app.logger.addHandler(handler)
+    
+    # Set log level from config or default to INFO
+    log_level = app.config.get('LOG_LEVEL', 'INFO')
+    app.logger.setLevel(getattr(logging, log_level))
+    
+    # Log startup
+    app.logger.info(f'Application starting in {app.config.get("ENV", "development")} mode')
 
 
 def create_app(config_name='development'):
@@ -25,6 +59,9 @@ def create_app(config_name='development'):
         app.config.from_object(Testing)
     else:
         app.config.from_object(Development)
+    
+    # Setup logging
+    setup_logging(app)
     
     # Initialize extensions
     db.init_app(app)
@@ -52,5 +89,8 @@ def create_app(config_name='development'):
     # Create database tables
     with app.app_context():
         db.create_all()
+        app.logger.info('Database tables created/verified')
+    
+    app.logger.info(f'Application initialized successfully on {app.config.get("SQLALCHEMY_DATABASE_URI", "unknown DB")}')
     
     return app

@@ -69,6 +69,7 @@ class RegistrationService:
             email=email,
             rotation_city_id=rotation_city_id
         )
+        current_app.logger.info(f'New user registered: {email}')
 
         verification_code, code = (
             self.verification_service.create_registration_code(new_user)
