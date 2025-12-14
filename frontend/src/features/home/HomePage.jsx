@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchHomePageData } from "./services/homeService";
 import { DEFAULT_LOCALE } from "../../config/localeConfig";
+import SearchBar from "./component/SearchBar";
 import "../../shared/styles/localeTransitions.css";
 
 const categoryColors = [
@@ -40,12 +41,15 @@ function HomePage() {
     // Locale is set from backend and remains stable for the session
 
     useEffect(() => {
-        setFilteredPlaces(
-            places.filter(place =>
-                place.name.toLowerCase().includes(search.toLowerCase())
-            )
+        const filtered = places.filter(place =>
+            place.name.toLowerCase().includes(search.toLowerCase())
         );
+        setFilteredPlaces(filtered);
     }, [search, places]);
+
+    const handleSearchChange = (searchValue) => {
+        setSearch(searchValue);
+    };
 
     return (
         <div style={{ paddingBottom: "2rem" }}>
@@ -54,26 +58,11 @@ function HomePage() {
                 <h1 style={{ fontSize: "2.5rem", margin: 0, fontWeight: 300, letterSpacing: "1px", position: "relative", zIndex: 10, fontFamily: 'Fraunces, serif' }}>{locale.welcomeText}, {userName}</h1>
             </div>
             <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
-                <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem" }}>
-                    <input
-                        type="text"
-                        placeholder="Search..."
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                        style={{
-                            flex: 1, padding: "1rem 1.5rem", borderRadius: "8px",
-                            border: "none", background: "#fff", color: "#333", fontSize: "1rem",
-                            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-                        }}
-                    />
-                    <button style={{
-                        background: locale.color, color: "white", border: "none",
-                        borderRadius: "8px", padding: "1rem 2rem", fontSize: "1rem", fontWeight: 600,
-                        cursor: "pointer", transition: "background 0.3s"
-                    }}>
-                        Filter
-                    </button>
-                </div>
+                <SearchBar 
+                    places={places} 
+                    locale={locale} 
+                    onSearchChange={handleSearchChange}
+                />
                 <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem", overflowX: "auto", paddingBottom: "0.5rem" }}>
                     {categories.map((cat, idx) => (
                         <div key={cat.id}
