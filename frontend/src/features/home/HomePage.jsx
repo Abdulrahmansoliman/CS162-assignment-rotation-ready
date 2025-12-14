@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { getCurrentUser } from "../../api/user";
 import { apiFetch } from "../../api";
+import "@/shared/styles/locale-theme.css";
 
-// Example API endpoints
-const CATEGORIES_API = "/api/categories";
-const PLACES_API = "/api/places";
+
 
 // Locale-based category palettes (from provided swatches)
 const localeCategoryPalettes = {
@@ -20,108 +18,6 @@ const localeCategoryPalettes = {
 const iconMap = [
     "🏠", "🏛️", "🍽️", "🛒", "☕", "📖", "💊", "🚚", "🔗"
 ];
-const animationStyles = `
-    @keyframes fadeInSlideUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .home-container {
-        background: linear-gradient(135deg, #cc0000 0%, #ff4444 100%);
-        background-size: cover;
-        background-position: center;
-        transition: background-image 0.8s ease-out, background 0.8s ease-out;
-        position: relative;
-    }
-
-    .home-container.show-photo {
-        background-image: url('/sf.jpg');
-        background-size: cover;
-        background-position: center;
-        background-blend-mode: overlay;
-    }
-
-    .home-container.transition-green {
-        background: linear-gradient(135deg, #1d9a5c 0%, #2fb872 100%) !important;
-        background-image: url('/tp.jpg') !important;
-        background-size: 120% !important;
-        background-repeat: no-repeat !important;
-        background-position: center;
-        background-blend-mode: overlay;
-    }
-
-    .home-container.transition-korea {
-        background: linear-gradient(135deg, #c60c30 0%, #e91e63 100%) !important;
-        background-image: url('/sl.jpg') !important;
-        background-size: cover !important;
-        background-position: center;
-        background-blend-mode: overlay;
-    }
-
-    .home-container.transition-argentina {
-        background: linear-gradient(135deg, #d9a300 0%, #e6b800 100%) !important;
-        background-image: url('/ba.jpg') !important;
-        background-size: cover !important;
-        background-position: center;
-        background-blend-mode: overlay;
-    }
-
-    .home-container.transition-india {
-        background: linear-gradient(135deg, #ff9933 0%, #ffcc33 100%) !important;
-        background-image: url('/hyd.jpg') !important;
-        background-size: cover !important;
-        background-position: center;
-        background-blend-mode: overlay;
-    }
-
-    .home-container.transition-germany {
-        background: linear-gradient(135deg, #4a90e2 0%, #7bb3e8 100%) !important;
-        background-image: url('/br.jpg') !important;
-        background-size: cover !important;
-        background-position: center;
-        background-blend-mode: overlay;
-    }
-
-    .overlay {
-        background-color: rgba(204, 0, 0, 0.8);
-        transition: background-color 0.8s ease-out;
-    }
-
-    .overlay.show-photo {
-        background-color: rgba(204, 0, 0, 0.5);
-    }
-
-    .overlay.transition-green {
-        background-color: rgba(29, 154, 92, 0.7) !important;
-    }
-
-    .overlay.transition-korea {
-        background-color: rgba(198, 12, 48, 0.6) !important;
-    }
-
-    .overlay.transition-argentina {
-        background-color: rgba(217, 163, 0, 0.65) !important;
-    }
-
-    .overlay.transition-india {
-        background-color: rgba(255, 153, 51, 0.62) !important;
-    }
-
-    .overlay.transition-germany {
-        background-color: rgba(122, 179, 232, 0.65) !important;
-    }
-
-    .fade-in {
-        animation: fadeInSlideUp 0.8s ease-out 1.2s forwards;
-        opacity: 0;
-    }
-`;
 
 function HomePage() {
     const [categories, setCategories] = useState([]);
@@ -147,10 +43,18 @@ function HomePage() {
                 setUserName(fullName || user.email || "User");
 
                 // Map rotation city id to locale - get city_id from rotation_city object
-                const cityId = user.rotation_city?.city_id;
-                console.log("Extracted city_id:", cityId);
-                const localeMap = { 1: 'usa', 2: 'china', 3: 'korea', 4: 'argentina', 5: 'india', 6: 'germany' };
-                const selectedLocale = localeMap[cityId] || 'usa';
+                const cityName = user.rotation_city?.name?.toLowerCase() || '';
+                console.log("Extracted city name:", cityName);
+                // Map based on city name to locale
+                const localeMap = {
+                    'san francisco': 'usa',
+                    'taipei': 'china',
+                    'seoul': 'korea',
+                    'buenos aires': 'argentina',
+                    'hyderabad': 'india',
+                    'berlin': 'germany'
+                };
+                const selectedLocale = localeMap[cityName] || 'usa';
                 console.log("Selected locale:", selectedLocale);
                 setCurrentLocale(selectedLocale);
 
@@ -218,11 +122,11 @@ function HomePage() {
     const getLocaleColor = () => {
         const colorMap = {
             usa: '#cc0000',
-            china: '#006779',
-            korea: '#e67ba5',
-            argentina: '#eac640',
-            india: '#f7a721',
-            germany: '#005493'
+            china: '#1d9a5c',
+            korea: '#c60c30',
+            argentina: '#d9a300',
+            india: '#ff9933',
+            germany: '#4a90e2'
         }
         return colorMap[currentLocale] || '#cc0000'
     }
@@ -243,9 +147,8 @@ function HomePage() {
 
     return (
         <div style={{ paddingBottom: "2rem" }}>
-            <style>{animationStyles}</style>
-            <div className={`home-container ${getLocaleClass()}`} style={{ color: "white", padding: "3rem 2rem 2rem 2rem" }}>
-                <div className={`overlay absolute inset-0 ${getLocaleClass()}`}></div>
+            <div className={`locale-container ${getLocaleClass()}`} style={{ color: "white", padding: "3rem 2rem 2rem 2rem" }}>
+                <div className={`locale-overlay absolute inset-0 ${getLocaleClass()}`}></div>
                 <h1 style={{ fontSize: "2.5rem", margin: 0, fontWeight: 300, letterSpacing: "1px", position: "relative", zIndex: 10, fontFamily: 'Fraunces, serif' }}>{getLocaleText()}, {userName}</h1>
             </div>
             <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>

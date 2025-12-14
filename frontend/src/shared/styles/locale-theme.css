@@ -1,3 +1,5 @@
+/* Shared locale-based theming styles for pages */
+
 @keyframes letterFlyIn {
   from {
     opacity: 0;
@@ -29,21 +31,23 @@
   opacity: 0;
 }
 
-.signup-container {
+/* Locale-themed container - use on any page that needs locale backgrounds */
+.locale-container {
   background: linear-gradient(135deg, #cc0000 0%, #ff4444 100%);
   background-size: cover;
   background-position: center;
   transition: background-image 0.8s ease-out, background 0.8s ease-out;
+  position: relative;
 }
 
-.signup-container.show-photo {
+.locale-container.show-photo {
   background-image: url('/sf.jpg');
   background-size: cover;
   background-position: center;
   background-blend-mode: overlay;
 }
 
-.signup-container.transition-green {
+.locale-container.transition-green {
   background: linear-gradient(135deg, #1d9a5c 0%, #2fb872 100%) !important;
   background-image: url('/tp.jpg') !important;
   background-size: 120% !important;
@@ -52,7 +56,7 @@
   background-blend-mode: overlay;
 }
 
-.signup-container.transition-korea {
+.locale-container.transition-korea {
   background: linear-gradient(135deg, #c60c30 0%, #e91e63 100%) !important;
   background-image: url('/sl.jpg') !important;
   background-size: cover !important;
@@ -60,15 +64,15 @@
   background-blend-mode: overlay;
 }
 
-.signup-container.transition-argentina {
-  background: linear-gradient(135deg, #4b8dc9 0%, #6ba3d1 100%) !important;
+.locale-container.transition-argentina {
+  background: linear-gradient(135deg, #d9a300 0%, #e6b800 100%) !important;
   background-image: url('/ba.jpg') !important;
   background-size: cover !important;
   background-position: center;
   background-blend-mode: overlay;
 }
 
-.signup-container.transition-india {
+.locale-container.transition-india {
   background: linear-gradient(135deg, #ff9933 0%, #ffcc33 100%) !important;
   background-image: url('/hyd.jpg') !important;
   background-size: cover !important;
@@ -76,7 +80,7 @@
   background-blend-mode: overlay;
 }
 
-.signup-container.transition-germany {
+.locale-container.transition-germany {
   background: linear-gradient(135deg, #4a90e2 0%, #7bb3e8 100%) !important;
   background-image: url('/br.jpg') !important;
   background-size: cover !important;
@@ -84,31 +88,32 @@
   background-blend-mode: overlay;
 }
 
-.overlay {
+/* Overlay styles */
+.locale-overlay {
   background-color: rgba(204, 0, 0, 0.8);
   transition: background-color 0.8s ease-out;
 }
 
-.overlay.show-photo {
+.locale-overlay.show-photo {
   background-color: rgba(204, 0, 0, 0.5);
 }
 
-.overlay.transition-green {
+.locale-overlay.transition-green {
   background-color: rgba(29, 154, 92, 0.7) !important;
 }
 
-.overlay.transition-korea {
+.locale-overlay.transition-korea {
   background-color: rgba(198, 12, 48, 0.6) !important;
 }
 
-.overlay.transition-argentina {
-  background-color: rgba(233, 174, 66, 0.62) !important;
+.locale-overlay.transition-argentina {
+  background-color: rgba(217, 163, 0, 0.65) !important;
 }
 
-.overlay.transition-india {
+.locale-overlay.transition-india {
   background-color: rgba(255, 153, 51, 0.62) !important;
 }
 
-.overlay.transition-germany {
+.locale-overlay.transition-germany {
   background-color: rgba(122, 179, 232, 0.65) !important;
 }

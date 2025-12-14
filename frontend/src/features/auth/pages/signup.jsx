@@ -8,7 +8,7 @@ import { Spinner } from "@/shared/components/ui/spinner"
 import { useSignup } from "../hooks/useSignup"
 import { useVerification } from "../hooks/useVerification"
 import { getCities } from "@/api/cities"
-import "./signup.css"
+import "@/shared/styles/locale-theme.css"
 
 export default function SignupPage() {
   const [isWaitingForOtp, setIsWaitingForOtp] = useState(false)
@@ -103,11 +103,11 @@ export default function SignupPage() {
   const getLocaleColor = () => {
     const colorMap = {
       usa: '#cc0000',
-      china: '#006779',
-      korea: '#e67ba5',
-      argentina: '#eac640',
-      india: '#f7a721',
-      germany: '#005493'
+      china: '#1d9a5c',
+      korea: '#c60c30',
+      argentina: '#d9a300',
+      india: '#ff9933',
+      germany: '#4a90e2'
     }
     return colorMap[currentLocale] || '#cc0000'
   }
@@ -129,8 +129,8 @@ export default function SignupPage() {
   }
 
   return (
-    <div className={`signup-container min-h-screen w-full relative flex items-center justify-center ${getLocaleClass()}`}>
-        <div className={`overlay absolute inset-0 ${getLocaleClass()}`}></div>
+    <div className={`locale-container min-h-screen w-full relative flex items-center justify-center ${getLocaleClass()}`}>
+        <div className={`locale-overlay absolute inset-0 ${getLocaleClass()}`}></div>
 
         <div className="relative z-10 flex flex-col items-center justify-center w-full px-6 sm:px-12 max-w-3xl">
           <h1 className="text-white text-5xl sm:text-7xl font-extrabold leading-tight drop-shadow-md text-center mb-8" style={{fontFamily: 'Georgia, serif'}}>
