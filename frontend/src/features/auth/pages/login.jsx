@@ -85,7 +85,7 @@ const animationStyles = `
   }
 
   .login-container.transition-argentina {
-    background: linear-gradient(135deg, #d4a500 0%, #e6b800 100%) !important;
+    background: linear-gradient(135deg, #6d70bd 0%, #8b6fc3 100%) !important;
     background-image: url('/ba.jpg') !important;
     background-size: cover !important;
     background-position: center;
@@ -142,22 +142,22 @@ export default function LoginPage() {
   const [isWaitingForOtp, setIsWaitingForOtp] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
   const [currentLocale, setCurrentLocale] = useState('usa')
+  const [pressed, setPressed] = useState({ main: false, verify: false, resend: false, back: false })
   const login = useLogin()
   const verification = useLoginVerification(login.email)
 
   useEffect(() => {
+    if (isWaitingForOtp) return
     const locales = ['usa', 'china', 'korea', 'argentina', 'india', 'germany']
     let index = 0
 
-    const cycleLocales = () => {
+    const timer = setInterval(() => {
       index = (index + 1) % locales.length
       setCurrentLocale(locales[index])
-      setTimeout(cycleLocales, 8000)
-    }
+    }, 5000)
 
-    const timer = setTimeout(cycleLocales, 8000)
-    return () => clearTimeout(timer)
-  }, [])
+    return () => clearInterval(timer)
+  }, [isWaitingForOtp])
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -220,14 +220,19 @@ export default function LoginPage() {
   const getLocaleColor = () => {
     const colorMap = {
       usa: '#cc0000',
-      china: '#006779',
-      korea: '#e67ba5',
-      argentina: '#eac640',
-      india: '#f7a721',
-      germany: '#005493'
+      china: '#6fbec7',
+      korea: '#d67ab1',
+      argentina: '#e9ae42',
+      india: '#cc5803',
+      germany: '#42481c'
     }
     return colorMap[currentLocale] || '#cc0000'
   }
+
+  const buttonStyle = (isPressed) => ({
+    background: isPressed ? getLocaleColor() : '#fff',
+    color: isPressed ? '#fff' : getLocaleColor()
+  })
 
   const shouldSplitLetters = () => {
     return currentLocale !== 'india'
@@ -276,7 +281,15 @@ export default function LoginPage() {
                 <div className="text-white text-sm font-medium whitespace-nowrap">
                   Don't have an account? <Link to="/signup" className="underline hover:opacity-80 transition">Sign up</Link>
                 </div>
-                <Button type="submit" className="rounded-full px-8 py-3 bg-white font-semibold shadow-lg whitespace-nowrap" style={{color: getLocaleColor()}} disabled={login.isLoading}>
+                <Button
+                  type="submit"
+                  className="rounded-full px-8 py-3 font-semibold shadow-lg whitespace-nowrap"
+                  style={buttonStyle(pressed.main)}
+                  onMouseDown={() => setPressed(p => ({ ...p, main: true }))}
+                  onMouseUp={() => setPressed(p => ({ ...p, main: false }))}
+                  onMouseLeave={() => setPressed(p => ({ ...p, main: false }))}
+                  disabled={login.isLoading}
+                >
                   {login.isLoading ? <Spinner className="mr-2" /> : 'Sign In'}
                 </Button>
               </div>
@@ -299,14 +312,42 @@ export default function LoginPage() {
                 <div className="mt-2 text-sm text-white">{verification.errors.submit}</div>
               )}
               <div className="mt-4 w-full flex flex-col space-y-3">
-                <Button type="submit" className="rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} disabled={verification.isLoading || verification.verificationCode.length !== 6}>
+                <Button
+                  type="submit"
+                  className="rounded-full px-6 py-3 font-semibold shadow-lg"
+                  style={buttonStyle(pressed.verify)}
+                  onMouseDown={() => setPressed(p => ({ ...p, verify: true }))}
+                  onMouseUp={() => setPressed(p => ({ ...p, verify: false }))}
+                  onMouseLeave={() => setPressed(p => ({ ...p, verify: false }))}
+                  disabled={verification.isLoading || verification.verificationCode.length !== 6}
+                >
                   {verification.isLoading ? <Spinner className="mr-2" /> : 'Verify'}
                 </Button>
                 <div className="flex gap-3">
-                    <Button type="button" variant="ghost" className="flex-1 rounded-full bg-white/90 text-sm font-semibold" style={{color: getLocaleColor()}} onClick={handleResendWithCooldown} disabled={verification.isResending || verification.isLoading || resendCooldown > 0}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="flex-1 rounded-full text-sm font-semibold"
+                      style={buttonStyle(pressed.resend)}
+                      onMouseDown={() => setPressed(p => ({ ...p, resend: true }))}
+                      onMouseUp={() => setPressed(p => ({ ...p, resend: false }))}
+                      onMouseLeave={() => setPressed(p => ({ ...p, resend: false }))}
+                      onClick={handleResendWithCooldown}
+                      disabled={verification.isResending || verification.isLoading || resendCooldown > 0}
+                    >
                     {verification.isResending ? <Spinner className="mr-2" /> : (resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code')}
                   </Button>
-                  <Button type="button" variant="outline" className="flex-1 rounded-full bg-white text-sm font-semibold" style={{color: getLocaleColor()}} onClick={handleBackToLogin} disabled={verification.isLoading}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1 rounded-full text-sm font-semibold"
+                    style={buttonStyle(pressed.back)}
+                    onMouseDown={() => setPressed(p => ({ ...p, back: true }))}
+                    onMouseUp={() => setPressed(p => ({ ...p, back: false }))}
+                    onMouseLeave={() => setPressed(p => ({ ...p, back: false }))}
+                    onClick={handleBackToLogin}
+                    disabled={verification.isLoading}
+                  >
                     Back
                   </Button>
                 </div>

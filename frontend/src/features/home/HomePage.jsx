@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getCurrentUser } from "../../api/user";
 import { apiFetch } from "../../api";
@@ -10,11 +11,11 @@ const PLACES_API = "/api/places";
 // Locale-based category palettes (from provided swatches)
 const localeCategoryPalettes = {
     usa: ["#E31B23", "#9A2623", "#5C2A28", "#E53935", "#A63A3A"],
-    china: ["#55B89C", "#5AD4A8", "#49C792", "#6AD9A7", "#7AE3B0"],
-    korea: ["#FF7890", "#F3A1B6", "#E67A94", "#FF9AB0", "#F8B0C6"],
-    argentina: ["#D9A300", "#F7A721", "#E5B74A", "#C8922E", "#B47F21"],
-    india: ["#F7A721", "#E58B20", "#D0771D", "#C16A1B", "#A85A18"],
-    germany: ["#005493", "#85A0CB", "#5688C0", "#1E5F90", "#0A3F66"],
+    china: ["#9AD9C2", "#B8E7F4", "#D7F3FF", "#F7CDE5", "#A4D7E1"],
+    korea: ["#0F1B4C", "#1F3B73", "#D67AB1", "#F0A6C1", "#F7C7DC"],
+    argentina: ["#5A8CE8", "#7FB3F4", "#F5A3C7", "#FADF6A", "#FFCF5C"],
+    india: ["#CC5803", "#E2711D", "#FF9505", "#FFB627", "#FFC971"],
+    germany: ["#94D3FC", "#A3A88A", "#42481C", "#696572", "#94D3FC"],
 };
 
 const iconMap = [
@@ -30,6 +31,16 @@ const animationStyles = `
             opacity: 1;
             transform: translateY(0);
         }
+    }
+
+    @keyframes welcomeFadeUp {
+        from { opacity: 0; transform: translateY(24px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes contentFadeIn {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .home-container {
@@ -65,7 +76,7 @@ const animationStyles = `
     }
 
     .home-container.transition-argentina {
-        background: linear-gradient(135deg, #d9a300 0%, #e6b800 100%) !important;
+        background: linear-gradient(135deg, #6d70bd 0%, #8b6fc3 100%) !important;
         background-image: url('/ba.jpg') !important;
         background-size: cover !important;
         background-position: center;
@@ -121,19 +132,34 @@ const animationStyles = `
         animation: fadeInSlideUp 0.8s ease-out 1.2s forwards;
         opacity: 0;
     }
+
+    .welcome-hero {
+        opacity: 0;
+        animation: welcomeFadeUp 0.8s ease-out forwards;
+    }
+
+    .content-fade-in {
+        opacity: 0;
+        animation: contentFadeIn 0.7s ease-out 0.2s forwards;
+    }
 `;
 
 function HomePage() {
+    const navigate = useNavigate();
     const [categories, setCategories] = useState([]);
     const [places, setPlaces] = useState([]);
-    const [tags, setTags] = useState([]);
     const [search, setSearch] = useState("");
     const [filteredPlaces, setFilteredPlaces] = useState([]);
     const [view, setView] = useState("list");
     const [currentLocale, setCurrentLocale] = useState('usa');
     const [activeCategoryId, setActiveCategoryId] = useState(null);
-    const [selectedTagIds, setSelectedTagIds] = useState([]);
+    const [selectedConditions, setSelectedConditions] = useState([]);
+    const [selectedHours, setSelectedHours] = useState([]);
+    const [selectedPrices, setSelectedPrices] = useState([]);
+    const [distanceLimit, setDistanceLimit] = useState(null);
+    const [maxDistance, setMaxDistance] = useState(0);
     const [showFilterMenu, setShowFilterMenu] = useState(false);
+    const [showContent, setShowContent] = useState(false);
 
     useEffect(() => {
         const loadData = async () => {
@@ -143,8 +169,8 @@ function HomePage() {
                 console.log("User data from backend:", user);
                 
                 // Set user name from first_name and last_name
-                const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
-                setUserName(fullName || user.email || "User");
+                const firstName = (user.first_name || '').trim();
+                setUserName(firstName || user.email || "User");
 
                 // Map rotation city id to locale - get city_id from rotation_city object
                 const cityId = user.rotation_city?.city_id;
@@ -165,26 +191,35 @@ function HomePage() {
                 // Fetch items for user's rotation city
                 const items = await apiFetch("/item/", { method: "GET" });
                 console.log("Items from backend:", items);
-                setPlaces(items.map(item => ({
+                const mappedItems = items.map(item => ({
                     id: item.item_id,
                     name: item.name,
                     address: item.location,
-                    distance: item.walking_distance ? (item.walking_distance / 1000).toFixed(1) : null,
-                    tags: (item.tags || []).map(t => t.tag_name || t.name),
+                    distanceMeters: item.walking_distance || null,
+                    distanceKm: item.walking_distance ? (item.walking_distance / 1000).toFixed(1) : null,
+                    tags: (item.tags || []).map(t => ({
+                        id: t.tag_id,
+                        name: t.name,
+                        valueType: t.value_type,
+                        value: t.value
+                    })),
                     verifiedCount: item.number_of_verifications || 0,
                     lastVerified: item.created_at ? new Date(item.created_at).toLocaleDateString() : null,
                     priceLevel: 1,
                     categories: (item.categories || []).map(c => ({ id: c.category_id, name: c.category_name })),
-                })));
+                }));
 
-                // Fetch tags from backend
-                const tagList = await apiFetch("/tag/", { method: "GET" });
-                setTags(tagList.map(t => ({ id: t.tag_id, name: t.name || t.tag_name })));
+                setPlaces(mappedItems);
+
+                const maxDist = Math.max(0, ...mappedItems.map(i => i.distanceMeters || 0));
+                setMaxDistance(maxDist || 0);
+                setDistanceLimit(maxDist || null);
             } catch (e) {
                 console.error(e);
             }
         };
         loadData();
+        setShowContent(true);
     }, []);
 
     // Locale is set from backend and remains stable for the session
@@ -192,16 +227,27 @@ function HomePage() {
     useEffect(() => {
         const bySearch = (p) => p.name.toLowerCase().includes(search.toLowerCase());
         const byCategory = (p) => !activeCategoryId || (p.categories || []).some(c => c.id === activeCategoryId);
-        const selectedTagNames = selectedTagIds
-            .map(id => (tags.find(t => t.id === id)?.name || "").toLowerCase())
-            .filter(Boolean);
-        const byTags = (p) => selectedTagNames.length === 0 || selectedTagNames.some(tag => (p.tags || []).map(t => t.toLowerCase()).includes(tag));
-        setFilteredPlaces(places.filter(p => bySearch(p) && byCategory(p) && byTags(p)));
-    }, [search, places, activeCategoryId, selectedTagIds, tags]);
+        const byDistance = (p) => !distanceLimit || !p.distanceMeters || p.distanceMeters <= distanceLimit;
 
-    const toggleTag = (id) => {
-        setSelectedTagIds(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]);
+        const hasTagValue = (p, tagName, values) => {
+            if (!values.length) return true;
+            return (p.tags || []).some(t => t.name === tagName && values.includes(String(t.value)));
+        };
+
+        const byCondition = (p) => hasTagValue(p, 'Condition', selectedConditions);
+        const byHours = (p) => hasTagValue(p, 'Operating Hours', selectedHours);
+        const byPrice = (p) => hasTagValue(p, 'Price Range', selectedPrices);
+
+        setFilteredPlaces(places.filter(p => bySearch(p) && byCategory(p) && byDistance(p) && byCondition(p) && byHours(p) && byPrice(p)));
+    }, [search, places, activeCategoryId, selectedConditions, selectedHours, selectedPrices, distanceLimit]);
+
+    const toggleValue = (setter, current) => (val) => {
+        setter(prev => prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]);
     };
+
+    const toggleCondition = toggleValue(setSelectedConditions);
+    const toggleHours = toggleValue(setSelectedHours);
+    const togglePrice = toggleValue(setSelectedPrices);
 
     const getLocaleClass = () => {
         const classMap = {
@@ -218,11 +264,11 @@ function HomePage() {
     const getLocaleColor = () => {
         const colorMap = {
             usa: '#cc0000',
-            china: '#006779',
-            korea: '#e67ba5',
-            argentina: '#eac640',
-            india: '#f7a721',
-            germany: '#005493'
+            china: '#6fbec7',
+            korea: '#d67ab1',
+            argentina: '#5a8ce8',
+            india: '#cc5803',
+            germany: '#42481c'
         }
         return colorMap[currentLocale] || '#cc0000'
     }
@@ -241,14 +287,22 @@ function HomePage() {
         return textMap[currentLocale] || 'Welcome';
     };
 
+    const palette = localeCategoryPalettes[currentLocale] || localeCategoryPalettes['usa'];
+    const conditionColor = palette[0] || getLocaleColor();
+    const hoursColor = palette[1] || getLocaleColor();
+    const priceColor = palette[2] || getLocaleColor();
+    const distanceColor = palette[3] || getLocaleColor();
+
     return (
         <div style={{ paddingBottom: "2rem" }}>
             <style>{animationStyles}</style>
             <div className={`home-container ${getLocaleClass()}`} style={{ color: "white", padding: "3rem 2rem 2rem 2rem" }}>
                 <div className={`overlay absolute inset-0 ${getLocaleClass()}`}></div>
-                <h1 style={{ fontSize: "2.5rem", margin: 0, fontWeight: 300, letterSpacing: "1px", position: "relative", zIndex: 10, fontFamily: 'Fraunces, serif' }}>{getLocaleText()}, {userName}</h1>
+                <h1 className="welcome-hero" style={{ fontSize: "2.5rem", margin: 0, fontWeight: 300, letterSpacing: "1px", position: "relative", zIndex: 10, fontFamily: 'Fraunces, serif' }}>
+                    {getLocaleText()}, <Link to="/profile" style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: "4px", cursor: "pointer" }}>{userName}</Link>
+                </h1>
             </div>
-            <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
+            <div className={showContent ? "content-fade-in" : ""} style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
                 <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem" }}>
                     <input
                         type="text"
@@ -278,35 +332,88 @@ function HomePage() {
                                 borderRadius: "12px",
                                 boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
                                 padding: "1rem",
-                                minWidth: "260px",
-                                zIndex: 20
+                                minWidth: "320px",
+                                zIndex: 20,
+                                display: "grid",
+                                gap: "1rem"
                             }}>
-                                <div style={{ fontWeight: 700, marginBottom: "0.5rem", color: "#333" }}>Tags</div>
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", maxHeight: "200px", overflowY: "auto" }}>
-                                    {tags.map(tag => {
-                                        const isOn = selectedTagIds.includes(tag.id);
-                                        return (
-                                            <button
-                                                key={tag.id}
-                                                onClick={() => toggleTag(tag.id)}
-                                                style={{
+                                <div>
+                                    <div style={{ fontWeight: 700, marginBottom: "0.35rem", color: "#333" }}>Distance (m)</div>
+                                    <input type="range" min={0} max={Math.max(maxDistance, 1000)} step={50} value={distanceLimit || 0}
+                                        onChange={(e) => setDistanceLimit(Number(e.target.value) || null)}
+                                        style={{ width: "100%", accentColor: distanceColor }} />
+                                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", color: "#666", marginTop: "0.25rem" }}>
+                                        <span>0</span>
+                                        <span>{distanceLimit ? `${distanceLimit} m` : 'Any'}</span>
+                                        <span>{Math.max(maxDistance, 1000)} m</span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div style={{ fontWeight: 700, marginBottom: "0.35rem", color: "#333" }}>Condition</div>
+                                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                                        {['Excellent','Good','Fair'].map(val => {
+                                            const on = selectedConditions.includes(val);
+                                            return (
+                                                <button key={val} onClick={() => toggleCondition(val)} style={{
                                                     border: "1px solid #ddd",
-                                                    background: isOn ? getLocaleColor() : "#f7f7f8",
-                                                    color: isOn ? "#fff" : "#444",
+                                                    background: on ? conditionColor : "#f7f7f8",
+                                                    color: on ? "#fff" : "#444",
                                                     borderRadius: "999px",
                                                     padding: "6px 12px",
                                                     fontSize: "0.85rem",
                                                     cursor: "pointer",
                                                     transition: "all 0.2s"
-                                                }}
-                                            >
-                                                {tag.name}
-                                            </button>
-                                        );
-                                    })}
+                                                }}>{val}</button>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.75rem" }}>
-                                    <button onClick={() => { setSelectedTagIds([]); }} style={{
+
+                                <div>
+                                    <div style={{ fontWeight: 700, marginBottom: "0.35rem", color: "#333" }}>Operating Hours</div>
+                                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                                        {["Morning (6AM-12PM)", "Afternoon (12PM-6PM)", "Evening (6PM-12AM)"].map(val => {
+                                            const on = selectedHours.includes(val);
+                                            return (
+                                                <button key={val} onClick={() => toggleHours(val)} style={{
+                                                    border: "1px solid #ddd",
+                                                    background: on ? hoursColor : "#f7f7f8",
+                                                    color: on ? "#fff" : "#444",
+                                                    borderRadius: "999px",
+                                                    padding: "6px 12px",
+                                                    fontSize: "0.85rem",
+                                                    cursor: "pointer",
+                                                    transition: "all 0.2s"
+                                                }}>{val}</button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div style={{ fontWeight: 700, marginBottom: "0.35rem", color: "#333" }}>Price Range</div>
+                                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                                        {["Budget", "Mid-Range", "Premium"].map(val => {
+                                            const on = selectedPrices.includes(val);
+                                            return (
+                                                <button key={val} onClick={() => togglePrice(val)} style={{
+                                                    border: "1px solid #ddd",
+                                                    background: on ? priceColor : "#f7f7f8",
+                                                    color: on ? "#fff" : "#444",
+                                                    borderRadius: "999px",
+                                                    padding: "6px 12px",
+                                                    fontSize: "0.85rem",
+                                                    cursor: "pointer",
+                                                    transition: "all 0.2s"
+                                                }}>{val}</button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.25rem" }}>
+                                    <button onClick={() => { setSelectedConditions([]); setSelectedHours([]); setSelectedPrices([]); setDistanceLimit(maxDistance || null); }} style={{
                                         background: "#f1f1f4", border: "1px solid #e0e0e5", color: "#444",
                                         borderRadius: "8px", padding: "0.5rem 0.9rem", cursor: "pointer"
                                     }}>Clear</button>
@@ -397,19 +504,16 @@ function HomePage() {
                         <div style={{ flex: 1 }}>
                             <div style={{ fontWeight: 600, fontSize: "1rem", marginBottom: 4 }}>{place.name}</div>
                             <div style={{ color: "#666", fontSize: "0.9rem", margin: "4px 0 8px 0", display: "flex", alignItems: "center", gap: 4 }}>
-                                📍 {place.address} {place.distance && `${place.distance} km away`}
+                                📍 {place.address} {place.distanceKm && `${place.distanceKm} km away`}
                             </div>
                             <div style={{ margin: "8px 0", display: "flex", gap: 6, flexWrap: "wrap" }}>
                                 {place.tags && place.tags.map((tag, i) => (
                                     <span key={i} style={{
-                                        background: tag === "Foreign Cards" ? "#b2f2bb" :
-                                            tag === "English" ? "#e0b3ff" :
-                                            tag === "Walk-in" ? "#fff3cd" :
-                                            tag === "24/7" ? "#d1e7f5" :
-                                            tag === "Fast service" ? "#f8d7da" : "#eee",
-                                        color: tag === "English" ? "#333" : "#333", 
-                                        borderRadius: 4, padding: "3px 8px", fontSize: "0.75rem", fontWeight: 500
-                                    }}>{tag}</span>
+                                        background: "#f5f5f7",
+                                        color: "#333",
+                                        borderRadius: 6, padding: "4px 10px", fontSize: "0.78rem", fontWeight: 600,
+                                        border: "1px solid #e4e4e7"
+                                    }}>{`${tag.name}: ${tag.value}`}</span>
                                 ))}
                             </div>
                             <div style={{ color: "#4caf50", fontSize: "0.85rem", display: "flex", alignItems: "center", gap: 8 }}>
@@ -423,11 +527,14 @@ function HomePage() {
                             <div style={{ color: "#999", fontWeight: 600, fontSize: "1rem", minWidth: 40, textAlign: view === "list" ? "right" : "left" }}>
                                 {"$".repeat(place.priceLevel || 1)}
                             </div>
-                            <button style={{
-                                background: getLocaleColor(), color: "#fff", border: "none",
-                                borderRadius: 6, padding: "8px 16px", fontWeight: 600, fontSize: "0.85rem",
-                                cursor: "pointer", transition: "background 0.3s", width: view === "list" ? "auto" : "100%"
-                            }}>
+                            <button
+                                style={{
+                                    background: getLocaleColor(), color: "#fff", border: "none",
+                                    borderRadius: 6, padding: "8px 16px", fontWeight: 600, fontSize: "0.85rem",
+                                    cursor: "pointer", transition: "background 0.3s", width: view === "list" ? "auto" : "100%"
+                                }}
+                                onClick={() => navigate(`/item/${place.id}`)}
+                            >
                                 View Details
                             </button>
                         </div>

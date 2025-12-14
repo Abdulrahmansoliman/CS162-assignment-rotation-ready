@@ -73,7 +73,7 @@ const animationStyles = `
   }
 
   .signup-container.transition-argentina {
-    background: linear-gradient(135deg, #4b8dc9 0%, #6ba3d1 100%) !important;
+    background: linear-gradient(135deg, #6d70bd 0%, #8b6fc3 100%) !important;
     background-image: url('/ba.jpg') !important;
     background-size: cover !important;
     background-position: center;
@@ -132,21 +132,28 @@ export default function SignupPage() {
   const [isWaitingForOtp, setIsWaitingForOtp] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
   const [currentLocale, setCurrentLocale] = useState('usa')
+  const [pressed, setPressed] = useState({ main: false, verify: false })
   const [rotationCities, setRotationCities] = useState([])
   const [citiesLoading, setCitiesLoading] = useState(true)
   const [citiesError, setCitiesError] = useState("")
   const signup = useSignup()
   const verification = useVerification(signup.formData.email)
 
+  // Map city_id to locale
+  const cityToLocaleMap = {
+    1: 'usa',
+    2: 'china',
+    3: 'korea',
+    4: 'argentina',
+    5: 'india',
+    6: 'germany'
+  }
+
   useEffect(() => {
     const loadCities = async () => {
       try {
         const cities = await getCities()
         setRotationCities(cities)
-        // If no city selected yet, default to first from backend
-        if (!signup.formData.cityId && cities.length > 0) {
-          signup.handleChange("cityId", String(cities[0].city_id))
-        }
       } catch (error) {
         console.error('Failed to fetch cities:', error)
         setRotationCities([])
@@ -158,19 +165,13 @@ export default function SignupPage() {
     loadCities()
   }, [])
 
+  // Update locale when city is selected
   useEffect(() => {
-    const locales = ['usa', 'china', 'korea', 'argentina', 'india', 'germany']
-    let index = 0
-
-    const cycleLocales = () => {
-      index = (index + 1) % locales.length
-      setCurrentLocale(locales[index])
-      setTimeout(cycleLocales, 8000)
+    if (signup.formData.cityId) {
+      const selectedLocale = cityToLocaleMap[signup.formData.cityId] || 'usa'
+      setCurrentLocale(selectedLocale)
     }
-
-    const timer = setTimeout(cycleLocales, 8000)
-    return () => clearTimeout(timer)
-  }, [])
+  }, [signup.formData.cityId])
 
   const handleRegister = async (e) => {
     e.preventDefault()
@@ -221,11 +222,11 @@ export default function SignupPage() {
   const getLocaleColor = () => {
     const colorMap = {
       usa: '#cc0000',
-      china: '#006779',
-      korea: '#e67ba5',
-      argentina: '#eac640',
-      india: '#f7a721',
-      germany: '#005493'
+      china: '#6fbec7',
+      korea: '#d67ab1',
+      argentina: '#e9ae42',
+      india: '#cc5803',
+      germany: '#42481c'
     }
     return colorMap[currentLocale] || '#cc0000'
   }
@@ -245,6 +246,11 @@ export default function SignupPage() {
   const shouldSplitLetters = () => {
     return currentLocale !== 'india'
   }
+
+  const buttonStyle = (isPressed) => ({
+    background: isPressed ? getLocaleColor() : '#fff',
+    color: isPressed ? '#fff' : getLocaleColor()
+  })
 
   return (
     <>
@@ -326,7 +332,7 @@ export default function SignupPage() {
                   <FieldContent>
                     <FieldLabel htmlFor="city" className="text-lg font-semibold text-white">Rotation City</FieldLabel>
                     <Select value={signup.formData.cityId} onValueChange={(value) => signup.handleChange("cityId", value)}>
-                      <SelectTrigger className="bg-white rounded-full px-8 py-4 text-gray-800 text-lg shadow-lg">
+                      <SelectTrigger className="bg-white rounded-full px-8 py-4 text-gray-800 text-lg placeholder-gray-400 shadow-lg">
                         <SelectValue placeholder={citiesLoading ? "Loading cities..." : (citiesError ? citiesError : "Select a city")} />
                       </SelectTrigger>
                       <SelectContent>
@@ -349,8 +355,19 @@ export default function SignupPage() {
                 </Field>
               </div>
 
-              <div className="mt-8 w-full max-w-2xl flex items-center justify-center">
-                <Button type="submit" className="rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} disabled={signup.isLoading || citiesLoading || rotationCities.length === 0}>
+              <div className="mt-8 w-full max-w-2xl flex items-center justify-between">
+                <div className="text-white text-sm font-medium whitespace-nowrap">
+                  Have an account? <Link to="/login" className="underline hover:opacity-80 transition">Sign in</Link>
+                </div>
+                <Button
+                  type="submit"
+                  className="rounded-full px-6 py-3 font-semibold shadow-lg whitespace-nowrap"
+                  style={buttonStyle(pressed.main)}
+                  onMouseDown={() => setPressed(p => ({ ...p, main: true }))}
+                  onMouseUp={() => setPressed(p => ({ ...p, main: false }))}
+                  onMouseLeave={() => setPressed(p => ({ ...p, main: false }))}
+                  disabled={signup.isLoading || citiesLoading || rotationCities.length === 0}
+                >
                   {signup.isLoading ? <Spinner className="mr-2" /> : 'Sign up'}
                 </Button>
               </div>
@@ -392,7 +409,15 @@ export default function SignupPage() {
               </div>
 
               <div className="mt-8 w-full max-w-2xl flex flex-col space-y-3">
-                <Button type="submit" className="rounded-full px-6 py-3 bg-white font-semibold shadow-lg" style={{color: getLocaleColor()}} disabled={verification.isLoading || verification.verificationCode.length !== 6}>
+                <Button
+                  type="submit"
+                  className="rounded-full px-6 py-3 font-semibold shadow-lg"
+                  style={buttonStyle(pressed.verify)}
+                  onMouseDown={() => setPressed(p => ({ ...p, verify: true }))}
+                  onMouseUp={() => setPressed(p => ({ ...p, verify: false }))}
+                  onMouseLeave={() => setPressed(p => ({ ...p, verify: false }))}
+                  disabled={verification.isLoading || verification.verificationCode.length !== 6}
+                >
                   {verification.isLoading ? <Spinner className="mr-2" /> : 'Verify'}
                 </Button>
                 <div className="flex gap-3">
@@ -406,9 +431,6 @@ export default function SignupPage() {
               </div>
             </form>
           )}
-          <div className="mt-6 text-white text-center">
-            <p>Already have an account? <Link to="/login" className="font-semibold underline hover:opacity-80 transition">Sign in</Link></p>
-          </div>
         </div>
       </div>
     </>
