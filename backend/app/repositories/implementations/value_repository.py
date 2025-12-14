@@ -7,7 +7,11 @@ from app.repositories.base.value_repository_interface import ValueRepositoryInte
 
 
 class ValueRepository(ValueRepositoryInterface):
-    """Repository for value operations."""
+    """Repository for value data access operations.
+    
+    Handles all database operations related to tag values.
+    Values can be boolean, text, or numeric depending on their associated tag.
+    """
 
     def create_value(
         self,
@@ -15,7 +19,16 @@ class ValueRepository(ValueRepositoryInterface):
         value: Union[bool, str, float],
         value_type: str
     ) -> Value:
-        """Create a new value for a tag."""
+        """Create a new value for a tag.
+        
+        Args:
+            tag_id: The ID of the tag this value belongs to
+            value: The actual value (bool, str, or float)
+            value_type: Type of value ('boolean', 'text', or 'numeric')
+            
+        Returns:
+            Created Value object with appropriate column set
+        """
         value_obj = Value(tag_id=tag_id)
         
         # Set the appropriate column based on value_type
@@ -32,7 +45,14 @@ class ValueRepository(ValueRepositoryInterface):
         return value_obj
 
     def get_value_by_id(self, value_id: int) -> Optional[Value]:
-        """Get value by ID."""
+        """Retrieve a value by its ID.
+        
+        Args:
+            value_id: The ID of the value to retrieve
+            
+        Returns:
+            Value object if found, None otherwise
+        """
         return db.session.execute(
             db.select(Value).filter_by(value_id=value_id)
         ).scalar_one_or_none()

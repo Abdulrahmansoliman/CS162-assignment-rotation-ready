@@ -7,14 +7,31 @@ from app import db
 
 
 class RotationCityRepository(IRotationCityRepository):
+    """Repository for rotation city data access operations.
+    
+    Handles all database operations related to Minerva rotation cities.
+    """
     
     def get_rotation_city_by_id(
         self,
         city_id: int
     ) -> Optional[RotationCity]:
+        """Retrieve a rotation city by its ID.
+        
+        Args:
+            city_id: The ID of the rotation city to retrieve
+            
+        Returns:
+            RotationCity object if found, None otherwise
+        """
         return db.session.get(RotationCity, city_id)
     
     def get_all_rotation_cities(self) -> List[RotationCity]:
+        """Retrieve all rotation cities from the database.
+        
+        Returns:
+            List of all RotationCity objects
+        """
         return db.session.execute(
             db.select(RotationCity)
         ).scalars().all()
@@ -23,18 +40,44 @@ class RotationCityRepository(IRotationCityRepository):
         self,
         name: str
     ) -> Optional[RotationCity]:
+        """Retrieve a rotation city by its name.
+        
+        Args:
+            name: The name of the rotation city to retrieve
+            
+        Returns:
+            RotationCity object if found, None otherwise
+        """
         return db.session.execute(
             db.select(RotationCity).filter_by(name=name)
         ).scalar_one_or_none()
 
     def check_city_exists(self, city_id: int) -> bool:
+        """Check if a rotation city exists in the database.
+        
+        Args:
+            city_id: The ID of the city to check
+            
+        Returns:
+            True if city exists, False otherwise
+        """
         city = db.session.execute(
             db.select(RotationCity).filter_by(city_id=city_id)
         ).scalar_one_or_none()
         return city is not None
 
     def validate_city_id(self, city_id) -> int:
-        """Validate and return rotation_city_id"""
+        """Validate and return rotation_city_id.
+        
+        Args:
+            city_id: The city ID to validate (can be any type)
+            
+        Returns:
+            Validated city_id as integer
+            
+        Raises:
+            ValueError: If city_id is None, not an integer, or doesn't exist
+        """
         if city_id is None:
             raise ValueError("rotation_city_id cannot be None")
         try:
