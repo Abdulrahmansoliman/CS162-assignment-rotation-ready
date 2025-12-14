@@ -224,14 +224,14 @@ class TestEmailServiceWithMockedProvider:
         mock_provider = ConsoleProvider()
         service = EmailService(provider=mock_provider)
         
-        result = service.send_registration_code(
+        result = service.send_registration_code_async(
             to_email="user@example.com",
             name="John",
             code="ABC123",
             expiry_minutes=15
         )
         
-        assert result is True
+        assert result is None
     
     def test_send_login_code(self, app_context):
         """Should send login verification email."""
@@ -241,14 +241,14 @@ class TestEmailServiceWithMockedProvider:
         mock_provider = ConsoleProvider()
         service = EmailService(provider=mock_provider)
         
-        result = service.send_login_code(
+        result = service.send_login_code_async(
             to_email="user@example.com",
             name="Jane",
             code="XYZ789",
             expiry_minutes=10
         )
         
-        assert result is True
+        assert result is None
     
     def test_send_simple_email(self, app_context):
         """Should send a simple email without template."""

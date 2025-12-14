@@ -83,7 +83,7 @@ class TemplateEngine:
         # Proactively load and compile templates NOW (at registration/startup)
         try:
             text_compiled = env.get_template(text_template)
-            html_compiled = env.get_template(html_template) if html_template else None
+            html_compiled = env.get_template(html_template)
         except TemplateNotFound as e:
             raise EmailTemplateError(f"Template file not found: {e}", original_error=e)
         

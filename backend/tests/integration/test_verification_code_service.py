@@ -276,3 +276,14 @@ class TestVerificationCodeService:
         assert service._validate_code(verification_code, plain_code.lower()) is False
         modified_code = plain_code[:-1] + ('A' if plain_code[-1] != 'A' else 'B')
         assert service._validate_code(verification_code, modified_code) is False
+
+    def test_check_rate_limit_with_no_prior_requests(
+        self,
+        service,
+        app_context,
+        unverified_user
+    ):
+        service._check_rate_limit(
+            user_id=unverified_user.user_id,
+            code_type=VerificationCodeType.REGISTRATION.code,
+        )  # Should not raise any exception

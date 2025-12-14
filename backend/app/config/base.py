@@ -7,8 +7,25 @@ Shared settings across all environments.
 import os
 
 
+def get_int_env(name: str, default: int) -> int:
+    """
+    Helper to get int environment variables with default.
+    Defined at module level so it can be used during class definition.
+    """
+    value = os.getenv(name)
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return default
+
+
 class Config:
     """Base configuration with shared settings."""
+    
+    # Expose helper as classmethod for child classes
+    get_int_env_variable = staticmethod(get_int_env)
     
     # Database
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -19,8 +36,8 @@ class Config:
     MAX_VERIFICATION_ATTEMPTS = 5
     
     # Rate Limiting for Verification Codes
-    VERIFICATION_CODE_MAX_PER_HOUR = int(os.getenv('VERIFICATION_CODE_MAX_PER_HOUR', 3))
-    VERIFICATION_CODE_RATE_LIMIT_WINDOW_MINUTES = int(os.getenv('VERIFICATION_CODE_RATE_LIMIT_WINDOW_MINUTES', 60))
+    VERIFICATION_CODE_MAX_PER_HOUR = get_int_env('VERIFICATION_CODE_MAX_PER_HOUR', 3)
+    VERIFICATION_CODE_RATE_LIMIT_WINDOW_MINUTES = get_int_env('VERIFICATION_CODE_RATE_LIMIT_WINDOW_MINUTES', 60)
 
     # Security
     SECRET_KEY = os.getenv('SECRET_KEY', 'your-default-secret-key')

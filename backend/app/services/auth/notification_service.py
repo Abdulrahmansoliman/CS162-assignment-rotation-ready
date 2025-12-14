@@ -8,7 +8,7 @@ Acts as a facade for the email service in the auth context.
 import logging
 from typing import Literal
 
-from app.services.email import EmailService, EmailError
+from app.services.email import EmailService
 
 
 logger = logging.getLogger(__name__)
