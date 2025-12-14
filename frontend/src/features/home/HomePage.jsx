@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchHomePageData } from "./services/homeService";
 import { DEFAULT_LOCALE } from "../../config/localeConfig";
 import "../../shared/styles/localeTransitions.css";
@@ -19,6 +20,7 @@ function HomePage() {
     const [view, setView] = useState("list");
     const [locale, setLocale] = useState(DEFAULT_LOCALE);
     const [userName, setUserName] = useState("User");
+    const navigate = useNavigate();
 
     useEffect(() => {
         const loadData = async () => {
@@ -172,7 +174,8 @@ function HomePage() {
                                 background: locale.color, color: "#fff", border: "none",
                                 borderRadius: 6, padding: "8px 16px", fontWeight: 600, fontSize: "0.85rem",
                                 cursor: "pointer", transition: "background 0.3s", width: view === "list" ? "auto" : "100%"
-                            }}>
+                            }}
+                            onClick={() => navigate(`/item/${place.id}`)}>
                                 View Details
                             </button>
                         </div>
