@@ -14,6 +14,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
 
   const [cities, setCities] = useState([])
+  const [citiesError, setCitiesError] = useState(null)
   const [user, setUser] = useState(null)
 
   const [firstName, setFirstName] = useState("")
@@ -40,6 +41,9 @@ export default function ProfilePage() {
 
       } catch (err) {
         console.error(err)
+        if (err.message?.includes("cities") || err.message?.includes("rotation_city")) {
+          setCitiesError("Failed to load cities")
+        }
         setErrorMessage("Failed to load profile data")
       } finally {
         setLoading(false)
@@ -68,6 +72,17 @@ export default function ProfilePage() {
       setErrorMessage("Failed to update profile")
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleRetryFetchCities = async () => {
+    setCitiesError(null)
+    try {
+      const citiesData = await getCities()
+      setCities(citiesData)
+    } catch (err) {
+      console.error(err)
+      setCitiesError("Failed to load cities")
     }
   }
 
@@ -138,22 +153,36 @@ export default function ProfilePage() {
             <Field>
               <FieldContent>
                 <FieldLabel className="text-slate-200">Rotation City</FieldLabel>
-                <Select
-                  value={rotationCityId}
-                  onValueChange={(v) => setRotationCityId(v)}
-                >
-                  <SelectTrigger className="w-full h-12 bg-slate-700/50 border-slate-600 text-white">
-                    <SelectValue placeholder="Choose a city" />
-                  </SelectTrigger>
+                {citiesError ? (
+                  <div className="space-y-2">
+                    <p className="text-red-400 text-sm">{citiesError}</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleRetryFetchCities}
+                      className="w-full bg-slate-700/50 hover:bg-slate-700 text-white border-slate-600"
+                    >
+                      Retry Loading Cities
+                    </Button>
+                  </div>
+                ) : (
+                  <Select
+                    value={rotationCityId}
+                    onValueChange={(v) => setRotationCityId(v)}
+                  >
+                    <SelectTrigger className="w-full h-12 bg-slate-700/50 border-slate-600 text-white">
+                      <SelectValue placeholder="Choose a city" />
+                    </SelectTrigger>
 
-                  <SelectContent className="bg-slate-800 border-slate-700 text-white">
-                    {cities.map((c) => (
-                      <SelectItem key={c.city_id} value={String(c.city_id)}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                      {cities.map((c) => (
+                        <SelectItem key={c.city_id} value={String(c.city_id)}>
+                          {c.name || 'Unknown City'}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </FieldContent>
             </Field>
 
