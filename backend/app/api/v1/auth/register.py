@@ -71,7 +71,7 @@ def verify_registration():
         return jsonify({'message': str(ve)}), 400
 
     except Exception as e:
-        return jsonify({'message': 'An error occurred during email verification.'}), 500
+        return jsonify({'message': f'An error occurred during email verification.{e}'}), 500
 
 @auth_bp.route('/register/resend-code', methods=['POST'])
 @require_params('email')

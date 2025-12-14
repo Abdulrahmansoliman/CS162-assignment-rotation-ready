@@ -46,9 +46,12 @@ class NotificationService:
         verification_code: str,
         expiry_minutes: int,
         code_type: Literal['registration', 'login'] = 'registration'
-    ) -> bool:
+    ) -> None:
         """
-        Send a verification code to the user's email.
+        Send a verification code asynchronously (fire-and-forget).
+        
+        Returns immediately, email is sent in background thread.
+        Use this for better API response times.
         
         Args:
             user_email: The recipient's email address
@@ -56,73 +59,44 @@ class NotificationService:
             verification_code: The verification code to send
             expiry_minutes: Minutes until the code expires
             code_type: Type of verification ('registration' or 'login')
-            
-        Returns:
-            True if the email was sent successfully, False otherwise
         """
-        try:
-            if code_type == 'login':
-                return self.email_service.send_login_code(
-                    to_email=user_email,
-                    name=name,
-                    code=verification_code,
-                    expiry_minutes=expiry_minutes
-                )
-            else:
-                return self.email_service.send_registration_code(
-                    to_email=user_email,
-                    name=name,
-                    code=verification_code,
-                    expiry_minutes=expiry_minutes
-                )
-        except EmailError as e:
-            logger.error(f"Failed to send verification code to {user_email}: {e}")
-            return False
-        except Exception as e:
-            logger.error(f"Unexpected error sending verification code: {e}")
-            return False
+        def on_error(e: Exception) -> None:
+            logger.error(f"[Async] Failed to send {code_type} verification to {user_email}: {e}")
+        
+        if code_type == 'login':
+            self.email_service.send_login_code_async(
+                to_email=user_email,
+                name=name,
+                code=verification_code,
+                expiry_minutes=expiry_minutes,
+                on_error=on_error
+            )
+        else:
+            self.email_service.send_registration_code_async(
+                to_email=user_email,
+                name=name,
+                code=verification_code,
+                expiry_minutes=expiry_minutes,
+                on_error=on_error
+            )
     
-    def send_welcome_email(self, user_email: str, name: str) -> bool:
+    def send_welcome_email(self, user_email: str, name: str) -> None:
         """
-        Send a welcome email after successful registration.
+        Send a welcome email asynchronously (fire-and-forget).
+        
+        Returns immediately, email is sent in background thread.
         
         Args:
             user_email: The recipient's email address
             name: The user's name for personalization
-            
-        Returns:
-            True if the email was sent successfully, False otherwise
         """
-        try:
-            return self.email_service.send_welcome_email(
-                to_email=user_email,
-                name=name
-            )
-        except EmailError as e:
-            logger.error(f"Failed to send welcome email to {user_email}: {e}")
-            return False
-        except Exception as e:
-            logger.error(f"Unexpected error sending welcome email: {e}")
-            return False
-    
-    # Keep static method for backward compatibility
-    @staticmethod
-    def send_verification_code_static(
-        user_email: str,
-        name: str,
-        verification_code: str,
-        expiry_minutes: int
-    ) -> None:
-        """
-        Static method for backward compatibility.
+        def on_error(e: Exception) -> None:
+            logger.error(f"[Async] Failed to send welcome email to {user_email}: {e}")
         
-        Deprecated: Use instance method send_verification_code instead.
-        """
-        service = NotificationService()
-        service.send_verification_code(
-            user_email=user_email,
+        self.email_service.send_welcome_email_async(
+            to_email=user_email,
             name=name,
-            verification_code=verification_code,
-            expiry_minutes=expiry_minutes,
-            code_type='registration'
+            on_error=on_error
         )
+    
+

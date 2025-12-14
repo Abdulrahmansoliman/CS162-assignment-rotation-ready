@@ -3,12 +3,15 @@ Email Service
 
 Main email service that orchestrates providers and templates.
 Provides a clean API for sending transactional emails.
+Supports async (fire-and-forget) sending for non-blocking operations.
 """
 
 import logging
-from typing import Optional, List
+import threading
+from concurrent.futures import ThreadPoolExecutor
+from typing import Optional, List, Callable
 
-from flask import current_app
+from flask import current_app, Flask
 
 from app.services.email.email_message import EmailMessage, EmailRecipient
 from app.services.email.providers.base import EmailProvider
@@ -25,6 +28,29 @@ from app.services.email.exceptions import (
 logger = logging.getLogger(__name__)
 
 
+# Thread pool for async email sending (module-level, shared across instances)
+# Using max_workers=3 to limit concurrent SMTP connections
+_executor: Optional[ThreadPoolExecutor] = None
+_executor_lock = threading.Lock()
+
+# Instance lock for EmailService (singleton)
+_instance_lock = threading.Lock()
+
+
+def _get_executor() -> ThreadPoolExecutor:
+    """Get or create the thread pool executor (thread-safe)."""
+    global _executor
+    if _executor is None:
+        with _executor_lock:
+            # Double-check locking pattern
+            if _executor is None:
+                _executor = ThreadPoolExecutor(
+                    max_workers=3,
+                    thread_name_prefix="email_worker"
+                )
+    return _executor
+
+
 class EmailService:
     """
     Main email service for sending transactional emails.
@@ -34,16 +60,20 @@ class EmailService:
     - Template support: Use pre-defined or custom templates
     - Graceful degradation: Falls back to console in development
     - Configuration-based: Respects MAIL_ENABLED flag
+    - Async support: Fire-and-forget sending with send_async()
     
     Usage:
         email_service = EmailService()
         
-        # Send a simple email
+        # Send a simple email (blocking)
         email_service.send_simple(
             to="user@example.com",
             subject="Hello",
             body="Welcome!"
         )
+        
+        # Send async (non-blocking, fire-and-forget)
+        email_service.send_async(message)
         
         # Send using a template
         email_service.send_verification_code(
@@ -58,9 +88,10 @@ class EmailService:
     
     def __new__(cls, *args, **kwargs):
         """Singleton pattern for EmailService."""
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
+        with _instance_lock:
+            if cls._instance is None:
+                cls._instance = super().__new__(cls)
+            return cls._instance
     
     def __init__(self, provider: Optional[EmailProvider] = None):
         """
@@ -79,13 +110,15 @@ class EmailService:
             return
         
         self._provider = provider
+        self._app: Optional[Flask] = None  # Cached app reference for async
         self._register_templates()
         self._initialized = True 
     
     @classmethod
     def reset(cls) -> None:
         """Reset the singleton instance. Useful for testing."""
-        cls._instance = None
+        with _instance_lock:
+            cls._instance = None
     
     def _register_templates(self) -> None:
         """Register all email templates."""
@@ -198,6 +231,122 @@ class EmailService:
                 original_error=e
             )
     
+    def _get_app(self) -> Flask:
+        """
+        Get the Flask app instance (thread-safe).
+        
+        Caches the app reference for use in background threads
+        where current_app is not available.
+        """
+        if self._app is None:
+            try:
+                self._app = current_app._get_current_object()
+            except RuntimeError:
+                raise EmailError("No Flask application context available for async send")
+        return self._app
+    
+    def _send_in_thread(
+        self,
+        message: EmailMessage,
+        app: Flask,
+        sender: str,
+        sender_name: str,
+        on_error: Optional[Callable[[Exception], None]] = None
+    ) -> None:
+        """
+        Send email in a background thread with proper Flask context.
+        
+        Args:
+            message: The prepared EmailMessage (template already rendered)
+            app: Flask app instance for context
+            sender: Sender email address
+            sender_name: Sender display name
+            on_error: Optional callback for error handling
+        """
+        try:
+            with app.app_context():
+                result = self.provider.send(
+                    message=message,
+                    sender=sender,
+                    sender_name=sender_name
+                )
+                
+                if result:
+                    logger.info(
+                        f"[Async] Email sent successfully via {self.provider.name} "
+                        f"to {message.all_recipients}"
+                    )
+                else:
+                    logger.warning(
+                        f"[Async] Email sending returned False for {message.all_recipients}"
+                    )
+                    
+        except Exception as e:
+            logger.error(f"[Async] Failed to send email: {e}")
+            if on_error:
+                try:
+                    on_error(e)
+                except Exception as callback_error:
+                    logger.error(f"[Async] Error callback failed: {callback_error}")
+    
+    def send_async(
+        self,
+        message: EmailMessage,
+        on_error: Optional[Callable[[Exception], None]] = None
+    ) -> None:
+        """
+        Send an email asynchronously (fire-and-forget).
+        
+        The email is sent in a background thread, so this method returns
+        immediately. Use this for non-critical emails where you don't need
+        to wait for delivery confirmation.
+        
+        Args:
+            message: The EmailMessage to send
+            on_error: Optional callback function called if sending fails.
+                     Receives the exception as argument.
+        
+        Note:
+            - Must be called within Flask application context
+            - Template rendering happens synchronously before dispatch
+            - Errors are logged but not raised (fire-and-forget)
+        
+        Example:
+            email_service.send_async(message)  # Returns immediately
+            
+            # With error callback
+            email_service.send_async(
+                message,
+                on_error=lambda e: log_to_monitoring(e)
+            )
+        """
+        # Render template synchronously (needs current context for config)
+        if message.template_name:
+            text_body, html_body = TemplateEngine.render(
+                message.template_name,
+                message.template_context
+            )
+            message.body_text = text_body
+            message.body_html = html_body
+        
+        # Capture app, sender info while we have context
+        app = self._get_app()
+        sender = self.sender
+        sender_name = self.sender_name
+        
+        # Dispatch to thread pool
+        executor = _get_executor()
+        executor.submit(
+            self._send_in_thread,
+            message,
+            app,
+            sender,
+            sender_name,
+            on_error
+        )
+        
+        logger.debug(f"[Async] Email queued for {message.all_recipients}")
+
     def send_simple(
         self,
         to: str,
@@ -260,83 +409,71 @@ class EmailService:
     
     # Convenience methods for common email types
     
-    def send_registration_code(
-        self,
-        to_email: str,
-        name: str,
-        code: str,
-        expiry_minutes: int
-    ) -> bool:
-        """
-        Send a registration verification code email.
-        
-        Args:
-            to_email: Recipient email address
-            name: User's name for personalization
-            code: The verification code
-            expiry_minutes: Minutes until code expires
-            
-        Returns:
-            True if sent successfully
-        """
-        return self.send_with_template(
-            to=to_email,
+    def _build_registration_code_message(
+        self, to_email: str, name: str, code: str, expiry_minutes: int
+    ) -> EmailMessage:
+        """Build a registration verification code email message."""
+        return EmailMessage(
+            to=[EmailRecipient.from_string(to_email)],
             subject="Verify your Rotation Ready account",
             template_name=VerificationTemplates.REGISTRATION_CODE,
-            context={
+            template_context={
                 'name': name,
                 'code': code,
                 'expiry_minutes': expiry_minutes
             }
         )
     
-    def send_login_code(
-        self,
-        to_email: str,
-        name: str,
-        code: str,
-        expiry_minutes: int
-    ) -> bool:
-        """
-        Send a login verification code email.
-        
-        Args:
-            to_email: Recipient email address
-            name: User's name for personalization
-            code: The verification code
-            expiry_minutes: Minutes until code expires
-            
-        Returns:
-            True if sent successfully
-        """
-        return self.send_with_template(
-            to=to_email,
+    def _build_login_code_message(
+        self, to_email: str, name: str, code: str, expiry_minutes: int
+    ) -> EmailMessage:
+        """Build a login verification code email message."""
+        return EmailMessage(
+            to=[EmailRecipient.from_string(to_email)],
             subject="Your Rotation Ready login code",
             template_name=VerificationTemplates.LOGIN_CODE,
-            context={
+            template_context={
                 'name': name,
                 'code': code,
                 'expiry_minutes': expiry_minutes
             }
         )
     
-    def send_welcome_email(self, to_email: str, name: str) -> bool:
-        """
-        Send a welcome email after successful registration.
-        
-        Args:
-            to_email: Recipient email address
-            name: User's name for personalization
-            
-        Returns:
-            True if sent successfully
-        """
-        return self.send_with_template(
-            to=to_email,
+    def _build_welcome_message(self, to_email: str, name: str) -> EmailMessage:
+        """Build a welcome email message."""
+        return EmailMessage(
+            to=[EmailRecipient.from_string(to_email)],
             subject="Welcome to Rotation Ready! 🎉",
             template_name=VerificationTemplates.WELCOME,
-            context={'name': name}
+            template_context={'name': name}
         )
+    
+    def send_registration_code_async(
+        self, to_email: str, name: str, code: str, expiry_minutes: int,
+        on_error: Optional[Callable[[Exception], None]] = None
+    ) -> None:
+        """Send a registration verification code email asynchronously."""
+        self.send_async(
+            self._build_registration_code_message(to_email, name, code, expiry_minutes),
+            on_error=on_error
+        )
+    
+    def send_login_code_async(
+        self, to_email: str, name: str, code: str, expiry_minutes: int,
+        on_error: Optional[Callable[[Exception], None]] = None
+    ) -> None:
+        """Send a login verification code email asynchronously."""
+        self.send_async(
+            self._build_login_code_message(to_email, name, code, expiry_minutes),
+            on_error=on_error
+        )
+    
+    def send_welcome_email_async(
+        self, to_email: str, name: str,
+        on_error: Optional[Callable[[Exception], None]] = None
+    ) -> None:
+        """Send a welcome email asynchronously."""
+        self.send_async(self._build_welcome_message(to_email, name), on_error=on_error)
 
 
 # Convenience function for getting the email service instance

@@ -124,6 +124,11 @@ class RegistrationService:
 
         self.user_repo.mark_user_as_verified(user.user_id)
 
+        self.notification_service.send_welcome_email(
+            user_email=user.email,
+            name=user.first_name
+        )
+
         return user
 
     def resend_verification_code(self, email: str) -> None:

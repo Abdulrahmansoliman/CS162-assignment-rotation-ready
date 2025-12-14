@@ -268,10 +268,10 @@ class TestEmailServiceWithMockedProvider:
 
 
 class TestNotificationServiceIntegration:
-    """Tests for NotificationService using EmailService."""
+    """Tests for NotificationService using EmailService (async/fire-and-forget)."""
     
     def test_send_verification_code_registration(self, app_context):
-        """Should send registration code via EmailService."""
+        """Should send registration code via EmailService (async - no return value)."""
         from app.services.auth.notification_service import NotificationService
         from app.services.email.email_service import EmailService
         from app.services.email.providers.console_provider import ConsoleProvider
@@ -282,6 +282,7 @@ class TestNotificationServiceIntegration:
         
         notification_service = NotificationService(email_service=email_service)
         
+        # Async methods return None (fire-and-forget)
         result = notification_service.send_verification_code(
             user_email="test@example.com",
             name="Test User",
@@ -290,10 +291,10 @@ class TestNotificationServiceIntegration:
             code_type='registration'
         )
         
-        assert result is True
+        assert result is None  # Async fire-and-forget returns None
     
     def test_send_verification_code_login(self, app_context):
-        """Should send login code via EmailService."""
+        """Should send login code via EmailService (async - no return value)."""
         from app.services.auth.notification_service import NotificationService
         from app.services.email.email_service import EmailService
         from app.services.email.providers.console_provider import ConsoleProvider
@@ -303,6 +304,7 @@ class TestNotificationServiceIntegration:
         
         notification_service = NotificationService(email_service=email_service)
         
+        # Async methods return None (fire-and-forget)
         result = notification_service.send_verification_code(
             user_email="test@example.com",
             name="Test User",
@@ -311,4 +313,4 @@ class TestNotificationServiceIntegration:
             code_type='login'
         )
         
-        assert result is True
+        assert result is None  # Async fire-and-forget returns None
