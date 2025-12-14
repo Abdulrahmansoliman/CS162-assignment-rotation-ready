@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "../../api/user";
 import { apiFetch } from "../../api";
 import "@/shared/styles/locale-theme.css";
@@ -30,6 +31,7 @@ function HomePage() {
     const [activeCategoryId, setActiveCategoryId] = useState(null);
     const [selectedTagIds, setSelectedTagIds] = useState([]);
     const [showFilterMenu, setShowFilterMenu] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const loadData = async () => {
@@ -326,7 +328,9 @@ function HomePage() {
                             <div style={{ color: "#999", fontWeight: 600, fontSize: "1rem", minWidth: 40, textAlign: view === "list" ? "right" : "left" }}>
                                 {"$".repeat(place.priceLevel || 1)}
                             </div>
-                            <button style={{
+                            <button 
+                                onClick={() => navigate(`/item/${place.id}`)}
+                                style={{
                                 background: getLocaleColor(), color: "#fff", border: "none",
                                 borderRadius: 6, padding: "8px 16px", fontWeight: 600, fontSize: "0.85rem",
                                 cursor: "pointer", transition: "background 0.3s", width: view === "list" ? "auto" : "100%"
