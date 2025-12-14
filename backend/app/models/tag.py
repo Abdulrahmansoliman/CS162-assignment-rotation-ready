@@ -17,7 +17,16 @@ from enum import Enum
 
 
 class TagValueType(Enum):
-    """Enum for tag value types."""
+    """Enum for tag value types.
+    
+    Defines the types of values that can be assigned to tags.
+    Uses integer codes for database storage with human-readable labels.
+    
+    Members:
+        BOOLEAN (0, 'boolean'): True/False values
+        TEXT (1, 'text'): String values
+        NUMERIC (2, 'numeric'): Float/Integer values
+    """
     BOOLEAN = (0, "boolean")
     TEXT = (1, "text")
     NUMERIC = (2, "numeric")
@@ -36,7 +45,17 @@ class TagValueType(Enum):
 
     @classmethod
     def from_code(cls, code):
-        """Get enum member from code value."""
+        """Get enum member from code value.
+        
+        Args:
+            code (int): The integer code (0, 1, or 2)
+            
+        Returns:
+            TagValueType: The matching enum member
+            
+        Raises:
+            ValueError: If code is invalid
+        """
         for member in cls:
             if member.code == code:
                 return member
@@ -44,7 +63,17 @@ class TagValueType(Enum):
 
     @classmethod
     def from_label(cls, label):
-        """Get enum member from label string."""
+        """Get enum member from label string.
+        
+        Args:
+            label (str): The label string ('boolean', 'text', or 'numeric')
+            
+        Returns:
+            TagValueType: The matching enum member
+            
+        Raises:
+            ValueError: If label is invalid
+        """
         for member in cls:
             if member.label == label:
                 return member
@@ -52,9 +81,17 @@ class TagValueType(Enum):
     
 
 class Tag(db.Model):
-    """
-    Tags that can be applied to items for additional metadata.
+    """Tags that can be applied to items for additional metadata.
+    
     Supports different value types (boolean, text, numeric).
+    Examples: 'Has WiFi' (boolean), 'Cuisine Type' (text), 'Price' (numeric)
+    
+    Attributes:
+        tag_id (int): Primary key, auto-incrementing
+        name (str): Unique tag name (max 100 chars)
+        value_type (int): Type code from TagValueType enum
+        can_add_new_value (bool): Whether users can add custom values
+        values: Relationship to possible values for this tag
     """
     __tablename__ = 'tag'
     
