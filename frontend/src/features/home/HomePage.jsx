@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import { getCurrentUser } from "../../api/user";
 import { apiFetch } from "../../api";
@@ -145,7 +145,6 @@ const animationStyles = `
 `;
 
 function HomePage() {
-    const navigate = useNavigate();
     const [categories, setCategories] = useState([]);
     const [places, setPlaces] = useState([]);
     const [search, setSearch] = useState("");
@@ -273,6 +272,18 @@ function HomePage() {
         return colorMap[currentLocale] || '#cc0000'
     }
 
+    const getOverlayShadowColor = () => {
+        const shadowMap = {
+            usa: 'rgba(204, 0, 0, 0.3)',
+            china: 'rgba(29, 154, 92, 0.3)',
+            korea: 'rgba(198, 12, 48, 0.3)',
+            argentina: 'rgba(233, 174, 66, 0.3)',
+            india: 'rgba(255, 153, 51, 0.3)',
+            germany: 'rgba(122, 179, 232, 0.3)'
+        }
+        return shadowMap[currentLocale] || 'rgba(204, 0, 0, 0.3)'
+    }
+
     const [userName, setUserName] = useState("User");
 
     const getLocaleText = () => {
@@ -312,7 +323,7 @@ function HomePage() {
                         style={{
                             flex: 1, padding: "1rem 1.5rem", borderRadius: "8px",
                             border: "none", background: "#fff", color: "#333", fontSize: "1rem",
-                            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                            boxShadow: `0 4px 12px ${getOverlayShadowColor()}`
                         }}
                     />
                     <div style={{ position: "relative" }}>
@@ -527,14 +538,11 @@ function HomePage() {
                             <div style={{ color: "#999", fontWeight: 600, fontSize: "1rem", minWidth: 40, textAlign: view === "list" ? "right" : "left" }}>
                                 {"$".repeat(place.priceLevel || 1)}
                             </div>
-                            <button
-                                style={{
-                                    background: getLocaleColor(), color: "#fff", border: "none",
-                                    borderRadius: 6, padding: "8px 16px", fontWeight: 600, fontSize: "0.85rem",
-                                    cursor: "pointer", transition: "background 0.3s", width: view === "list" ? "auto" : "100%"
-                                }}
-                                onClick={() => navigate(`/item/${place.id}`)}
-                            >
+                            <button style={{
+                                background: getLocaleColor(), color: "#fff", border: "none",
+                                borderRadius: 6, padding: "8px 16px", fontWeight: 600, fontSize: "0.85rem",
+                                cursor: "pointer", transition: "background 0.3s", width: view === "list" ? "auto" : "100%"
+                            }}>
                                 View Details
                             </button>
                         </div>
