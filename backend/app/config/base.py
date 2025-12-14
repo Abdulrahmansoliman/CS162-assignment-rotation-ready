@@ -61,3 +61,7 @@ class Config:
     MAIL_ENABLED = os.getenv('MAIL_ENABLED', 'false').lower() == 'true'
     MAIL_SUPPRESS_SEND = os.getenv('MAIL_SUPPRESS_SEND', 'false').lower() == 'true'
     MAIL_DEBUG = os.getenv('MAIL_DEBUG', 'false').lower() == 'true'
+    
+    # Logging (12-factor: logs as event streams)
+    LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
+    ENV = 'development'
