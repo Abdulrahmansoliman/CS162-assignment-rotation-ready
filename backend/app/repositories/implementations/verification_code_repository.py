@@ -101,12 +101,28 @@ class VerificationCodeRepository(IVerificationCodeRepository):
         since_minutes: int
     ) -> int:
         """Count verification codes sent within the last N minutes."""
+        recent_codes = self.get_recent_codes_time_window(
+            user_id=user_id,
+            code_type=code_type,
+            since_minutes=since_minutes
+        )
+        count = len(recent_codes)
+        
+        return count
+    
+    def get_recent_codes_time_window(
+        self,
+        user_id: int,
+        code_type: str,
+        since_minutes: int
+    ) -> list[VerificationCode]:
+        """Get verification codes sent within the last N minutes."""
         time_threshold = datetime.utcnow() - timedelta(minutes=since_minutes)
         
-        count = db.session.query(VerificationCode).filter(
+        codes = db.session.query(VerificationCode).filter(
             VerificationCode.user_id == user_id,
             VerificationCode.code_type == code_type,
             VerificationCode.created_at >= time_threshold
-        ).count()
+        ).order_by(VerificationCode.created_at.desc()).all()
         
-        return count
+        return codes

@@ -99,7 +99,8 @@ class RegistrationService:
             verification_code=code,
             expiry_minutes=current_app.config[
                 'VERIFICATION_CODE_EXPIRY_MINUTES'
-            ]
+            ],
+            code_type="registration"
         )
 
         return user
@@ -122,6 +123,11 @@ class RegistrationService:
             raise ValueError("Invalid or expired verification code.")
 
         self.user_repo.mark_user_as_verified(user.user_id)
+
+        self.notification_service.send_welcome_email(
+            user_email=user.email,
+            name=user.first_name
+        )
 
         return user
 
