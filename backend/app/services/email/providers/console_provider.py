@@ -57,16 +57,17 @@ class ConsoleProvider(EmailProvider):
             True always (console logging doesn't fail)
         """
         sender_display = f"{sender_name} <{sender}>" if sender_name else sender
-        
+        cc_line = f"\nCC:      {', '.join(str(r) for r in message.cc)}" if message.cc else ""
+        bcc_line = f"\nBCC:     {', '.join(str(r) for r in message.bcc)}" if message.bcc else ""
+
         separator = "=" * 60
         email_output = f"""
 {separator}
 📧 EMAIL (Console Provider - Not Actually Sent)
 {separator}
 From:    {sender_display}
-To:      {', '.join(str(r) for r in message.to)}
-{"CC:      " + ', '.join(str(r) for r in message.cc) if message.cc else ""}
-{"BCC:     " + ', '.join(str(r) for r in message.bcc) if message.bcc else ""}
+To:      {', '.join(str(r) for r in message.to)}{cc_line}{bcc_line}
+
 Subject: {message.subject}
 {separator}
 
