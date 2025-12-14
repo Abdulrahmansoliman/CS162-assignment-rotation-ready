@@ -1,0 +1,15 @@
+Hello {{ name }},
+
+Welcome to Rotation Ready! Your account has been successfully verified.
+
+You're all set to explore rotation cities around the world.
+
+Get started by:
+- Browsing local recommendations in your rotation city
+- Adding your own favorite spots
+- Connecting with other rotators
+
+We're excited to have you on board!
+
+Best regards,
+The Rotation Ready Team

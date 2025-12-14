@@ -111,14 +111,14 @@ class TestEmailMessage:
 
 
 class TestTemplateEngine:
-    """Tests for TemplateEngine."""
+    """Tests for TemplateEngine with Jinja2 file-based templates."""
     
     def test_register_and_render_template(self):
-        """Should register and render a template."""
+        """Should register and render a template from files."""
         TemplateEngine.register(
-            "test_template",
-            text_template="Hello {name}!",
-            html_template="<h1>Hello {name}!</h1>"
+            name="test_template",
+            html_template="html/test.html",
+            text_template="text/test.txt"
         )
         
         text, html = TemplateEngine.render("test_template", {"name": "World"})
@@ -129,8 +129,9 @@ class TestTemplateEngine:
     def test_render_text_only_template(self):
         """Should handle template with no HTML."""
         TemplateEngine.register(
-            "text_only",
-            text_template="Plain text: {value}"
+            name="text_only",
+            html_template=None,
+            text_template="text/text_only.txt"
         )
         
         text, html = TemplateEngine.render("text_only", {"value": "123"})
@@ -143,19 +144,27 @@ class TestTemplateEngine:
         with pytest.raises(EmailTemplateError, match="not found"):
             TemplateEngine.render("nonexistent_template", {})
     
-    def test_render_missing_variable_raises_error(self):
-        """Should raise error if template variable is missing."""
+    def test_render_missing_variable_renders_empty(self):
+        """Jinja2 renders missing variables as empty by default."""
         TemplateEngine.register(
-            "needs_var",
-            text_template="Hello {name}, code is {code}"
+            name="needs_var",
+            html_template=None,
+            text_template="text/needs_var.txt"
         )
         
-        with pytest.raises(EmailTemplateError, match="Missing template variable"):
-            TemplateEngine.render("needs_var", {"name": "John"})  # missing 'code'
+        # Jinja2 silently renders missing variables as empty
+        text, html = TemplateEngine.render("needs_var", {"name": "John"})  # missing 'code'
+        assert "John" in text
+        # Template says "code is {{ code }}" - missing code renders as empty string
+        assert text == "Hello John, code is"
     
     def test_has_template(self):
         """Should check if template exists."""
-        TemplateEngine.register("exists", text_template="test")
+        TemplateEngine.register(
+            name="exists",
+            html_template="html/test.html",
+            text_template="text/test.txt"
+        )
         
         assert TemplateEngine.has_template("exists") is True
         assert TemplateEngine.has_template("does_not_exist") is False

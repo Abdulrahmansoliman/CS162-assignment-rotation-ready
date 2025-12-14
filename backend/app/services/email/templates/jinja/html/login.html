@@ -1,0 +1,18 @@
+{% extends "html/base.html" %}
+
+{% block title %}Login Verification Code{% endblock %}
+
+{% block content %}
+<h2 style="margin: 0 0 20px; color: #333333; font-size: 22px;">Welcome back, {{ name }}! 🔐</h2>
+<p style="margin: 0 0 20px; color: #666666; font-size: 16px; line-height: 1.6;">
+    Use the verification code below to complete your login:
+</p>
+
+{% include "html/components/verification_code.html" %}
+
+<hr style="border: none; border-top: 1px solid #eeeeee; margin: 30px 0;">
+
+<p style="margin: 0; color: #999999; font-size: 13px; line-height: 1.5;">
+    ⚠️ If you didn't request this code, please secure your account immediately.
+</p>
+{% endblock %}
