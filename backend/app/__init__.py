@@ -13,7 +13,7 @@ mail = Mail()
 
 
 def setup_logging(app):
-    """Configure structured logging to stdout (12-factor compliant)."""
+    """Configure structured logging to stdout"""
     # Remove default Flask handlers
     app.logger.handlers.clear()
     
@@ -22,7 +22,7 @@ def setup_logging(app):
     
     # Set format based on environment
     if app.config.get('ENV') == 'production':
-        # JSON-like format for production log aggregation
+        # JSON-like format for production
         formatter = logging.Formatter(
             '{"time":"%(asctime)s", "level":"%(levelname)s", '
             '"name":"%(name)s", "message":"%(message)s"}'
@@ -60,7 +60,7 @@ def create_app(config_name='development'):
     else:
         app.config.from_object(Development)
     
-    # Setup logging (12-factor: logs as event streams)
+    # Setup logging
     setup_logging(app)
     
     # Initialize extensions
