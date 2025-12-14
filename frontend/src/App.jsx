@@ -1,5 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+﻿import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import SignupPage from './features/auth/pages/signup'
 import LoginPage from './features/auth/pages/login'
 import ProfilePage from './features/profile/ProfilePage';
@@ -10,22 +9,10 @@ import ViewUserProfilePage from "./features/userProfile/ViewUserProfilePage";
 import ItemDetailPage from './features/item/pages/item';
 
 
-function ProtectedRoute({ element, requiresProfile }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // Check if user has token
-    const token = getAccessToken()
-    setIsAuthenticated(!!token)
-    setIsLoading(false)
-  }, [])
-
-  if (isLoading) {
-    return <div className="flex min-h-screen items-center justify-center bg-slate-900">Loading...</div>
-  }
-
-  if (!isAuthenticated) {
+function ProtectedRoute({ element }) {
+  const token = getAccessToken()
+  
+  if (!token) {
     return <Navigate to="/login" replace />
   }
 
