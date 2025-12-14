@@ -122,7 +122,12 @@ def get_all_items():
     except Exception as e:
         # Log the error in production
         return jsonify({'message': 'An error occurred while fetching items'}), 500
-Get item by ID (must belong to user's rotation city).
+
+
+@item_bp.route('/<int:item_id>', methods=['GET'])
+@jwt_required()
+def get_item_by_id(item_id):
+    """Get item by ID (must belong to user's rotation city).
     
     Returns full item details including categories, tags, and values.
     Only returns items that belong to the user's rotation city.
