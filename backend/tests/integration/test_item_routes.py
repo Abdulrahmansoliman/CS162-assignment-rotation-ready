@@ -550,7 +550,7 @@ class TestItemRoutes:
         assert item['walking_distance'] == 50.0
         assert 'categories' in item
         assert len(item['categories']) == 1
-        assert item['categories'][0]['category_name'] == "Electronics"
+        assert item['categories'][0]['name'] == "Electronics"
         assert 'tags' in item
         assert len(item['tags']) == 1
         assert item['tags'][0]['name'] == "Brand"
