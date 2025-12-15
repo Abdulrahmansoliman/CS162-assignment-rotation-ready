@@ -96,13 +96,13 @@ export default function AddItemPage() {
   return (
     <div className="flex justify-center p-10">
       <div className="bg-gray-900 p-10 rounded-xl shadow-xl w-[650px]">
-
         <h1 className="text-3xl font-bold text-white mb-8">Add Item</h1>
 
         {/* NAME */}
         <label className="text-gray-300">Name</label>
         <input
           className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-6"
+          placeholder="Enter item name (e.g., Gym, Café, Pharmacy)"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
@@ -111,13 +111,16 @@ export default function AddItemPage() {
         <label className="text-gray-300">Location</label>
         <input
           className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-6"
+          placeholder="Enter location or address"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
         />
 
+        {/* WALKING DISTANCE */}
         <label className="text-gray-300">Walking Distance (meters)</label>
         <input
           className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-6"
+          placeholder="Distance in meters (e.g., 300)"
           value={walkingDistance}
           onChange={(e) => setWalkingDistance(e.target.value)}
         />
@@ -136,7 +139,11 @@ export default function AddItemPage() {
 
         <div className="flex flex-wrap gap-2 mb-6">
           {selectedCategories.map((cat) => (
-            <CategoryChip key={cat.category_id} category={cat} onRemove={removeCategory} />
+            <CategoryChip
+              key={cat.category_id}
+              category={cat}
+              onRemove={removeCategory}
+            />
           ))}
         </div>
 
@@ -152,7 +159,7 @@ export default function AddItemPage() {
           selectedItems={selectedTags.map((t) => t.tag_id)}
         />
 
-        {/* EXISTING TAGS */}
+        {/* EXISTING + NEW TAGS */}
         <div className="flex flex-col gap-3 mb-6">
           {selectedTags.map((tag) => (
             <TagChip
@@ -164,7 +171,6 @@ export default function AddItemPage() {
             />
           ))}
 
-          {/* NEW TAGS — must show in UI */}
           {newTags.map((tag, index) => (
             <TagChip
               key={`new-${index}`}
@@ -208,6 +214,7 @@ export default function AddItemPage() {
     </div>
   );
 }
+
 
 
 
