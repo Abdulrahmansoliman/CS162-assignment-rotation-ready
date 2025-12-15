@@ -62,6 +62,11 @@ export default function ViewUserProfilePage() {
             <h1 className="text-2xl font-bold">
               {user.first_name} {user.last_name}
             </h1>
+
+            <p className="text-gray-400 text-sm mb-1">
+              Viewing public profile information
+            </p>
+
             <p className="text-gray-400">{user.email}</p>
 
             <p className="text-gray-400">
@@ -74,11 +79,12 @@ export default function ViewUserProfilePage() {
 
         {/* No items in backend schema */}
         <p className="text-gray-400">
-          Items are not included in the backend response.
+          Items are not currently included in the backend response for user profiles.
         </p>
 
       </div>
     </div>
   );
 }
+
 
