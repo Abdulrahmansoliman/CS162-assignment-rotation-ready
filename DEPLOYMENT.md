@@ -59,7 +59,9 @@ This guide walks you through deploying Rotation Ready using **Render** (backend)
 
 4. **Initialize Database**
    
-   After first deploy, run the seed script via Render Shell:
+   The database is automatically created and seeded during the build process.
+   
+   If you need to re-seed manually, use Render Shell:
    ```bash
    cd backend
    python seed/seed.py
