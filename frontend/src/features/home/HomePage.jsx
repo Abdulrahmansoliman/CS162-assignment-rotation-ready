@@ -7,6 +7,7 @@ import SearchBar from "./component/SearchBar";
 
 
 
+
 // Locale-based category palettes (from provided swatches)
 const localeCategoryPalettes = {
     usa: ["#E31B23", "#9A2623", "#5C2A28", "#E53935", "#A63A3A"],
