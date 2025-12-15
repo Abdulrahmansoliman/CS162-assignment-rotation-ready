@@ -1,6 +1,10 @@
 import { getAccessToken, clearTokens } from '../features/auth/services/authservice.js'
 
-const API_BASE_URL = "/api/v1"
+// In production, VITE_API_URL should be set to the backend URL (e.g., https://rotation-ready-api.onrender.com)
+// In development, we use Vite's proxy which forwards /api to localhost:5000
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api/v1`
+  : "/api/v1"
 
 const commonHeaders = {
   "Content-Type": "application/json",
