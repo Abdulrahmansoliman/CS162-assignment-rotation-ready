@@ -17,6 +17,9 @@ def create_app(config_name='development'):
     from app.config.development import Development
     
     app = Flask(__name__)
+    # Allow routes to be accessed with or without a trailing slash to avoid
+    # 308 redirects on OPTIONS preflight requests (prevents CORS/redirect issues)
+    app.url_map.strict_slashes = False
     
     # Load configuration based on environment
     if config_name == 'production':
@@ -48,6 +51,11 @@ def create_app(config_name='development'):
     from app.api.v1.auth import jwt_handlers
     
     app.register_blueprint(api_bp)
+
+    # Root health check to avoid noisy 404s on HEAD/GET /
+    @app.route('/', methods=['GET'])
+    def root():
+        return {'status': 'ok'}, 200
     
     # Create database tables
     with app.app_context():
