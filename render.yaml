@@ -6,7 +6,6 @@ services:
   - type: web
     name: rotation-ready-api
     runtime: python
-    pythonVersion: "3.11.9"
     region: oregon
     plan: free
     rootDir: backend
