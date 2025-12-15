@@ -11,9 +11,26 @@ from app import db
 
 
 class Item(db.Model):
-    """
-    Items that can be found/verified in rotation cities.
+    """Items that can be found/verified in rotation cities.
+    
     Each item belongs to categories through the CategoryItem junction table.
+    Items are shared by students to help others find useful resources in their city.
+    
+    Attributes:
+        item_id (int): Primary key, auto-incrementing
+        added_by_user_id (int): Foreign key to user who added the item
+        rotation_city_id (int): Foreign key to rotation_city where item is located
+        name (str): Item name (max 200 chars)
+        location (str): Physical location description (max 500 chars)
+        walking_distance (float): Optional walking distance in meters
+        last_verified_date (datetime): When item was last verified as still available
+        number_of_verifications (int): Count of user verifications
+        created_at (datetime): Item creation timestamp
+        added_by_user: Relationship to User who added the item
+        rotation_city: Relationship to RotationCity where item is located
+        category_items: Relationship to categories through junction table
+        item_verifications: Relationship to user verifications of this item
+        item_tag_values: Relationship to tag values assigned to this item
     """
     __tablename__ = 'item'
     
@@ -62,6 +79,7 @@ class Item(db.Model):
     )
     
     def __repr__(self):
+        """Return string representation of Item instance."""
         return (
             f"<Item(item_id={self.item_id}, name='{self.name}', "
             f"location='{self.location}')>"

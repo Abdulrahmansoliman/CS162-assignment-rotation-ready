@@ -10,9 +10,18 @@ from app import db
 
 
 class RotationCity(db.Model):
-    """
-    Represents a rotation city where users are assigned.
+    """Represents a Minerva rotation city where users are assigned.
+    
     Contains city information and residential hall location.
+    Examples: San Francisco, Berlin, Buenos Aires, Seoul, etc.
+    
+    Attributes:
+        city_id (int): Primary key, auto-incrementing
+        name (str): Unique city name (max 100 chars)
+        time_zone (str): City timezone identifier (max 50 chars)
+        res_hall_location (str): Residential hall address/location (max 200 chars)
+        users: Relationship to users assigned to this city
+        items: Relationship to items located in this city
     """
     __tablename__ = 'rotation_city'
     
@@ -37,6 +46,7 @@ class RotationCity(db.Model):
     )
     
     def __repr__(self):
+        """Return string representation of RotationCity instance."""
         return (
             f"<RotationCity(city_id={self.city_id}, "
             f"name='{self.name}', time_zone='{self.time_zone}')>"

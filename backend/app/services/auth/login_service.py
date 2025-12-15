@@ -12,11 +12,22 @@ from flask import current_app
 
 
 class LoginService:
+    """Service for passwordless login operations.
+    
+    Handles the passwordless authentication flow using email verification codes.
+    """
+    
     def __init__(
         self,
         user_repository: UserRepository = None,
         verification_code_repository: VerificationCodeRepository = None
     ):
+        """Initialize service with optional dependency injection.
+        
+        Args:
+            user_repository: Optional UserRepository instance for testing/DI
+            verification_code_repository: Optional VerificationCodeRepository for testing/DI
+        """
         self.user_repo = user_repository or UserRepository()
         verification_repo = (
             verification_code_repository or VerificationCodeRepository()
@@ -27,7 +38,16 @@ class LoginService:
         self.notification_service = NotificationService()
 
     def initiate_login(self, email: str) -> None:
-        """Send verification code to user for login."""
+        """Send verification code to user for login.
+        
+        Invalidates any existing login codes and sends a new one.
+        
+        Args:
+            email: The user's email address
+            
+        Raises:
+            ValueError: If user doesn't exist or is not verified
+        """
         user = self.user_repo.get_user_by_email(email)
 
         if not user:
@@ -56,7 +76,18 @@ class LoginService:
         )
 
     def verify_login(self, email: str, verification_code: str) -> User:
-        """Verify login code and return authenticated user."""
+        """Verify login code and return authenticated user.
+        
+        Args:
+            email: The user's email address
+            verification_code: The verification code to validate
+            
+        Returns:
+            Authenticated User object
+            
+        Raises:
+            ValueError: If user doesn't exist, is not verified, or code is invalid
+        """
         user = self.user_repo.get_user_by_email(email)
 
         if not user:

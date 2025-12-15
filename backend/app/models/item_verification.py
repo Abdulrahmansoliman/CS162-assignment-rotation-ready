@@ -11,9 +11,19 @@ from app import db
 
 
 class ItemVerification(db.Model):
-    """
-    Records when users verify that an item still exists/is available.
-    Helps keep item information current and reliable.
+    """Records when users verify that an item still exists/is available.
+    
+    Helps keep item information current and reliable by tracking
+    user confirmations that items are still accessible.
+    
+    Attributes:
+        verification_id (int): Primary key, auto-incrementing
+        user_id (int): Foreign key to user who verified the item
+        item_id (int): Foreign key to item being verified
+        note (str): Optional text note from verifier
+        created_at (datetime): Verification timestamp
+        user: Relationship to User model
+        item: Relationship to Item model
     """
     __tablename__ = 'item_verification'
     
@@ -43,6 +53,7 @@ class ItemVerification(db.Model):
     item = relationship("Item", back_populates="item_verifications")
     
     def __repr__(self):
+        """Return string representation of ItemVerification instance."""
         return (
             f"<ItemVerification(verification_id={self.verification_id}, "
             f"user_id={self.user_id}, item_id={self.item_id})>"

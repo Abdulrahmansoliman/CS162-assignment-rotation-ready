@@ -16,20 +16,22 @@ _user_service = UserService()
 @item_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_item():
-    """
-    Create a new item with categories and tags.
+    """Create a new item with categories and tags.
+    
+    Headers:
+        Authorization: Bearer <access_token>
     
     Request Body:
-        name: Item name
-        location: Item location
-        walking_distance: Optional walking distance in meters
-        category_ids: List of category IDs (at least one required)
-        existing_tags: List of {tag_id, value} for existing tags
-        new_tags: List of {name, value_type, value} for new tags
+        name (str): Item name
+        location (str): Item location
+        walking_distance (float, optional): Walking distance in meters
+        category_ids (list[int]): List of category IDs (at least one required)
+        existing_tags (list[dict]): List of {tag_id, value} for existing tags
+        new_tags (list[dict]): List of {name, value_type, value} for new tags
     
     Returns:
         201: Item created successfully
-        400: Validation error
+        400: Validation error or user has no rotation city
         500: Internal server error
     """
     user_id = get_jwt_identity()
@@ -92,8 +94,13 @@ def create_item():
 @item_bp.route('/', methods=['GET'])
 @jwt_required()
 def get_all_items():
-    """
-    Get all items for the current user's rotation city.
+    """Get all items for the current user's rotation city.
+    
+    Returns all items shared by students in the authenticated user's city,
+    with full details including categories, tags, and values.
+    
+    Headers:
+        Authorization: Bearer <access_token>
     
     Returns:
         200: List of items in user's rotation city
@@ -120,9 +127,19 @@ def get_all_items():
 @item_bp.route('/<int:item_id>', methods=['GET'])
 @jwt_required()
 def get_item_by_id(item_id):
-    """
-    Get item by ID (must belong to user's rotation city).
+    """Get item by ID (must belong to user's rotation city).
     
+    Returns full item details including categories, tags, and values.
+    Only returns items that belong to the user's rotation city.
+    
+    Path Parameters:
+        item_id (int): ID of the item to retrieve
+        
+    Headers:
+        Authorization: Bearer <access_token>
+    
+    Returns:
+        200: Item details with all relationships loaded
     Args:
         item_id: ID of the item to retrieve
     

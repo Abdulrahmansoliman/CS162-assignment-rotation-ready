@@ -11,7 +11,11 @@ from app.repositories.implementations.item_tag_value_repository import ItemTagVa
 
 
 class ItemService:
-    """Service for item-related operations."""
+    """Service for item-related operations.
+    
+    Handles business logic for creating, retrieving, and managing items
+    along with their associated categories, tags, and values.
+    """
 
     def __init__(
         self,
@@ -22,6 +26,16 @@ class ItemService:
         value_repository: ValueRepository = None,
         item_tag_value_repository: ItemTagValueRepository = None
     ):
+        """Initialize service with optional dependency injection.
+        
+        Args:
+            item_repository: Optional ItemRepository instance for testing/DI
+            category_repository: Optional CategoryRepository for testing/DI
+            category_item_repository: Optional CategoryItemRepository for testing/DI
+            tag_repository: Optional TagRepository for testing/DI
+            value_repository: Optional ValueRepository for testing/DI
+            item_tag_value_repository: Optional ItemTagValueRepository for testing/DI
+        """
         self.item_repo = item_repository or ItemRepository()
         self.category_repo = category_repository or CategoryRepository()
         self.category_item_repo = category_item_repository or CategoryItemRepository()

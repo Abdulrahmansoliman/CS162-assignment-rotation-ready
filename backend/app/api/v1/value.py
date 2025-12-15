@@ -9,7 +9,15 @@ service = ValueService()
 @value_bp.route('/', methods=['GET'])
 @jwt_required()
 def get_values():
-    """Get all values"""
+    """Get all values in the system.
+    
+    Headers:
+        Authorization: Bearer <access_token>
+    
+    Returns:
+        200: List of all values
+        404: No values found
+    """
     values = service.get_all_values()
 
     if not values:
@@ -25,6 +33,19 @@ def get_values():
 @jwt_required()
 def get_text_values_by_tag(tag_id):
     """Get all text values for a specific tag.
+    
+    Returns only text-type values for the specified tag.
+    Useful for populating dropdowns or autocomplete fields.
+    
+    Path Parameters:
+        tag_id (int): The ID of the tag to get values for
+        
+    Headers:
+        Authorization: Bearer <access_token>
+    
+    Returns:
+        200: List of text values for the tag
+        404: No text values found for this tag
     """
     values = service.get_text_values_by_tag(tag_id)
 
@@ -40,7 +61,18 @@ def get_text_values_by_tag(tag_id):
 @value_bp.route('/<int:value_id>', methods=['GET'])
 @jwt_required()
 def get_value_by_id(value_id):
-    """Get value by ID"""
+    """Get a specific value by ID.
+    
+    Path Parameters:
+        value_id (int): The ID of the value to retrieve
+        
+    Headers:
+        Authorization: Bearer <access_token>
+    
+    Returns:
+        200: Value information
+        404: Value not found
+    """
     value = service.get_value_by_id(value_id)
 
     if not value:
@@ -52,7 +84,22 @@ def get_value_by_id(value_id):
 @value_bp.route('/', methods=['POST'])
 @jwt_required()
 def add_value():
-    """Create new value"""
+    """Create a new value for a tag.
+    
+    Headers:
+        Authorization: Bearer <access_token>
+        
+    Request Body:
+        tag_id (int): The ID of the tag this value belongs to (required)
+        boolean_val (bool, optional): Boolean value for boolean tags
+        name_val (str, optional): Text value for text tags
+        numerical_value (float, optional): Numeric value for numeric tags
+    
+    Returns:
+        201: Value created successfully
+        400: Missing required field (tag_id)
+        500: Failed to create value
+    """
     data = request.get_json()
 
     if not data or 'tag_id' not in data:
@@ -74,7 +121,24 @@ def add_value():
 @value_bp.route('/<int:value_id>', methods=['PUT'])
 @jwt_required()
 def update_value(value_id):
-    """Update value"""
+    """Update an existing value.
+    
+    Path Parameters:
+        value_id (int): The ID of the value to update
+        
+    Headers:
+        Authorization: Bearer <access_token>
+        
+    Request Body:
+        boolean_val (bool, optional): New boolean value
+        name_val (str, optional): New text value
+        numerical_value (float, optional): New numeric value
+    
+    Returns:
+        200: Value updated successfully
+        400: No data provided
+        404: Value not found
+    """
     data = request.get_json()
 
     if not data:

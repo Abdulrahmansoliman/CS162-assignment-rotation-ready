@@ -16,12 +16,25 @@ from flask import current_app
 
 
 class RegistrationService:
+    """Service for user registration operations.
+    
+    Handles user registration workflow including validation,
+    verification code generation, and email notifications.
+    """
+    
     def __init__(
         self,
         user_repository: UserRepository = None,
         verification_code_repository: VerificationCodeRepository = None,
         rotation_city_repository: RotationCityRepository = None
     ):
+        """Initialize service with optional dependency injection.
+        
+        Args:
+            user_repository: Optional UserRepository instance for testing/DI
+            verification_code_repository: Optional VerificationCodeRepository for testing/DI
+            rotation_city_repository: Optional RotationCityRepository for city validation
+        """
         self.user_repo = user_repository or UserRepository()
         verification_repo = (
             verification_code_repository or VerificationCodeRepository()
@@ -41,7 +54,23 @@ class RegistrationService:
         email: str,
         rotation_city_id: int
     ) -> User:
-        """Registers a new user in the system."""
+        """Register a new user in the system.
+        
+        Creates a new user account and sends a verification code email.
+        If user exists but is unverified, updates their info and resends code.
+        
+        Args:
+            first_name: User's first name
+            last_name: User's last name
+            email: User's email address
+            rotation_city_id: ID of the user's current rotation city
+            
+        Returns:
+            Created or updated User object
+            
+        Raises:
+            ValueError: If user already exists and is verified
+        """
         existing_user = self.user_repo.get_user_by_email(email)
 
         # validate rotation_city_id
@@ -86,7 +115,17 @@ class RegistrationService:
         return new_user
 
     def _handle_expired_user(self, user: User, updates: dict):
-        """Handle logic for expired unverified users."""
+        """Handle logic for expired unverified users.
+        
+        Updates user information and resends verification code.
+        
+        Args:
+            user: The existing unverified User object
+            updates: Dictionary of fields to update
+            
+        Returns:
+            Updated User object
+        """
         self.user_repo.update(user.user_id, **updates)
 
         verification_code, code = (
@@ -106,6 +145,18 @@ class RegistrationService:
         return user
     
     def verify_user_email(self, email: str, verification_code: str) -> User:
+        """Verify a user's email with the provided code.
+        
+        Args:
+            email: The user's email address
+            verification_code: The verification code to validate
+            
+        Returns:
+            Verified User object
+            
+        Raises:
+            ValueError: If user doesn't exist, is already verified, or code is invalid
+        """
         user = self.user_repo.get_user_by_email(email)
 
         if not user:
@@ -132,7 +183,14 @@ class RegistrationService:
         return user
 
     def resend_verification_code(self, email: str) -> None:
-        """Resend verification code to user email."""
+        """Resend verification code to user email.
+        
+        Args:
+            email: The user's email address
+            
+        Raises:
+            ValueError: If user doesn't exist or is already verified
+        """
         user = self.user_repo.get_user_by_email(email)
 
         if not user:

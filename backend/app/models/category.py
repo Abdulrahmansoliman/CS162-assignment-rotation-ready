@@ -9,10 +9,16 @@ from app import db
 
 
 class Category(db.Model):
-    """
-    Categories for organizing items.
-    Items can belong to multiple categories through the CategoryItem
-    junction table.
+    """Categories for organizing items.
+    
+    Items can belong to multiple categories through the CategoryItem junction table.
+    Examples: Electronics, Furniture, Kitchenware, etc.
+    
+    Attributes:
+        category_id (int): Primary key, auto-incrementing
+        category_name (str): Unique category name (max 100 chars)
+        category_pic (str): Base64 encoded image data for category icon
+        category_items: Relationship to items through junction table
     """
     __tablename__ = 'category'
     
@@ -31,6 +37,7 @@ class Category(db.Model):
     )
     
     def __repr__(self):
+        """Return string representation of Category instance."""
         return (
             f"<Category(category_id={self.category_id}, "
             f"category_name='{self.category_name}')>"

@@ -5,24 +5,58 @@ from app.repositories.implementations.rotation_city_repository import RotationCi
 from app.models.user import User
 
 class UserService:
+    """Service for user-related operations.
+    
+    Handles business logic for user management including retrieval,
+    updates, and verification status checks.
+    """
+    
     def __init__(
             self,
             user_repository: UserRepository = None,
             rotation_city_repository: RotationCityRepository = None
         ):
+        """Initialize service with optional dependency injection.
+        
+        Args:
+            user_repository: Optional UserRepository instance for testing/DI
+            rotation_city_repository: Optional RotationCityRepository for city validation
+        """
         self.user_repository = user_repository or UserRepository()
         self.rotation_city_repository = rotation_city_repository or RotationCityRepository()
 
     def get_user_by_id(self, user_id: int) -> Optional[User]:
-        """Get user by user_id"""
+        """Retrieve a user by their ID.
+        
+        Args:
+            user_id: The ID of the user to retrieve
+            
+        Returns:
+            User object if found, None otherwise
+        """
         return self.user_repository.get_user_by_id(user_id)
 
     def get_user_by_email(self, email: str) -> Optional[User]:
-        """Get user by email"""
+        """Retrieve a user by their email address.
+        
+        Args:
+            email: The email address of the user to retrieve
+            
+        Returns:
+            User object if found, None otherwise
+        """
         return self.user_repository.get_user_by_email(email)
     
     def update_user(self, user_id: int, data: dict) -> Optional[User]:
-        """Update user information"""
+        """Update user information.
+        
+        Args:
+            user_id: The ID of the user to update
+            data: Dictionary containing fields to update
+            
+        Returns:
+            Updated User object if found, None otherwise
+        """
         user = self.user_repository.get_user_by_id(user_id)
         if not user:
             return None
@@ -35,7 +69,14 @@ class UserService:
         return user
     
     def get_verified_user_by_id(self, user_id: int) -> Optional[User]:
-        """Get verified user by user_id"""
+        """Retrieve a verified user by their ID.
+        
+        Args:
+            user_id: The ID of the user to retrieve
+            
+        Returns:
+            User object if found and verified, None otherwise
+        """
         user = self.user_repository.get_user_by_id(user_id)
         if user and user.is_verified:
             return user

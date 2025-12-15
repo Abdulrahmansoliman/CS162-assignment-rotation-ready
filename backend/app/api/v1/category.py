@@ -15,10 +15,19 @@ service = CategoryService()
 @category_bp.route('/', methods=['GET'])
 @jwt_required()
 def get_categories():
-    """Get all categories.
+    """Get all item categories.
     
+    Returns all available categories for organizing items.
+    
+    Headers:
+        Authorization: Bearer <access_token>
+        
     Query Parameters:
         no_images (bool): If true, excludes category_pic from response
+        
+    Returns:
+        200: List of categories
+        404: No categories found
     """
     no_images = request.args.get('no_images', 'false').lower() == 'true'
     categories = service.get_all_categories()
@@ -45,10 +54,20 @@ def get_categories():
 @category_bp.route('/<int:category_id>', methods=['GET'])
 @jwt_required()
 def get_category_by_id(category_id: int):
-    """Get category by ID.
+    """Get a specific category by ID.
     
+    Path Parameters:
+        category_id (int): The ID of the category to retrieve
+        
+    Headers:
+        Authorization: Bearer <access_token>
+        
     Query Parameters:
         no_images (bool): If true, excludes category_pic from response
+        
+    Returns:
+        200: Category information
+        404: Category not found
     """
     no_images = request.args.get('no_images', 'false').lower() == 'true'
     category = service.get_category_by_id(category_id)
