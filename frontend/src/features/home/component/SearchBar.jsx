@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 
-export default function SearchBar({ places, locale, onSearchChange }) {
+export default function SearchBar({ places, locale, onSearchChange, tags, selectedTagIds, onTagsChange }) {
     const [search, setSearch] = useState("");
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
+    const [showFilterMenu, setShowFilterMenu] = useState(false);
 
     const [debouncedSearch, setDebouncedSearch] = useState("");
     useEffect(() => {
@@ -65,7 +66,18 @@ export default function SearchBar({ places, locale, onSearchChange }) {
     };
 
     const handleFilterClick = () => {
-        setShowSuggestions(false);
+        setShowFilterMenu(!showFilterMenu);
+    };
+
+    const toggleTag = (id) => {
+        const newSelectedTagIds = selectedTagIds.includes(id)
+            ? selectedTagIds.filter(t => t !== id)
+            : [...selectedTagIds, id];
+        onTagsChange(newSelectedTagIds);
+    };
+
+    const clearTags = () => {
+        onTagsChange([]);
     };
 
     return (
@@ -78,8 +90,7 @@ export default function SearchBar({ places, locale, onSearchChange }) {
                     onChange={e => setSearch(e.target.value)}
                     onKeyDown={handleKeyDown}
                     onFocus={() => setShowSuggestions(search.trim() !== "")}
-                    className="w-full px-6 py-3 rounded-lg border-none bg-white text-gray-800 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-opacity-50"
-                    style={{ boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
+                    className="w-full px-6 py-3 rounded-lg border-none bg-white text-gray-800 text-base shadow-[0_2px_4px_rgba(0,0,0,0.1)] focus:outline-none focus:ring-2 focus:ring-opacity-50"
                 />
                 {showSuggestions && (
                     <div className="absolute top-full left-0 right-0 bg-white rounded-lg shadow-lg mt-1 max-h-[300px] overflow-y-auto z-[1000]">
@@ -109,9 +120,44 @@ export default function SearchBar({ places, locale, onSearchChange }) {
             <button 
                 onClick={handleFilterClick}
                 className="text-white border-none rounded-lg px-6 py-2 text-base font-semibold cursor-pointer transition-colors duration-300 hover:opacity-90"
-                style={{ background: locale.color }}>
-                Filter
+                style={{ backgroundColor: locale.color }}>
+                Filters ▾
             </button>
+            {showFilterMenu && (
+                <div className="absolute right-0 mt-2 bg-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] p-4 min-w-[260px] z-20">
+                    <div className="font-bold mb-2 text-gray-800">Tags</div>
+                    <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto">
+                        {tags.map(tag => {
+                            const isOn = selectedTagIds.includes(tag.id);
+                            return (
+                                <button
+                                    key={tag.id}
+                                    onClick={() => toggleTag(tag.id)}
+                                    className={`border rounded-full px-3 py-1.5 text-sm cursor-pointer transition-all duration-200 ${
+                                        isOn ? 'border-transparent text-white' : 'border-gray-300 bg-[#f7f7f8] text-[#444]'
+                                    }`}
+                                    style={isOn ? { backgroundColor: locale.color } : {}}
+                                >
+                                    {tag.name}
+                                </button>
+                            );
+                        })}
+                    </div>
+                    <div className="flex justify-between mt-3">
+                        <button 
+                            onClick={clearTags}
+                            className="bg-gray-100 border border-gray-300 text-gray-700 rounded-lg px-3.5 py-2 cursor-pointer hover:bg-gray-200">
+                            Clear
+                        </button>
+                        <button 
+                            onClick={() => setShowFilterMenu(false)}
+                            className="border-none text-white rounded-lg px-3.5 py-2 cursor-pointer font-semibold"
+                            style={{ backgroundColor: locale.color }}>
+                            Done
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
