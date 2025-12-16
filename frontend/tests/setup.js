@@ -48,5 +48,8 @@ global.ResizeObserver = class ResizeObserver {
   constructor() {}
   disconnect() {}
   observe() {}
+  takeRecords() {
+    return []
+  }
   unobserve() {}
 }

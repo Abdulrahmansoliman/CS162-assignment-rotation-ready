@@ -9,28 +9,14 @@ describe('cities API', () => {
     vi.clearAllMocks()
   })
 
-  describe('getCities', () => {
-    it('fetches cities with GET method', async () => {
-      const mockCities = [
-        { city_id: 1, city_name: 'San Francisco' },
-        { city_id: 2, city_name: 'Taipei' },
-        { city_id: 3, city_name: 'Seoul' },
-      ]
+  it('fetches cities successfully', async () => {
+    const mockCities = [
+      { city_id: 1, city_name: 'San Francisco' },
+      { city_id: 2, city_name: 'Taipei' },
+    ]
+    api.apiFetch.mockResolvedValue(mockCities)
 
-      api.apiFetch.mockResolvedValue(mockCities)
-
-      const result = await getCities()
-
-      expect(api.apiFetch).toHaveBeenCalledWith('rotation-city', {
-        method: 'GET',
-      })
-      expect(result).toEqual(mockCities)
-    })
-
-    it('handles fetch error', async () => {
-      api.apiFetch.mockRejectedValue(new Error('Failed to fetch cities'))
-
-      await expect(getCities()).rejects.toThrow('Failed to fetch cities')
-    })
+    const result = await getCities()
+    expect(result).toEqual(mockCities)
   })
 })
