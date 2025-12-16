@@ -1,4 +1,9 @@
-import { getAccessToken, clearTokens } from '../features/auth/services/authservice.js'
+// api/index.js
+import { 
+  getAccessToken, 
+  clearTokens,
+  refreshAccessToken,
+} from '../features/auth/services/authservice.js'
 
 // In production, VITE_API_URL should be set to the backend URL (e.g., https://rotation-ready-api.onrender.com)
 // In development, we use Vite's proxy which forwards /api to localhost:5000
@@ -10,48 +15,65 @@ const commonHeaders = {
   "Content-Type": "application/json",
 }
 
+// Reuse apiFetch behavior for auth check
 export const checkAuth = async () => {
   try {
-    const token = getAccessToken()
-    if (!token) return false
-    
-    const response = await fetch(`${API_BASE_URL}/user/me`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
-    
-    if (response.status === 401) {
-      clearTokens()
-      return false
-    }
-    
-    return response.ok 
+    await apiFetch('/user/me')
+    return true
   } catch {
     return false
   }
 }
 
 export const apiFetch = async (endpoint, options = {}) => {
-  const token = getAccessToken()
-  
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers: {
-      ...commonHeaders,
-      ...(token && { 'Authorization': `Bearer ${token}` }),
-      ...options.headers,
-    },
+  const buildHeaders = (token, extraHeaders = {}) => ({
+    ...commonHeaders,
+    ...(token && { 'Authorization': `Bearer ${token}` }),
+    ...extraHeaders,
   })
 
-  if (!response.ok) {
-    const data = await response.json()
-    
-    if (response.status === 401) {
-      clearTokens()
-      window.location.href = '/login' 
+  let token = getAccessToken()
+
+  let response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers: buildHeaders(token, options.headers),
+  })
+
+  // Handle unauthorized / expired token
+  if (response.status === 401) {
+    let errorData = {}
+    try {
+      errorData = await response.json()
+    } catch {
+      errorData = {}
     }
-    
+
+    // If the access token is expired, try to refresh and retry once
+    if (errorData.message === 'Token has expired.') {
+      const newToken = await refreshAccessToken()
+      if (newToken) {
+        token = newToken
+        response = await fetch(`${API_BASE_URL}${endpoint}`, {
+          ...options,
+          headers: buildHeaders(token, options.headers),
+        })
+
+        if (response.ok) {
+          return response.json()
+        }
+
+        // If retry still fails, fall through to logout / error handling
+      }
+    }
+
+    // If refresh failed or token invalid for another reason
+    clearTokens()
+    window.location.href = '/login'
+    throw new Error(errorData.message || "Request failed")
+  }
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}))
     throw new Error(data.message || "Request failed")
   }
 
