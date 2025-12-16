@@ -49,6 +49,10 @@ export default function ItemDetailPage() {
       // Don’t break the page if verifications fails
       setVerifications([]);
     }
+  const handleGoToUserProfile = () => {
+    const userId = item?.added_by_user?.user_id;
+    if (!userId) return;
+    navigate(`/user/${userId}`);
   };
 
   useEffect(() => {
@@ -134,11 +138,17 @@ export default function ItemDetailPage() {
     );
   }
 
+  const firstInitial = item.added_by_user?.first_name?.[0] || '';
+  const lastInitial = item.added_by_user?.last_name?.[0] || '';
+  const profilePic = item.added_by_user?.profile_picture || null;
+
   return (
     <div className={`min-h-screen ${scheme.bg}`}>
       {/* Hero Section */}
       <div className={`relative ${scheme.heroBg} overflow-hidden`}>
         <div className={`absolute inset-0 ${scheme.overlay}`}></div>
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
+
         <div className="relative max-w-6xl mx-auto px-4 py-12">
           <Button
             onClick={() => navigate(-1)}
@@ -151,11 +161,15 @@ export default function ItemDetailPage() {
 
           <div className="flex flex-col md:flex-row gap-8 items-start">
             <div className="flex-1">
-              <div className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full mb-4">
+              <button
+                type="button"
+                onClick={handleGoToUserProfile}
+                className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full mb-4 hover:bg-white/30 transition"
+              >
                 <span className="text-white text-sm font-medium">
                   Recommended by {item.added_by_user?.first_name || 'a fellow student'}
                 </span>
-              </div>
+              </button>
 
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
                 {item.name}
@@ -190,25 +204,6 @@ export default function ItemDetailPage() {
 
             {/* Right: Quick Stats Card */}
             <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl min-w-[280px]">
-              {/* Verification count + button (ADDED, nothing removed) */}
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center">
-                  <CheckCircle className="w-7 h-7 text-white" />
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-gray-900">{item.number_of_verifications || 0}</div>
-                  <div className="text-sm text-gray-600">Students verified this</div>
-                </div>
-              </div>
-
-              <Button
-                onClick={handleVerify}
-                disabled={verifying}
-                className="w-full mb-4"
-              >
-                {verifying ? "Verifying..." : "Verify"}
-              </Button>
-
               <div className="border-t border-gray-200 pt-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">City</span>
@@ -325,24 +320,38 @@ export default function ItemDetailPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-start gap-4">
-                    <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-900 font-bold text-lg">
-                        {getInitialsFromName(`${item.added_by_user.first_name || ""} ${item.added_by_user.last_name || ""}`)}
-                      </span>
+                  <button
+                    type="button"
+                    onClick={handleGoToUserProfile}
+                    className="w-full text-left"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                        {profilePic ? (
+                          <img
+                            src={profilePic}
+                            alt={`${item.added_by_user.first_name} ${item.added_by_user.last_name}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-gray-900 font-bold text-lg">
+                            {firstInitial}{lastInitial}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900 text-lg hover:underline">
+                          {item.added_by_user.first_name} {item.added_by_user.last_name}
+                        </div>
+                        <div className="text-sm text-gray-600 mt-1">
+                          {item.added_by_user.email}
+                        </div>
+                        <div className="mt-3 text-xs text-gray-500">
+                          Fellow Minerva student sharing local insights
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-gray-900 text-lg">
-                        {(item.added_by_user.first_name || "")} {(item.added_by_user.last_name || "")}
-                      </div>
-                      <div className="text-sm text-gray-600 mt-1">
-                        {item.added_by_user.email || ""}
-                      </div>
-                      <div className="mt-3 text-xs text-gray-500">
-                        Fellow Minerva student sharing local insights
-                      </div>
-                    </div>
-                  </div>
+                  </button>
                 </CardContent>
               </Card>
             )}
