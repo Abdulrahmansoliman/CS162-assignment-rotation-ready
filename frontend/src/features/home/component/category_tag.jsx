@@ -35,14 +35,11 @@ export default function CategoryTag({ categories, selectedCategoryIds, onToggleC
         <div className="mb-8">
             <div className="relative">
                 <div className="flex flex-wrap gap-2 pb-2">
-                    {categories.map((cat) => {
-                        const isSelected = selectedCategoryIds.includes(cat.id);
-<<<<<<<<< Temporary merge branch 1
+                    {categories.map((cat, idx) => {
+                        const isSelected = selectedCategoryIds. includes(cat.id);
                         const tileColor = palette[idx % palette.length];
-                        const selectedColor = tileColor; // keep same hue, emphasize via scale
-=========
-                        const currentTextColor = isSelected ? textColorSelected : textColor;
->>>>>>>>> Temporary merge branch 2
+                        const textColor = getContrastColor(tileColor);
+                        
                         return (
                             <button
                                 key={cat. id}
