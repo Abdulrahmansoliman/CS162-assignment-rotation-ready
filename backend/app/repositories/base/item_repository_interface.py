@@ -38,3 +38,8 @@ class ItemRepositoryInterface(ABC):
     def get_item_by_id_with_details(self, item_id: int, rotation_city_id: int) -> Optional[Item]:
         """Get item by ID with relationships loaded (filtered by rotation city)."""
         pass
+
+    @abstractmethod
+    def get_items_by_user(self, user_id: int) -> list[Item]:
+        """Get all items added by a specific user with relationships loaded."""
+        pass

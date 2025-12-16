@@ -4,7 +4,7 @@ import { getCurrentUser } from "../../api/user";
 import { apiFetch } from "../../api";
 import "@/shared/styles/locale-theme.css";
 import CategoryTag from "./component/category_tag";
-
+import SearchBar from "./component/SearchBar";
 
 
 // Locale-based category palettes (from provided swatches)
@@ -31,7 +31,6 @@ function HomePage() {
     const [currentLocale, setCurrentLocale] = useState('usa');
     const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
     const [selectedTagIds, setSelectedTagIds] = useState([]);
-    const [showFilterMenu, setShowFilterMenu] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -113,7 +112,6 @@ function HomePage() {
     const toggleCategory = (id) => {
         setSelectedCategoryIds(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
     };
-
     const getLocaleClass = () => {
         const classMap = {
             usa: 'show-photo',
@@ -159,78 +157,14 @@ function HomePage() {
                 <h1 style={{ fontSize: "2.5rem", margin: 0, fontWeight: 300, letterSpacing: "1px", position: "relative", zIndex: 10, fontFamily: 'Fraunces, serif' }}>{getLocaleText()}, {userName}</h1>
             </div>
             <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
-                <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem" }}>
-                    <input
-                        type="text"
-                        placeholder="Search..."
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                        style={{
-                            flex: 1, padding: "1rem 1.5rem", borderRadius: "8px",
-                            border: "none", background: "#fff", color: "#333", fontSize: "1rem",
-                            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-                        }}
-                    />
-                    <div style={{ position: "relative" }}>
-                        <button onClick={() => setShowFilterMenu(!showFilterMenu)} style={{
-                            background: getLocaleColor(), color: "white", border: "none",
-                            borderRadius: "8px", padding: "1rem 2rem", fontSize: "1rem", fontWeight: 600,
-                            cursor: "pointer", transition: "background 0.3s"
-                        }}>
-                            Filters ▾
-                        </button>
-                        {showFilterMenu && (
-                            <div style={{
-                                position: "absolute",
-                                right: 0,
-                                marginTop: "0.5rem",
-                                background: "#ffffff",
-                                borderRadius: "12px",
-                                boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
-                                padding: "1rem",
-                                minWidth: "260px",
-                                zIndex: 20
-                            }}>
-                                <div style={{ fontWeight: 700, marginBottom: "0.5rem", color: "#333" }}>Tags</div>
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", maxHeight: "200px", overflowY: "auto" }}>
-                                    {tags.map(tag => {
-                                        const isOn = selectedTagIds.includes(tag.id);
-                                        return (
-                                            <button
-                                                key={tag.id}
-                                                onClick={() => toggleTag(tag.id)}
-                                                style={{
-                                                    border: "1px solid #ddd",
-                                                    background: isOn ? getLocaleColor() : "#f7f7f8",
-                                                    color: isOn ? "#fff" : "#444",
-                                                    borderRadius: "999px",
-                                                    padding: "6px 12px",
-                                                    fontSize: "0.85rem",
-                                                    cursor: "pointer",
-                                                    transition: "all 0.2s"
-                                                }}
-                                            >
-                                                {tag.name}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.75rem" }}>
-                                    <button onClick={() => { setSelectedTagIds([]); }} style={{
-                                        background: "#f1f1f4", border: "1px solid #e0e0e5", color: "#444",
-                                        borderRadius: "8px", padding: "0.5rem 0.9rem", cursor: "pointer"
-                                    }}>Clear</button>
-                                    <button onClick={() => setShowFilterMenu(false)} style={{
-                                        background: getLocaleColor(), border: "none", color: "#fff",
-                                        borderRadius: "8px", padding: "0.5rem 0.9rem", cursor: "pointer",
-                                        fontWeight: 600
-                                    }}>Done</button>
-                                </div>
-                                
-                            </div>
-                        )}
-                    </div>
-                </div>
+                <SearchBar 
+                    places={places}
+                    locale={{ color: getLocaleColor() }}
+                    onSearchChange={setSearch}
+                    tags={tags}
+                    selectedTagIds={selectedTagIds}
+                    onTagsChange={setSelectedTagIds}
+                />
                 {/* Category Tags Component */}
                 <CategoryTag 
                     categories={categories}
@@ -238,6 +172,7 @@ function HomePage() {
                     onToggleCategory={toggleCategory}
                     currentLocale={currentLocale}
                 />
+               
             <div style={{ display: "flex", alignItems: "center", marginBottom: 20 }}>
                 <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 600 }}>All Places <span style={{ color: "#999" }}>({filteredPlaces.length})</span></h3>
                 <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>

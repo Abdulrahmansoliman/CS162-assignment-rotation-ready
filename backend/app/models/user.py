@@ -4,7 +4,7 @@ Represents a user in the system. Each user belongs to a rotation city
 and can add/verify items.
 """
 from datetime import datetime
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Boolean
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Boolean, Text
 from sqlalchemy.orm import relationship
 from app.models.verification_stutus_enum import VerificationStatusEnum
 
@@ -23,6 +23,7 @@ class User(db.Model):
         first_name (str): User's first name (max 50 chars)
         last_name (str): User's last name (max 50 chars)
         email (str): Unique email address (max 100 chars)
+        profile_picture (str): Optional profile picture as base64 string
         created_at (datetime): Account creation timestamp
         updated_at (datetime): Last update timestamp
         is_verified (bool): Email verification status
@@ -48,6 +49,8 @@ class User(db.Model):
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
     email = Column(String(100), unique=True, nullable=False)
+    # Optional profile picture stored as base64 for simplicity
+    profile_picture = Column(Text, nullable=True)
     
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)

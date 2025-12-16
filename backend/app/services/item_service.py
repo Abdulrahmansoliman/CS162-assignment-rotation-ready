@@ -293,6 +293,19 @@ class ItemService:
         if not item:
             raise ValueError(f"Item with ID {item_id} not found in your rotation city")
         return self._transform_item_for_response(item)
+
+    def get_user_items(self, user_id: int) -> list[Item]:
+        """
+        Get all items added by a specific user.
+        
+        Args:
+            user_id: ID of the user who added the items
+            
+        Returns:
+            List of Item objects with relationships loaded and transformed
+        """
+        items = self.item_repo.get_items_by_user(user_id)
+        return [self._transform_item_for_response(item) for item in items]
         """
         Get all items.
         
