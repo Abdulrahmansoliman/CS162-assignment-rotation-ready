@@ -2,6 +2,15 @@
 
 React + Vite application for the Rotation Ready platform, helping Minerva University students manage and share rotation city items.
 
+## Frontend Responsibilities
+
+The frontend is responsible for:
+
+- **Rendering user and item data from backend APIs** - Fetches and displays categories, items, tags, and user information
+- **Handling authentication state and protected routes** - Manages JWT tokens, login/logout flows, and route access control
+- **Managing user interactions** - Add item forms, verify item actions, profile navigation, and search/filter functionality
+- **Providing responsive and accessible UI components** - Mobile-first design with Radix UI primitives for accessibility
+
 ## Quick Start
 
 ```bash
