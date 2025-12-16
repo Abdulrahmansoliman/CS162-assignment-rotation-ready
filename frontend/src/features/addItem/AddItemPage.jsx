@@ -35,9 +35,6 @@ export default function AddItemPage() {
   const [currentLocale, setCurrentLocale] = useState('usa');
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [userName, setUserName] = useState("User");
-  const [userFirstName, setUserFirstName] = useState("");
-  const [userProfilePic, setUserProfilePic] = useState(null);
   
   const localeMap = {
     'san francisco': 'usa',
@@ -72,17 +69,6 @@ export default function AddItemPage() {
     return colorMap[currentLocale] || '#cc0000'
   }
 
-  const getLocaleText = () => {
-    const textMap = {
-      usa: 'Contribute',
-      china: '贡献',
-      korea: '기여하기',
-      argentina: 'Contribuir',
-      india: 'योगदान',
-      germany: 'Beitragen'
-    };
-    return textMap[currentLocale] || 'Contribute';
-  };
   useEffect(() => {
     async function loadUserLocale() {
       try {
@@ -91,12 +77,6 @@ export default function AddItemPage() {
           const cityName = user.rotation_city.name?.toLowerCase() || '';
           const newLocale = localeMap[cityName] || 'usa';
           setCurrentLocale(newLocale);
-          
-          // Also set user name and profile picture
-          const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
-          setUserName(fullName || user.email || "User");
-          setUserFirstName(user.first_name || "");
-          setUserProfilePic(user.profile_picture || null);
         }
       } catch (err) {
         console.error("Failed to load user data:", err);
