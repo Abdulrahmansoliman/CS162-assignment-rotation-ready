@@ -5,6 +5,8 @@ import { apiFetch } from "../../api";
 import "@/shared/styles/locale-theme.css";
 import CategoryTag from "./component/category_tag";
 import SearchBar from "./component/SearchBar";
+import { verifyItem } from "../../api/verification";
+
 
 
 // Locale-based category palettes (from provided swatches)
@@ -94,6 +96,23 @@ function HomePage() {
     }, []);
 
     // Locale is set from backend and remains stable for the session
+
+    const handleVerify = async (itemId) => {
+        try {
+            await verifyItem(itemId);
+
+            // optimistic UI update — NO refetch
+            setPlaces(prev =>
+                prev.map(p =>
+                    p.id === itemId
+                        ? { ...p, verifiedCount: (p.verifiedCount || 0) + 1 }
+                        : p
+                )
+            );
+        } catch (e) {
+            alert("You already verified today or an error occurred.");
+        }
+    };
 
     useEffect(() => {
         const bySearch = (p) => p.name.toLowerCase().includes(search.toLowerCase());
@@ -245,6 +264,16 @@ function HomePage() {
                             }}>
                                 View Details
                             </button>
+                            <button 
+                                onClick={() => handleVerify(place.id)}
+                                style={{
+                                    background: "#4caf50", color: "#fff", border: "none",
+                                    borderRadius: 6, padding: "8px 16px", fontWeight: 600, fontSize: "0.85rem",
+                                    cursor: "pointer", width: view === "list" ? "auto" : "100%"
+                                }}>
+                                Verify
+                            </button>
+
                         </div>
                     </div>
                 ))}
