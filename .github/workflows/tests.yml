@@ -1,4 +1,4 @@
-name: Run Tests
+name: CI Tests
 
 on:
   pull_request:
@@ -7,8 +7,10 @@ on:
   push:
     branches:
       - main
+      - 'feature/**'
+
 jobs:
-  test:
+  backend:
     runs-on: ubuntu-latest
     
     strategy:
@@ -57,6 +59,54 @@ jobs:
       if: success()
       run: |
         python -m pytest tests/ --cov=app --cov-report=term-missing --cov-report=xml --color=yes
+    
+    - name: Upload Backend Coverage
+      uses: codecov/codecov-action@v4
+      if: always()
+      with:
+        file: ./backend/coverage.xml
+        flags: backend
+        fail_ci_if_error: false
+
+  frontend:
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./frontend
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    
+    - name: Install dependencies
+      run: |
+        rm -rf node_modules package-lock.json
+        npm install
+    
+    - name: Run Linting
+      run: npm run lint
+      continue-on-error: true
+    
+    - name: Run Tests with Coverage
+      run: npm run test:coverage
+    
+    - name: Build Application
+      if: success()
+      run: npm run build
+    
+    - name: Upload Frontend Coverage
+      uses: codecov/codecov-action@v4
+      if: always()
+      with:
+        files: ./frontend/coverage/lcov.info
+        flags: frontend
+        fail_ci_if_error: false
     
     - name: Upload Coverage Reports
       uses: codecov/codecov-action@v4

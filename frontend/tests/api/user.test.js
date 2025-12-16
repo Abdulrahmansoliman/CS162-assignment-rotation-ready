@@ -9,58 +9,47 @@ describe('user API', () => {
     vi.clearAllMocks()
   })
 
-  describe('getCurrentUser', () => {
-    it('fetches current user with GET method', async () => {
-      const mockUser = {
-        email: 'test@uni.minerva.edu',
-        first_name: 'John',
-        last_name: 'Doe',
-        rotation_city: {
-          city_id: 1,
-          city_name: 'San Francisco',
-        },
-      }
+  it('fetches current user successfully', async () => {
+    const mockUser = {
+      email: 'test@uni.minerva.edu',
+      first_name: 'John',
+      last_name: 'Doe',
+      rotation_city: { city_id: 1, city_name: 'San Francisco' },
+    }
+    api.apiFetch.mockResolvedValue(mockUser)
 
-      api.apiFetch.mockResolvedValue(mockUser)
+    const result = await getCurrentUser()
+    expect(result).toEqual(mockUser)
+    expect(api.apiFetch).toHaveBeenCalledWith('/user/me', { method: 'GET' })
+  })
 
-      const result = await getCurrentUser()
+  it('handles unauthorized user fetch', async () => {
+    api.apiFetch.mockRejectedValue(new Error('401 Unauthorized'))
 
-      expect(api.apiFetch).toHaveBeenCalledWith('user/me', {
-        method: 'GET',
-      })
-      expect(result).toEqual(mockUser)
-    })
+    await expect(getCurrentUser()).rejects.toThrow('401 Unauthorized')
+  })
 
-    it('handles fetch error', async () => {
-      api.apiFetch.mockRejectedValue(new Error('Unauthorized'))
+  it('updates user profile successfully', async () => {
+    const updateData = { first_name: 'Jane', last_name: 'Smith' }
+    api.apiFetch.mockResolvedValue({ success: true })
 
-      await expect(getCurrentUser()).rejects.toThrow('Unauthorized')
+    const result = await updateUserProfile(updateData)
+    expect(result).toEqual({ success: true })
+    expect(api.apiFetch).toHaveBeenCalledWith('/user/me', {
+      method: 'PUT',
+      body: JSON.stringify(updateData)
     })
   })
 
-  describe('updateUserProfile', () => {
-    it('updates user profile with PUT method', async () => {
-      const updateData = {
-        first_name: 'Jane',
-        last_name: 'Smith',
-        rotation_city_id: 2,
-      }
+  it('handles profile update errors', async () => {
+    api.apiFetch.mockRejectedValue(new Error('400 Bad Request'))
 
-      api.apiFetch.mockResolvedValue({ success: true })
+    await expect(updateUserProfile({ first_name: '' })).rejects.toThrow('400 Bad Request')
+  })
 
-      const result = await updateUserProfile(updateData)
+  it('handles forbidden profile update', async () => {
+    api.apiFetch.mockRejectedValue(new Error('403 Forbidden'))
 
-      expect(api.apiFetch).toHaveBeenCalledWith('user/me', {
-        method: 'PUT',
-        body: JSON.stringify(updateData),
-      })
-      expect(result).toEqual({ success: true })
-    })
-
-    it('handles update error', async () => {
-      api.apiFetch.mockRejectedValue(new Error('Update failed'))
-
-      await expect(updateUserProfile({})).rejects.toThrow('Update failed')
-    })
+    await expect(updateUserProfile({ email: 'new@email.com' })).rejects.toThrow('403 Forbidden')
   })
 })
