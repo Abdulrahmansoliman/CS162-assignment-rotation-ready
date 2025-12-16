@@ -18,3 +18,13 @@ export async function createItem(body) {
     body: JSON.stringify(body),
   });
 }
+
+/**
+ * Fetch items contributed by a specific user
+ */
+export async function getUserItems(userId) {
+  return await apiFetch(`/item/user/${userId}`, {
+    method: "GET",
+  });
+}
+
