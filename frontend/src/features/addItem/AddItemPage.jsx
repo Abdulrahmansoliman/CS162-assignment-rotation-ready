@@ -1,3 +1,6 @@
+// Page-level component for creating a new item.
+// UI refinements added after local testing (placeholders, helper text).
+
 import { useEffect, useState } from "react";
 import SearchSelect from "./components/SearchSelect";
 

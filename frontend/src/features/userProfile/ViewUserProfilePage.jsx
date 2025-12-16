@@ -1,4 +1,4 @@
-// frontend/src/features/userProfile/ViewUserProfilePage.jsx
+// Page for viewing another user's public profile
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
