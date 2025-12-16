@@ -1,4 +1,8 @@
 import { useEffect, useState } from "react";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { Field, FieldContent, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import { Spinner } from "@/shared/components/ui/spinner";
 import SearchSelect from "./components/SearchSelect";
 
 import { getCategories } from "@/api/category";
@@ -8,6 +12,7 @@ import { createItem } from "@/api/item";
 import CategoryChip from "./components/CategoryChip";
 import TagChip from "./components/TagChip";
 import CreateTagModal from "./components/CreateTagModal";
+import "@/shared/styles/locale-theme.css";
 
 export default function AddItemPage() {
   const [name, setName] = useState("");
@@ -26,6 +31,23 @@ export default function AddItemPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentLocale, setCurrentLocale] = useState('usa');
+  const [submitError, setSubmitError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const locales = ['usa', 'china', 'korea', 'argentina', 'india', 'germany']
+    let index = 0
+
+    const cycleLocales = () => {
+      index = (index + 1) % locales.length
+      setCurrentLocale(locales[index])
+      setTimeout(cycleLocales, 8000)
+    }
+
+    const timer = setTimeout(cycleLocales, 8000)
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     async function load() {
@@ -78,158 +100,245 @@ export default function AddItemPage() {
     setNewTags((prev) => [...prev, tagObj]);
   }
 
-  async function handleSubmit() {
-    const body = {
-      name,
-      location,
-      walking_distance: parseFloat(walkingDistance),
+  const getLocaleClass = () => {
+    const classMap = {
+      usa: 'show-photo',
+      china: 'transition-green',
+      korea: 'transition-korea',
+      argentina: 'transition-argentina',
+      india: 'transition-india',
+      germany: 'transition-germany'
+    }
+    return classMap[currentLocale] || 'show-photo'
+  }
 
-      category_ids: selectedCategories.map((c) => c.category_id),
+  const getLocaleColor = () => {
+    const colorMap = {
+      usa: '#cc0000',
+      china: '#1d9a5c',
+      korea: '#c60c30',
+      argentina: '#2a9d8f',
+      india: '#ff9933',
+      germany: '#4a90e2'
+    }
+    return colorMap[currentLocale] || '#cc0000'
+  }
 
-      existing_tags: selectedTags.map((tag) => ({
-        tag_id: tag.tag_id,
-        value: existingTagValues[tag.tag_id] || "",
-      })),
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitError("");
+    
+    try {
+      const body = {
+        name,
+        location,
+        walking_distance: parseFloat(walkingDistance),
 
-      new_tags: newTags.map((tag) => ({
-        name: tag.name,
-        value_type: tag.value_type,
-        value: tag.value,
-      })),
-    };
+        category_ids: selectedCategories.map((c) => c.category_id),
 
-    await createItem(body);
-    alert("Item created!");
+        existing_tags: selectedTags.map((tag) => ({
+          tag_id: tag.tag_id,
+          value: existingTagValues[tag.tag_id] || "",
+        })),
+
+        new_tags: newTags.map((tag) => ({
+          name: tag.name,
+          value_type: tag.value_type,
+          value: tag.value,
+        })),
+      };
+
+      await createItem(body);
+      alert("Item created!");
+      // Reset form
+      setName("");
+      setLocation("");
+      setWalkingDistance("");
+      setSelectedCategories([]);
+      setSelectedTags([]);
+      setExistingTagValues({});
+      setNewTags([]);
+    } catch (err) {
+      console.error(err);
+      setSubmitError("Failed to create item. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-900">
+        <Spinner className="w-10 h-10 text-white" />
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex justify-center p-10">
-      <div className="bg-gray-900 p-10 rounded-xl shadow-xl w-[650px]">
+    <div className={`locale-container min-h-screen w-full relative flex items-center justify-center ${getLocaleClass()} p-4 sm:p-6 md:p-12`}>
+      <div className={`locale-overlay absolute inset-0 ${getLocaleClass()}`}></div>
 
-        {loading && (
-          <div className="text-white text-center">Loading...</div>
-        )}
+      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-2xl">
+        <h1 className="text-white text-5xl sm:text-6xl font-extrabold leading-tight drop-shadow-md text-center mb-8" style={{fontFamily: 'Fraunces, serif'}}>
+          Add Item
+        </h1>
 
         {error && (
-          <div className="text-red-400 text-center mb-4">{error}</div>
+          <div className="text-white text-center mb-4">{error}</div>
         )}
 
-        {!loading && (
-          <>
-            <h1 className="text-3xl font-bold text-white mb-8">Add Item</h1>
+        <form onSubmit={handleSubmit} className="w-full space-y-6">
+          {/* NAME */}
+          <Field>
+            <FieldContent>
+              <FieldLabel className="text-lg font-semibold text-white">Name</FieldLabel>
+              <Input
+                type="text"
+                placeholder="Item name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={isSubmitting}
+                required
+                className="bg-white rounded-full px-6 py-3 text-gray-800 text-lg placeholder-gray-400 shadow-lg"
+              />
+            </FieldContent>
+          </Field>
 
-        {/* NAME */}
-        <label className="text-gray-300">Name</label>
-        <input
-          className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-6"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+          {/* LOCATION */}
+          <Field>
+            <FieldContent>
+              <FieldLabel className="text-lg font-semibold text-white">Location</FieldLabel>
+              <Input
+                type="text"
+                placeholder="Location description"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                disabled={isSubmitting}
+                required
+                className="bg-white rounded-full px-6 py-3 text-gray-800 text-lg placeholder-gray-400 shadow-lg"
+              />
+            </FieldContent>
+          </Field>
 
-        {/* LOCATION */}
-        <label className="text-gray-300">Location</label>
-        <input
-          className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-6"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-        />
+          {/* WALKING DISTANCE */}
+          <Field>
+            <FieldContent>
+              <FieldLabel className="text-lg font-semibold text-white">Walking Distance (meters)</FieldLabel>
+              <Input
+                type="number"
+                placeholder="Distance in meters"
+                value={walkingDistance}
+                onChange={(e) => setWalkingDistance(e.target.value)}
+                disabled={isSubmitting}
+                className="bg-white rounded-full px-6 py-3 text-gray-800 text-lg placeholder-gray-400 shadow-lg"
+              />
+            </FieldContent>
+          </Field>
 
-        <label className="text-gray-300">Walking Distance (meters)</label>
-        <input
-          className="bg-gray-700 text-white px-3 py-2 rounded-md w-full mb-6"
-          value={walkingDistance}
-          onChange={(e) => setWalkingDistance(e.target.value)}
-        />
+          {/* CATEGORIES */}
+          <Field>
+            <FieldContent>
+              <FieldLabel className="text-lg font-semibold text-white">Categories</FieldLabel>
+              <SearchSelect
+                placeholder="Search categories..."
+                items={categories.map((c) => ({
+                  id: c.category_id,
+                  label: c.category_name,
+                }))}
+                displayField="label"
+                valueField="id"
+                onSelect={(id) => addCategory(parseInt(id))}
+                selectedItems={selectedCategories.map((c) => c.category_id)}
+              />
 
-        {/* CATEGORIES */}
-        <label className="text-gray-300">Categories</label>
-        <SearchSelect
-          placeholder="Search categories..."
-          items={categories.map((c) => ({
-            id: c.category_id,
-            label: c.category_name,
-          }))}
-          displayField="label"
-          valueField="id"
-          onSelect={(id) => addCategory(parseInt(id))}
-          selectedItems={selectedCategories.map((c) => c.category_id)}
-        />
+              <div className="flex flex-wrap gap-2 mt-3">
+                {selectedCategories.map((cat) => (
+                  <CategoryChip key={cat.category_id} category={cat} onRemove={removeCategory} />
+                ))}
+              </div>
+            </FieldContent>
+          </Field>
 
-        <div className="flex flex-wrap gap-2 mb-6">
-          {selectedCategories.map((cat) => (
-            <CategoryChip key={cat.category_id} category={cat} onRemove={removeCategory} />
-          ))}
-        </div>
+          {/* TAGS */}
+          <Field>
+            <FieldContent>
+              <FieldLabel className="text-lg font-semibold text-white">Tags</FieldLabel>
+              <SearchSelect
+                placeholder="Search tags..."
+                items={tags.map((t) => ({
+                  id: t.tag_id,
+                  label: t.name,
+                }))}
+                displayField="label"
+                valueField="id"
+                onSelect={(id) => addTag(parseInt(id))}
+                selectedItems={selectedTags.map((t) => t.tag_id)}
+              />
 
-        {/* TAGS */}
-        <label className="text-gray-300">Tags</label>
-        <SearchSelect
-          placeholder="Search tags..."
-          items={tags.map((t) => ({
-            id: t.tag_id,
-            label: t.name,
-          }))}
-          displayField="label"
-          valueField="id"
-          onSelect={(id) => addTag(parseInt(id))}
-          selectedItems={selectedTags.map((t) => t.tag_id)}
-        />
+              {/* EXISTING TAGS & NEW TAGS */}
+              <div className="flex flex-col gap-3 mt-3">
+                {selectedTags.map((tag) => (
+                  <TagChip
+                    key={tag.tag_id}
+                    tag={tag}
+                    value={existingTagValues[tag.tag_id] || ""}
+                    onValueChange={handleExistingTagValueChange}
+                    onRemove={removeTag}
+                  />
+                ))}
 
-        {/* EXISTING TAGS */}
-        <div className="flex flex-col gap-3 mb-6">
-          {selectedTags.map((tag) => (
-            <TagChip
-              key={tag.tag_id}
-              tag={tag}
-              value={existingTagValues[tag.tag_id] || ""}
-              onValueChange={handleExistingTagValueChange}
-              onRemove={removeTag}
-            />
-          ))}
+                {newTags.map((tag, index) => (
+                  <TagChip
+                    key={`new-${index}`}
+                    tag={tag}
+                    value={tag.value}
+                    onValueChange={(ignoredId, value) => {
+                      const updated = [...newTags];
+                      updated[index].value = value;
+                      setNewTags(updated);
+                    }}
+                    onRemove={() => {
+                      setNewTags((prev) => prev.filter((_, i) => i !== index));
+                    }}
+                  />
+                ))}
+              </div>
 
-          {/* NEW TAGS — must show in UI */}
-          {newTags.map((tag, index) => (
-            <TagChip
-              key={`new-${index}`}
-              tag={tag}
-              value={tag.value}
-              onValueChange={(ignoredId, value) => {
-                const updated = [...newTags];
-                updated[index].value = value;
-                setNewTags(updated);
-              }}
-              onRemove={() => {
-                setNewTags((prev) => prev.filter((_, i) => i !== index));
-              }}
-            />
-          ))}
-        </div>
+              {/* CREATE TAG BUTTON */}
+              <Button
+                type="button"
+                onClick={() => setModalOpen(true)}
+                className="mt-3 bg-white/20 hover:bg-white/30 text-white rounded-full px-4 py-2 text-sm font-semibold border border-white"
+              >
+                + Create new tag
+              </Button>
+            </FieldContent>
+          </Field>
 
-        {/* CREATE TAG */}
-        <button
-          className="text-blue-400 mb-6"
-          onClick={() => setModalOpen(true)}
-        >
-          + Create new tag
-        </button>
+          {submitError && (
+            <FieldError errors={[{ message: submitError }]} />
+          )}
 
-        {/* SUBMIT */}
-        <button
-          className="bg-blue-600 hover:bg-blue-700 text-white w-full py-3 rounded-md"
-          onClick={handleSubmit}
-        >
-          Create Item
-        </button>
-          </>
-        )}
-
-        {/* MODAL */}
-        <CreateTagModal
-          isOpen={modalOpen}
-          onClose={() => setModalOpen(false)}
-          onCreate={handleCreateNewTag}
-        />
+          {/* SUBMIT */}
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full rounded-full px-6 py-3 bg-white font-semibold shadow-lg"
+            style={{ color: getLocaleColor() }}
+          >
+            {isSubmitting && <Spinner className="mr-2" />}
+            Create Item
+          </Button>
+        </form>
       </div>
+
+      {/* MODAL */}
+      <CreateTagModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onCreate={handleCreateNewTag}
+      />
     </div>
   );
 }
