@@ -2,7 +2,7 @@
 Verification Schemas
 Pydantic schemas for verification request/response validation.
 """
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional, List
 
 
@@ -35,8 +35,7 @@ class VerificationResponse(BaseModel):
     note: Optional[str] = Field(None, description="Verification note")
     created_at: str = Field(..., description="ISO format timestamp")
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class CreateVerificationResponse(VerificationResponse):

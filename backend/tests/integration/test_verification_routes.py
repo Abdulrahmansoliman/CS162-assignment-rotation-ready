@@ -86,8 +86,8 @@ class TestVerificationRoutes:
         
         assert response.status_code == 404
         data = json.loads(response.data)
-        assert 'error' in data
-        assert 'not found' in data['error'].lower()
+        assert 'message' in data
+        assert 'not found' in data['message'].lower()
 
     def test_verify_item_already_verified_today(
         self,
@@ -117,8 +117,8 @@ class TestVerificationRoutes:
         
         assert response2.status_code == 400
         data = json.loads(response2.data)
-        assert 'error' in data
-        assert 'already verified' in data['error'].lower()
+        assert 'message' in data
+        assert 'already verified' in data['message'].lower()
 
     def test_verify_item_multiple_users(
         self,
@@ -177,7 +177,7 @@ class TestVerificationRoutes:
         
         assert response.status_code == 400
         data = json.loads(response.data)
-        assert 'error' in data
+        assert 'message' in data
 
     # GET /api/v1/verification/<verification_id> tests
 
@@ -217,7 +217,7 @@ class TestVerificationRoutes:
         
         assert response.status_code == 404
         data = json.loads(response.data)
-        assert 'error' in data
+        assert 'message' in data
 
     # GET /api/v1/verification/items/<item_id> tests
 
