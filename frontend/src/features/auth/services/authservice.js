@@ -1,4 +1,5 @@
-import { apiFetch } from "../../../api/index.js"
+// authservice.js
+import { apiFetch, API_BASE_URL } from "../../../api/index.js"
 
 const AUTH_PREFIX = "/auth"
 
@@ -13,6 +14,40 @@ export const getRefreshToken = () => localStorage.getItem('refresh_token')
 export const clearTokens = () => {
   localStorage.removeItem('access_token')
   localStorage.removeItem('refresh_token')
+}
+
+// NEW: refresh access token using the refresh token
+export const refreshAccessToken = async () => {
+  const refreshToken = getRefreshToken()
+  if (!refreshToken) {
+    clearTokens()
+    return null
+  }
+
+  const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${refreshToken}`,
+    },
+  })
+
+  if (!response.ok) {
+    clearTokens()
+    return null
+  }
+
+  const data = await response.json()
+  const newAccessToken = data.access_token
+
+  if (!newAccessToken) {
+    clearTokens()
+    return null
+  }
+
+  // Keep existing refresh token, just update access
+  localStorage.setItem('access_token', newAccessToken)
+  return newAccessToken
 }
 
 export const authService = {
