@@ -34,10 +34,9 @@ export default function CategoryTag({ categories, selectedCategoryIds, onToggleC
                                     <img 
                                         src={`data:image/png;base64,${cat.image}`}
                                         alt={cat.name}
-                                        className="w-7 h-7 object-contain drop-shadow-sm"
+                                        className="w-10 h-10 object-contain drop-shadow-sm"
                                     />
                                 )}
-                                <span className="mt-1 text-xs font-semibold text-white text-center px-1 leading-tight">{cat.name}</span>
                             </button>
                         );
                     })}

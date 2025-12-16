@@ -8,6 +8,7 @@ import SearchSelect from "./components/SearchSelect";
 import { getCategories } from "@/api/category";
 import { getTags } from "@/api/tag";
 import { createItem } from "@/api/item";
+import { getCurrentUser } from "@/api/user";
 
 import CategoryChip from "./components/CategoryChip";
 import TagChip from "./components/TagChip";
@@ -34,20 +35,29 @@ export default function AddItemPage() {
   const [currentLocale, setCurrentLocale] = useState('usa');
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const localeMap = {
+    'san francisco': 'usa',
+    'taipei': 'china',
+    'seoul': 'korea',
+    'buenos aires': 'argentina',
+    'hyderabad': 'india',
+    'berlin': 'germany'
+  }
   useEffect(() => {
-    const locales = ['usa', 'china', 'korea', 'argentina', 'india', 'germany']
-    let index = 0
-
-    const cycleLocales = () => {
-      index = (index + 1) % locales.length
-      setCurrentLocale(locales[index])
-      setTimeout(cycleLocales, 8000)
+    async function loadUserLocale() {
+      try {
+        const user = await getCurrentUser();
+        if (user && user.rotation_city) {
+          const cityName = user.rotation_city.name?.toLowerCase() || '';
+          const newLocale = localeMap[cityName] || 'usa';
+          setCurrentLocale(newLocale);
+        }
+      } catch (err) {
+        console.error("Failed to load user data:", err);
+      }
     }
-
-    const timer = setTimeout(cycleLocales, 8000)
-    return () => clearTimeout(timer)
-  }, [])
+    loadUserLocale();
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -176,11 +186,11 @@ export default function AddItemPage() {
   }
 
   return (
-    <div className={`locale-container min-h-screen w-full relative flex items-center justify-center ${getLocaleClass()} p-4 sm:p-6 md:p-12`}>
+    <div className={`locale-container min-h-screen w-full relative flex items-center justify-center ${getLocaleClass()} p-4`}>
       <div className={`locale-overlay absolute inset-0 ${getLocaleClass()}`}></div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-2xl">
-        <h1 className="text-white text-5xl sm:text-6xl font-extrabold leading-tight drop-shadow-md text-center mb-8" style={{fontFamily: 'Fraunces, serif'}}>
+      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-2xl py-4">
+        <h1 className="text-white text-4xl font-extrabold leading-tight drop-shadow-md text-center mb-4" style={{fontFamily: 'Fraunces, serif'}}>
           Add Item
         </h1>
 
@@ -188,7 +198,7 @@ export default function AddItemPage() {
           <div className="text-white text-center mb-4">{error}</div>
         )}
 
-        <form onSubmit={handleSubmit} className="w-full space-y-6">
+        <form onSubmit={handleSubmit} className="w-full space-y-3">
           {/* NAME */}
           <Field>
             <FieldContent>
@@ -264,17 +274,30 @@ export default function AddItemPage() {
           <Field>
             <FieldContent>
               <FieldLabel className="text-lg font-semibold text-white">Tags</FieldLabel>
-              <SearchSelect
-                placeholder="Search tags..."
-                items={tags.map((t) => ({
-                  id: t.tag_id,
-                  label: t.name,
-                }))}
-                displayField="label"
-                valueField="id"
-                onSelect={(id) => addTag(parseInt(id))}
-                selectedItems={selectedTags.map((t) => t.tag_id)}
-              />
+              <div className="flex items-center gap-3">
+                <SearchSelect
+                  placeholder="Search tags..."
+                  items={tags.map((t) => ({
+                    id: t.tag_id,
+                    label: t.name,
+                  }))}
+                  displayField="label"
+                  valueField="id"
+                  onSelect={(id) => addTag(parseInt(id))}
+                  selectedItems={selectedTags.map((t) => t.tag_id)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setModalOpen(true)}
+                  className="w-12 h-12 rounded-full bg-white text-2xl font-bold shadow-lg flex items-center justify-center transition-all flex-shrink-0"
+                  style={{ color: getLocaleColor() }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = getLocaleColor(); e.currentTarget.style.color = 'white'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'white'; e.currentTarget.style.color = getLocaleColor(); }}
+                  aria-label="Create new tag"
+                >
+                  +
+                </button>
+              </div>
 
               {/* EXISTING TAGS & NEW TAGS */}
               <div className="flex flex-col gap-3 mt-3">
@@ -304,15 +327,6 @@ export default function AddItemPage() {
                   />
                 ))}
               </div>
-
-              {/* CREATE TAG BUTTON */}
-              <Button
-                type="button"
-                onClick={() => setModalOpen(true)}
-                className="mt-3 bg-white/20 hover:bg-white/30 text-white rounded-full px-4 py-2 text-sm font-semibold border border-white"
-              >
-                + Create new tag
-              </Button>
             </FieldContent>
           </Field>
 
@@ -324,8 +338,10 @@ export default function AddItemPage() {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-full px-6 py-3 bg-white font-semibold shadow-lg"
+            className="w-full rounded-full px-6 py-3 bg-white font-semibold shadow-lg transition-all"
             style={{ color: getLocaleColor() }}
+            onMouseEnter={(e) => { if (!isSubmitting) { e.currentTarget.style.backgroundColor = getLocaleColor(); e.currentTarget.style.color = 'white'; } }}
+            onMouseLeave={(e) => { if (!isSubmitting) { e.currentTarget.style.backgroundColor = 'white'; e.currentTarget.style.color = getLocaleColor(); } }}
           >
             {isSubmitting && <Spinner className="mr-2" />}
             Create Item

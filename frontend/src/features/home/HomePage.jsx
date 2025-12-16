@@ -49,6 +49,8 @@ function HomePage() {
                 // Set user name from first_name and last_name
                 const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
                 setUserName(fullName || user.email || "User");
+                setUserFirstName(user.first_name || "");
+                setUserProfilePic(user.profile_picture || null);
 
                 // Map rotation city id to locale - get city_id from rotation_city object
                 const cityName = user.rotation_city?.name?.toLowerCase() || '';
@@ -186,6 +188,8 @@ function HomePage() {
     }
 
     const [userName, setUserName] = useState("User");
+    const [userFirstName, setUserFirstName] = useState("");
+    const [userProfilePic, setUserProfilePic] = useState(null);
 
     const getLocaleText = () => {
         const textMap = {
@@ -201,9 +205,45 @@ function HomePage() {
 
     return (
         <div style={{ paddingBottom: "2rem" }}>
-            <div className={`locale-container ${getLocaleClass()}`} style={{ color: "white", padding: "3rem 2rem 2rem 2rem" }}>
+            <div className={`locale-container ${getLocaleClass()}`} style={{ color: "white", padding: "3rem 2rem 2rem 2rem", position: "relative" }}>
                 <div className={`locale-overlay absolute inset-0 ${getLocaleClass()}`}></div>
-                <h1 style={{ fontSize: "2.5rem", margin: 0, fontWeight: 300, letterSpacing: "1px", position: "relative", zIndex: 10, fontFamily: 'Fraunces, serif' }}>{getLocaleText()}, {userName}</h1>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", zIndex: 10 }}>
+                    <h1 style={{ fontSize: "2.5rem", margin: 0, fontWeight: 300, letterSpacing: "1px", fontFamily: 'Fraunces, serif' }}>
+                        {getLocaleText()} {userFirstName}
+                    </h1>
+                    {userProfilePic && (
+                        <div style={{ 
+                            width: "60px", 
+                            height: "60px", 
+                            borderRadius: "50%", 
+                            border: "3px solid white",
+                            overflow: "hidden",
+                            flexShrink: 0
+                        }}>
+                            <img 
+                                src={userProfilePic} 
+                                alt="Profile" 
+                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            />
+                        </div>
+                    )}
+                    {!userProfilePic && (
+                        <div style={{ 
+                            width: "60px", 
+                            height: "60px", 
+                            borderRadius: "50%", 
+                            border: "3px solid white",
+                            background: "rgba(255,255,255,0.2)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "24px",
+                            flexShrink: 0
+                        }}>
+                            👤
+                        </div>
+                    )}
+                </div>
             </div>
             <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
                 <SearchBar 
