@@ -18,3 +18,10 @@ export async function createItem(body) {
     body: JSON.stringify(body),
   });
 }
+
+export async function getUserItems(userId) {
+  return await apiFetch(`/item/user/${userId}`, {
+    method: "GET",
+  });
+}
+
