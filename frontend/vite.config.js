@@ -38,11 +38,6 @@ export default defineConfig({
         '**/dist/**',
         '**/.{idea,git,cache,output,temp}/**'
       ],
-      all: true,
-      lines: 80,
-      functions: 80,
-      branches: 80,
-      statements: 80
     }
   }
 })

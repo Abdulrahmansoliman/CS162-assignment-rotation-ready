@@ -8,8 +8,8 @@ const localeColors = {
   china: "#2c6e49",
   korea: "#da627d",
   argentina: "#d9a300",
-  india: "#ff9505",
-  germany: "#007ea7",
+  india: "#ff9933",
+  germany: "#4a90e2",
 }
 
 export default function NavBar() {
@@ -136,7 +136,7 @@ export default function NavBar() {
           cursor: pointer;
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 10px;
           text-align: left;
           transition: all 200ms ease;
           font-size: 14px;
