@@ -15,7 +15,8 @@ class IUserRepository(ABC):
         first_name: str,
         last_name: str,
         email: str,
-        rotation_city_id: int
+        rotation_city_id: int,
+        profile_picture: Optional[str] = None,
     ) -> User:
         pass
     

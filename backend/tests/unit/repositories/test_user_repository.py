@@ -229,3 +229,61 @@ class TestUserRepository:
         
         assert updated_user.first_name == "ValidUpdate"
         assert not hasattr(updated_user, "invalid_field")
+
+
+    def test_create_user_with_profile_picture(self, db_session, rotation_city, repository):
+        pic = "data:image/png;base64,TESTBASE64DATA"
+
+        user = repository.create_user(
+            first_name="Pic",
+            last_name="User",
+            email="pic@example.com",
+            rotation_city_id=rotation_city.city_id,
+            profile_picture=pic,
+        )
+
+        assert user is not None
+        assert user.profile_picture == pic
+
+        db_session.expire_all()
+        persisted = db_session.get(User, user.user_id)
+        assert persisted.profile_picture == pic
+
+    def test_update_user_profile_picture(self, db_session, user, repository):
+        pic = "data:image/jpeg;base64,OTHERBASE64DATA"
+
+        updated = repository.update(user.user_id, profile_picture=pic)
+
+        assert updated.profile_picture == pic
+
+        db_session.expire_all()
+        persisted = db_session.get(User, user.user_id)
+        assert persisted.profile_picture == pic
+
+
+    def test_update_user_removes_profile_picture(self, db_session, user_with_profile_picture, repository):
+
+        # Now remove it
+        updated = repository.update(user_with_profile_picture.user_id, profile_picture=None)
+
+        assert updated.profile_picture is None
+
+        db_session.expire_all()
+        persisted = db_session.get(User, user_with_profile_picture.user_id)
+        assert persisted.profile_picture is None
+
+    def test_create_user_with_profile_picture_none(self, db_session, rotation_city, repository):
+        user = repository.create_user(
+            first_name="NoPic",
+            last_name="User",
+            email="nopicture@example.com",
+            rotation_city_id=rotation_city.city_id,
+            profile_picture=None
+        )
+
+        assert user is not None
+        assert user.profile_picture is None
+
+        db_session.expire_all()
+        persisted = db_session.get(User, user.user_id)
+        assert persisted.profile_picture is None
