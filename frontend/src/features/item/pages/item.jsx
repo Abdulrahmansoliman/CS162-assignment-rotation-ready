@@ -1,3 +1,8 @@
+// Page for displaying detailed information about a single item.
+// Fetches item data from the backend and focuses on read-only presentation,
+// including loading/error states and UI-only interactions (e.g. share link).
+
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getItemById } from '@/api/item';
