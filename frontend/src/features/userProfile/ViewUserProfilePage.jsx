@@ -93,19 +93,40 @@ export default function ViewUserProfilePage() {
 
         {/* Contributions */}
         <h2 className="text-xl font-semibold mb-4">
-          Contributions ({items.length})
+          Contributions
+          <span className="ml-2 px-2 py-1 text-sm bg-blue-600/20 text-blue-300 rounded">
+            {items.length}
+          </span>
         </h2>
 
         {loadingItems ? (
-          <p className="text-gray-400">Loading items…</p>
+          <div className="grid grid-cols-1 gap-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="bg-gray-800 rounded-lg p-4 animate-pulse">
+                <div className="h-5 bg-gray-700 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-gray-700 rounded w-1/2 mb-3"></div>
+                <div className="flex gap-2">
+                  <div className="h-6 bg-gray-700 rounded w-16"></div>
+                  <div className="h-6 bg-gray-700 rounded w-16"></div>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : items.length === 0 ? (
-          <p className="text-gray-400">No items yet.</p>
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">📦</div>
+            <p className="text-gray-400 text-lg mb-2">No contributions yet</p>
+            <p className="text-gray-500 text-sm">
+              {user.first_name} hasn't added any items to the community
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {items.map((item) => (
               <div
                 key={item.item_id}
-                className="bg-gray-800 border border-gray-700 rounded-lg p-4"
+                onClick={() => navigate(`/item/${item.item_id}`)}
+                className="bg-gray-800 border border-gray-700 rounded-lg p-4 cursor-pointer hover:bg-gray-750 hover:border-gray-600 transition-all"
               >
                 <h3 className="font-semibold text-lg">
                   {item.name}
@@ -145,6 +166,9 @@ export default function ViewUserProfilePage() {
 
                 <p className="text-xs text-gray-400 mt-3">
                   ✔ {item.number_of_verifications || 0} verifications
+                  {item.created_at && (
+                    <> • Added {new Date(item.created_at).toLocaleDateString()}</>
+                  )}
                 </p>
               </div>
             ))}
