@@ -1,42 +1,48 @@
 import React from "react";
 
+// Helper function to determine text color based on background
+function getContrastColor(bgColor) {
+    if (!bgColor) return "#000000";
+    
+    // Remove # if present
+    const color = bgColor.charAt(0) === "#" ? bgColor.substring(1, 7) : bgColor;
+    
+    // Convert to RGB
+    const r = parseInt(color.substring(0, 2), 16);
+    const g = parseInt(color.substring(2, 4), 16);
+    const b = parseInt(color.substring(4, 6), 16);
+    
+    // Calculate luminance
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    
+    // Return black for light backgrounds, white for dark backgrounds
+    return luminance > 0.5 ? "#000000" : "#FFFFFF";
+}
+
 export default function CategoryTag({ categories, selectedCategoryIds, onToggleCategory, currentLocale }) {
     const localeCategoryPalettes = {
-        usa: ["#E31B23", "#B71C1C"],        
-        china: ["#55B89C", "#21806A"],
-        korea: ["#FF7890", "#C2185B"],
-        argentina: ["#D9A300", "#A67C00"],
-        india: ["#F7A721", "#B8860B"],
-        germany: ["#005493", "#00264D"],
-    };
-
-    // Helper to determine if text should be dark or light based on background
-    const getContrastColor = (hexColor) => {
-        const hex = hexColor.replace('#', '');
-        const r = parseInt(hex.substr(0, 2), 16);
-        const g = parseInt(hex.substr(2, 2), 16);
-        const b = parseInt(hex.substr(4, 2), 16);
-        // Calculate luminance
-        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-        return luminance > 0.5 ? '#1f2937' : '#ffffff';
+        usa: ["#002856", "#A50404", "#B8500C", "#F6DBAF", "#F6DBAF"],        
+        china: ["#2c6e49", "#4c956c", "#ffc9b9", "#d68c45"],
+        korea: ["#f9dbbd", "#ffa5ab", "#da627d", "#a53860", "#450920"],
+        argentina: ["#264653", "#2a9d8f", "#e9c46a", "#f4a261", "#e76f51"],
+        india: ["#cc5803", "#e2711d", "#ff9505", "#ffb627", "#ffc971"],
+        germany: ["#003459", "#007ea7", "#00a8e8"],
     };
 
     const palette = localeCategoryPalettes[currentLocale] || localeCategoryPalettes['usa'];
-    const cardColor = palette[0];
-    const cardColorSelected = palette[1] || palette[0];
-    const textColor = getContrastColor(cardColor);
-    const textColorSelected = getContrastColor(cardColorSelected);
 
     return (
         <div className="mb-8">
             <div className="relative">
                 <div className="flex flex-wrap gap-2 pb-2">
-                    {categories.map((cat) => {
-                        const isSelected = selectedCategoryIds.includes(cat.id);
-                        const currentTextColor = isSelected ? textColorSelected : textColor;
+                    {categories.map((cat, idx) => {
+                        const isSelected = selectedCategoryIds. includes(cat.id);
+                        const tileColor = palette[idx % palette.length];
+                        const textColor = getContrastColor(tileColor);
+                        
                         return (
                             <button
-                                key={cat.id}
+                                key={cat. id}
                                 onClick={() => onToggleCategory(cat.id)}
                                 className={`
                                     relative rounded-full
@@ -47,11 +53,11 @@ export default function CategoryTag({ categories, selectedCategoryIds, onToggleC
                                     ${ 
                                         isSelected 
                                             ? 'shadow-md scale-105' 
-                                            : 'hover:scale-105 hover:shadow-sm opacity-90 hover:opacity-100'
+                                            : 'hover:scale-105 hover:shadow-sm opacity-90 hover: opacity-100'
                                     }
                                 `}
                                 style={{ 
-                                    backgroundColor: isSelected ? cardColorSelected : cardColor,
+                                    backgroundColor: tileColor,
                                     ringColor: isSelected ? 'rgba(255, 255, 255, 0.8)' : 'transparent'
                                 }}
                                 aria-label={`Toggle ${cat.name}`}
@@ -86,16 +92,16 @@ export default function CategoryTag({ categories, selectedCategoryIds, onToggleC
                                 {/* Category name */}
                                 <span 
                                     className="text-sm font-semibold whitespace-nowrap"
-                                    style={{ color: currentTextColor }}
+                                    style={{ color: textColor }}
                                 >
-                                    {cat.name}
+                                    {cat. name}
                                 </span>
 
                                 {/* Hover effect overlay */}
                                 <div className={`
                                     absolute inset-0 rounded-full bg-white opacity-0 
                                     transition-opacity duration-150
-                                    ${!isSelected && 'group-hover:opacity-10'}
+                                    ${!isSelected && 'group-hover: opacity-10'}
                                 `} />
                             </button>
                         );

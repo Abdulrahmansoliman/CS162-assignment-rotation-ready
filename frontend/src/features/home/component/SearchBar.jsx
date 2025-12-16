@@ -173,13 +173,48 @@ export default function SearchBar({ places, locale, onSearchChange, tags, select
                     <div className="mb-4">
                         <div className="font-bold mb-2 text-gray-800">Distance (m)</div>
                         <div className="px-1">
+                            <style>{`
+                                .distance-slider {
+                                    -webkit-appearance: none;
+                                    appearance: none;
+                                    width: 100%;
+                                    height: 6px;
+                                    border-radius: 3px;
+                                    background: linear-gradient(to right, ${locale.color} 0%, ${locale.color} ${(distanceMeters / 1000) * 100}%, #e5e7eb ${(distanceMeters / 1000) * 100}%, #e5e7eb 100%);
+                                    outline: none;
+                                    cursor: pointer;
+                                }
+                                .distance-slider::-webkit-slider-thumb {
+                                    -webkit-appearance: none;
+                                    appearance: none;
+                                    width: 18px;
+                                    height: 18px;
+                                    border-radius: 50%;
+                                    background: ${locale.color};
+                                    cursor: pointer;
+                                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+                                }
+                                .distance-slider::-moz-range-thumb {
+                                    width: 18px;
+                                    height: 18px;
+                                    border-radius: 50%;
+                                    background: ${locale.color};
+                                    cursor: pointer;
+                                    border: none;
+                                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+                                }
+                                .distance-slider::-moz-range-track {
+                                    background: transparent;
+                                    border: none;
+                                }
+                            `}</style>
                             <input
                                 type="range"
                                 min={0}
                                 max={1000}
                                 value={distanceMeters}
                                 onChange={(e) => setDistanceMeters(Number(e.target.value))}
-                                className="w-full"
+                                className="distance-slider w-full"
                             />
                             <div className="flex justify-between text-xs text-gray-600 mt-1">
                                 <span>0</span>

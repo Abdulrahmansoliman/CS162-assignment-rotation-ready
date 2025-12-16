@@ -3,27 +3,31 @@ import { clearTokens } from "@/features/auth/services/authservice.js"
 import { useEffect, useMemo, useState } from "react"
 import { getCurrentUser } from "@/api/user"
 
-// Locale-based colors matching HomePage
 const localeColors = {
+<<<<<<< HEAD
+<<<<<<< HEAD
+  usa: "#A50404",
+  china: "#2c6e49",
+  korea: "#da627d",
+=======
   usa: "#cc0000",
   china: "#1d9a5c",
   korea: "#c60c30",
+>>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
+=======
+  usa: "#A50404",
+  china: "#2c6e49",
+  korea: "#da627d",
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
   argentina: "#d9a300",
   india: "#ff9933",
   germany: "#4a90e2",
 }
 
-function hexToRgb(hex) {
-  const h = (hex || "").replace("#", "")
-  if (h.length !== 6) return { r: 59, g: 130, b: 246 } // fallback blue
-  const n = parseInt(h, 16)
-  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 }
-}
-
 export default function NavBar() {
   const navigate = useNavigate()
   const location = useLocation()
-  const [themeColor, setThemeColor] = useState("#3b82f6") // default blue
+  const [themeColor, setThemeColor] = useState("#3b82f6")
 
   useEffect(() => {
     let mounted = true
@@ -51,7 +55,6 @@ export default function NavBar() {
 
     loadUserTheme()
     
-    // Listen for city change events
     const handleCityChange = () => {
       loadUserTheme()
     }
@@ -80,26 +83,64 @@ export default function NavBar() {
     []
   )
 
-  const { r, g, b } = hexToRgb(themeColor)
-
   return (
-    <aside
-      className="rg-sidebar"
-      style={{
-        "--accent": themeColor,
-        "--accent-rgb": `${r}, ${g}, ${b}`,
-        "--w": "200px", // change to 220px if you want slightly wider
-      }}
-    >
+    <aside className="nav-sidebar" style={{ "--accent": themeColor }}>
       <style>{`
-        .rg-sidebar{
-          width: var(--w);
+        .nav-sidebar {
+          width: 200px;
           min-height: 100vh;
+          background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
           position: fixed;
-          left: 0; top: 0;
+          left: 0;
+          top: 0;
           z-index: 100;
           display: flex;
           flex-direction: column;
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
+          border-right: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-brand {
+          padding: 24px 20px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .nav-brand-logo {
+          font-size: 32px;
+        }
+
+        .nav-brand-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: white;
+          font-family: 'Fraunces', serif;
+          letter-spacing: 0.5px;
+          white-space: nowrap;
+        }
+
+        .nav-brand-subtitle {
+          font-size: 10px;
+          color: rgba(255, 255, 255, 0.5);
+          letter-spacing: 1px;
+          text-transform: lowercase;
+        }
+
+        .nav-menu {
+          padding: 24px 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+<<<<<<< HEAD
+=======
           background: linear-gradient(180deg, #1b1b1b 0%, #121212 60%, #0f0f0f 100%);
           border-right: 1px solid rgba(var(--accent-rgb), 0.18);
           box-shadow: 0 12px 36px rgba(0,0,0,0.35);
@@ -138,22 +179,83 @@ export default function NavBar() {
           display: flex;
           flex-direction: column;
           gap: 6px;
+>>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
           flex: 1;
         }
 
-        .rg-item{
-          position: relative;
+        .nav-item {
           width: 100%;
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
+          border: none;
+          background: rgba(255, 255, 255, 0.05);
+          color: rgba(255, 255, 255, 0.7);
+          padding: 12px 16px;
+          border-radius: 12px;
+<<<<<<< HEAD
+=======
           border: 0;
           background: transparent;
           color: rgba(255,255,255,0.72);
           padding: 10px 12px;
           border-radius: 14px;
+>>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
           cursor: pointer;
           display: flex;
           align-items: center;
           gap: 10px;
           text-align: left;
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
+          transition: all 200ms ease;
+          font-size: 14px;
+          font-weight: 500;
+        }
+
+        .nav-item:hover {
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+          transform: translateX(2px);
+        }
+
+        .nav-item[data-active="true"] {
+          background: var(--accent);
+          color: white;
+          border: 1px solid var(--accent);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-icon {
+          font-size: 18px;
+          width: 24px;
+          text-align: center;
+        }
+
+        .nav-bottom {
+          padding: 16px;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-logout {
+          background: rgba(255, 255, 255, 0.05);
+          color: rgba(255, 255, 255, 0.7);
+          border: none;
+        }
+
+        .nav-logout:hover {
+          background: var(--accent);
+          color: white;
+          transform: translateX(2px);
+<<<<<<< HEAD
+=======
           transition: transform 120ms ease, background 120ms ease, color 120ms ease, box-shadow 120ms ease;
         }
         .rg-item:hover{
@@ -214,10 +316,23 @@ export default function NavBar() {
         }
         .rg-logout:focus-visible{
           box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+>>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
         }
       `}</style>
 
       {/* Brand */}
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
+      <div className="nav-brand" onClick={() => navigate("/home")}>
+        <span className="nav-brand-logo">🗺️</span>
+        <div className="nav-brand-title">Rotation Ready</div>
+        <div className="nav-brand-subtitle">explore · rotate · repeat</div>
+<<<<<<< HEAD
+=======
       <div className="rg-brand" onClick={() => navigate("/home")}>
         <div className="rg-icon" style={{ background: "rgba(255,255,255,0.08)" }}>
           🗺️
@@ -226,29 +341,45 @@ export default function NavBar() {
           <div className="rg-brandTitle">Rotation Guide</div>
           <div className="rg-brandSub">Explore • Save • Contribute</div>
         </div>
+>>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
       </div>
 
-      {/* Nav */}
-      <nav className="rg-nav" aria-label="Sidebar navigation">
+      {/* Navigation */}
+      <nav className="nav-menu" aria-label="Main navigation">
         {navItems.map((item) => (
           <button
             key={item.path}
             type="button"
-            className="rg-item"
+            className="nav-item"
             data-active={isActive(item.path)}
             onClick={() => navigate(item.path)}
           >
-            <span className="rg-icon">{item.icon}</span>
-            <span className="rg-label">{item.label}</span>
+            <span className="nav-icon">{item.icon}</span>
+            <span>{item.label}</span>
           </button>
         ))}
       </nav>
 
       {/* Logout */}
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
+      <div className="nav-bottom">
+        <button type="button" className="nav-item nav-logout" onClick={handleLogout}>
+          <span className="nav-icon">🚪</span>
+          <span>Logout</span>
+<<<<<<< HEAD
+=======
       <div className="rg-bottom">
         <button type="button" className="rg-item rg-logout" onClick={handleLogout}>
           <span className="rg-icon">🚪</span>
           <span className="rg-label">Logout</span>
+>>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
         </button>
       </div>
     </aside>
