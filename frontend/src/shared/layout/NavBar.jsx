@@ -168,14 +168,15 @@ export default function NavBar() {
         }
 
         .nav-logout {
-          background: rgba(239, 68, 68, 0.1);
-          color: #fca5a5;
-          border: 1px solid rgba(239, 68, 68, 0.2);
+          background: rgba(255, 255, 255, 0.05);
+          color: rgba(255, 255, 255, 0.7);
+          border: none;
         }
 
         .nav-logout:hover {
-          background: rgba(239, 68, 68, 0.2);
-          color: #fca5a5;
+          background: var(--accent);
+          color: white;
+          transform: translateX(2px);
         }
       `}</style>
 

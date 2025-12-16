@@ -2,7 +2,7 @@ import React from "react";
 
 export default function CategoryTag({ categories, selectedCategoryIds, onToggleCategory, currentLocale }) {
     const localeCategoryPalettes = {
-        usa: ["#E31B23", "#B71C1C"],        
+        usa: ["#002856", "#A50404", "#B8500C", "#F6DBAF", "#F6DBAF"],        
         china: ["#2c6e49", "#4c956c", "#ffc9b9", "#d68c45"],
         korea: ["#f9dbbd", "#ffa5ab", "#da627d", "#a53860", "#450920"],
         // Buenos Aires requested palette (multi-tile): 264653, 2a9d8f, e9c46a, f4a261, e76f51

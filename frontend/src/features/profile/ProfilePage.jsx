@@ -439,17 +439,19 @@ export default function ProfilePage() {
 
           {errorMessage && <p className="text-white text-base">{errorMessage}</p>}
 
-          <Button
-            type="submit"
-            className="w-full rounded-full px-6 py-3 text-base bg-white font-semibold shadow-lg transition-all"
-            style={{ color: getLocaleColor() }}
-            onMouseEnter={(e) => { if (!saving) { e.currentTarget.style.backgroundColor = getLocaleColor(); e.currentTarget.style.color = 'white'; } }}
-            onMouseLeave={(e) => { if (!saving) { e.currentTarget.style.backgroundColor = 'white'; e.currentTarget.style.color = getLocaleColor(); } }}
-            disabled={saving}
-          >
-            {saving && <Spinner className="mr-2" />}
-            Save Changes
-          </Button>
+          <div className="mt-8">
+            <Button
+              type="submit"
+              className="w-full rounded-full px-6 py-3 text-base bg-white font-semibold shadow-lg transition-all"
+              style={{ color: getLocaleColor() }}
+              onMouseEnter={(e) => { if (!saving) { e.currentTarget.style.backgroundColor = getLocaleColor(); e.currentTarget.style.color = 'white'; } }}
+              onMouseLeave={(e) => { if (!saving) { e.currentTarget.style.backgroundColor = 'white'; e.currentTarget.style.color = getLocaleColor(); } }}
+              disabled={saving}
+            >
+              {saving && <Spinner className="mr-2" />}
+              Save Changes
+            </Button>
+          </div>
         </form>
       </div>
     </div>

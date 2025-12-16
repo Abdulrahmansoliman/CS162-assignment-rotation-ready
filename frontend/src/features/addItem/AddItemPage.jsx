@@ -286,7 +286,7 @@ export default function AddItemPage() {
 
               <div className="flex flex-wrap gap-2 mt-2">
                 {selectedCategories.map((cat) => (
-                  <CategoryChip key={cat.category_id} category={cat} onRemove={removeCategory} />
+                  <CategoryChip key={cat.category_id} category={cat} onRemove={removeCategory} localeColor={getLocaleColor()} />
                 ))}
               </div>
             </FieldContent>
@@ -330,6 +330,7 @@ export default function AddItemPage() {
                     value={existingTagValues[tag.tag_id] || ""}
                     onValueChange={handleExistingTagValueChange}
                     onRemove={removeTag}
+                    localeColor={getLocaleColor()}
                   />
                 ))}
 
@@ -346,6 +347,7 @@ export default function AddItemPage() {
                     onRemove={() => {
                       setNewTags((prev) => prev.filter((_, i) => i !== index));
                     }}
+                    localeColor={getLocaleColor()}
                   />
                 ))}
               </div>

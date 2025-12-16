@@ -6,11 +6,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getItemById } from '@/api/item';
 import { verifyItem, getItemVerifications } from '@/api/verification';
-import { getCurrentUser } from '@/api/user';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import { Spinner } from '@/shared/components/ui/spinner';
-import { MapPin, Clock, User, CheckCircle, Tag, ArrowLeft, Share2 } from 'lucide-react';
+import { MapPin, Clock, User, CheckCircle, Tag, ArrowLeft, Share2, Navigation } from 'lucide-react';
 import { colorSchemes, defaultScheme } from '@/lib/themes.js';
 import '@/shared/styles/locale-theme.css';
 
@@ -26,35 +25,43 @@ export default function ItemDetailPage() {
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
 
-  const [currentUser, setCurrentUser] = useState(null);
-  const [currentLocale, setCurrentLocale] = useState('usa');
-  const [userFirstName, setUserFirstName] = useState('');
-  const [userProfilePic, setUserProfilePic] = useState(null);
-
   const scheme = item && item.rotation_city ? (colorSchemes[item.rotation_city.name] || defaultScheme) : defaultScheme;
 
   const getLocaleClass = () => {
-    const classMap = {
-      usa: 'show-photo',
-      china: 'transition-green',
-      korea: 'transition-korea',
-      argentina: 'transition-argentina',
-      india: 'transition-india',
-      germany: 'transition-germany'
-    }
-    return classMap[currentLocale] || 'show-photo'
-  }
+    if (!item?.rotation_city?.name) return '';
+    const cityNameLower = item.rotation_city.name.toLowerCase();
+    if (cityNameLower.includes('taipei')) return 'transition-green';
+    if (cityNameLower.includes('seoul')) return 'transition-korea';
+    if (cityNameLower.includes('buenos aires')) return 'transition-argentina';
+    if (cityNameLower.includes('hyderabad')) return 'transition-india';
+    if (cityNameLower.includes('berlin')) return 'transition-germany';
+    return 'transition-usa';
+  };
 
-  const getLocaleText = () => {
-    const textMap = {
-      usa: 'Welcome',
-      china: '欢迎',
-      korea: '어서 오세요',
-      argentina: 'Bienvenido',
-      india: 'స్వాగతం',
-      germany: 'Willkommen'
-    };
-    return textMap[currentLocale] || 'Welcome';
+  const getLocaleForCategoryColors = () => {
+    if (!item?.rotation_city?.name) return 'usa';
+    const cityNameLower = item.rotation_city.name.toLowerCase();
+    if (cityNameLower.includes('taipei')) return 'china';
+    if (cityNameLower.includes('seoul')) return 'korea';
+    if (cityNameLower.includes('buenos aires')) return 'argentina';
+    if (cityNameLower.includes('hyderabad')) return 'india';
+    if (cityNameLower.includes('berlin')) return 'germany';
+    return 'usa';
+  };
+
+  const localeCategoryPalettes = {
+    usa: ["#002856", "#A50404", "#B8500C", "#F6DBAF", "#F6DBAF"],        
+    china: ["#2c6e49", "#4c956c", "#ffc9b9", "#d68c45"],
+    korea: ["#f9dbbd", "#ffa5ab", "#da627d", "#a53860", "#450920"],
+    argentina: ["#264653", "#2a9d8f", "#e9c46a", "#f4a261", "#e76f51"],
+    india: ["#cc5803", "#e2711d", "#ff9505", "#ffb627", "#ffc971"],
+    germany: ["#003459", "#007ea7", "#00a8e8"],
+  };
+
+  const getCategoryColor = (index) => {
+    const locale = getLocaleForCategoryColors();
+    const palette = localeCategoryPalettes[locale] || localeCategoryPalettes['usa'];
+    return palette[index % palette.length];
   };
 
   const handleShare = async () => {
@@ -93,32 +100,8 @@ export default function ItemDetailPage() {
       try {
         setLoading(true);
         setError(null);
-        
-        // Fetch current user and item in parallel
-        const [userData, itemData] = await Promise.all([
-          getCurrentUser(),
-          getItemById(id)
-        ]);
-        
-        // Set current user data
-        setCurrentUser(userData);
-        setUserFirstName(userData.first_name || '');
-        setUserProfilePic(userData.profile_picture || null);
-        
-        // Set locale based on user's rotation city
-        const cityName = userData.rotation_city?.name?.toLowerCase() || '';
-        const localeMap = {
-          'san francisco': 'usa',
-          'taipei': 'china',
-          'seoul': 'korea',
-          'buenos aires': 'argentina',
-          'hyderabad': 'india',
-          'berlin': 'germany'
-        };
-        const selectedLocale = localeMap[cityName] || 'usa';
-        setCurrentLocale(selectedLocale);
-        
-        setItem(itemData);
+        const data = await getItemById(id);
+        setItem(data);
 
         // fetch verifications after item loads
         await loadVerifications();
@@ -200,208 +183,141 @@ export default function ItemDetailPage() {
   const profilePic = item.added_by_user?.profile_picture || null;
 
   return (
-    <div className={`min-h-screen ${scheme.bg}`}>
-      {/* Header with User Greeting */}
+    <div style={{ paddingBottom: "2rem" }}>
+      {/* Header with Item Title - Matching Main Page */}
       <div className={`locale-container ${getLocaleClass()}`} style={{ color: "white", padding: "3rem 2rem 2rem 2rem", position: "relative" }}>
         <div className={`locale-overlay absolute inset-0 ${getLocaleClass()}`}></div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", zIndex: 10, maxWidth: "1200px", margin: "0 auto" }}>
-          <h1 style={{ fontSize: "2.5rem", margin: 0, fontWeight: 300, letterSpacing: "1px", fontFamily: 'Fraunces, serif' }}>
-            {getLocaleText()}, {userFirstName}
-          </h1>
-          {userProfilePic && (
-            <div style={{ 
-              width: "60px", 
-              height: "60px", 
-              borderRadius: "50%", 
-              border: "3px solid white",
-              overflow: "hidden",
-              flexShrink: 0
-            }}>
-              <img 
-                src={userProfilePic} 
-                alt="Profile" 
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
-            </div>
-          )}
-          {!userProfilePic && (
-            <div style={{ 
-              width: "60px", 
-              height: "60px", 
-              borderRadius: "50%", 
-              border: "3px solid white",
-              background: "rgba(255,255,255,0.2)",
+          <div style={{ flex: 1 }}>
+            <h1 style={{ fontSize: "2.5rem", margin: 0, fontWeight: 300, letterSpacing: "1px", fontFamily: 'Fraunces, serif' }}>
+              {item?.name || 'Item Details'}
+            </h1>
+            {item?.rotation_city && (
+              <div style={{ margin: "0.5rem 0 0 0", display: "inline-block" }}>
+                <span style={{ fontSize: "0.85rem", opacity: 0.9, background: "rgba(255, 255, 255, 0.2)", borderRadius: "20px", padding: "0.4rem 0.8rem", backdropFilter: "blur(10px)" }}>
+                  {item.rotation_city.name}
+                </span>
+              </div>
+            )}
+          </div>
+          <button
+            onClick={() => navigate(-1)}
+            style={{
+              width: "60px",
+              height: "60px",
+              borderRadius: "50%",
+              border: "none",
+              background: "white",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "24px",
-              flexShrink: 0
-            }}>
-              👤
-            </div>
-          )}
-        </div>
-      </div>
-      {/* Hero Section */}
-      <div className={`relative ${scheme.heroBg} overflow-hidden`}>
-        <div className={`absolute inset-0 ${scheme.overlay}`}></div>
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
-
-        <div className="relative max-w-6xl mx-auto px-4 py-12">
-          <Button
-            onClick={() => navigate(-1)}
-            variant="ghost"
-            className="mb-6 text-white hover:bg-white/20 transition-all border border-white/25 rounded-lg"
+              cursor: "pointer",
+              flexShrink: 0,
+              marginLeft: "2rem",
+              transition: "all 0.3s ease",
+              fontSize: "28px",
+              color: "rgba(0, 0, 0, 0.4)"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "scale(1.05)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "scale(1)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-
-          <div className="flex flex-col md:flex-row gap-8 items-start">
-            <div className="flex-1">
-              <button
-                type="button"
-                onClick={handleGoToUserProfile}
-                className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full mb-4 hover:bg-white/30 transition"
-              >
-                <span className="text-white text-sm font-medium">
-                  Recommended by {item.added_by_user?.first_name || 'a fellow student'}
-                </span>
-              </button>
-
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
-                {item.name}
-              </h1>
-
-              <div className="flex flex-wrap gap-4 mb-6">
-                <div className="flex items-center gap-2 text-white/90">
-                  <MapPin className="w-5 h-5" />
-                  <span className="text-lg">{item.location}</span>
-                </div>
-                {item.walking_distance && (
-                  <div className="flex items-center gap-2 text-white/90">
-                    <Clock className="w-5 h-5" />
-                    <span className="text-lg">{Math.round(item.walking_distance / 80)} min walk</span>
-                  </div>
-                )}
-              </div>
-
-              {item.categories && item.categories.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {item.categories.map((category) => (
-                    <span
-                      key={category.category_id}
-                      className="px-4 py-2 bg-white/90 text-gray-900 rounded-lg text-sm font-semibold shadow-lg"
-                    >
-                      {category.name}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Right: Quick Stats Card */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl min-w-[280px]">
-              <div className="flex items-center justify-center gap-2 pb-4 border-b border-gray-200">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <span className="text-lg font-semibold text-gray-900">
-                  {item.number_of_verifications || 0} {(item.number_of_verifications || 0) === 1 ? 'Verification' : 'Verifications'}
-                </span>
-              </div>
-              <div className="border-t border-gray-200 pt-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">City</span>
-                  <span className="font-semibold text-gray-900">{item.rotation_city?.name || "—"}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Added</span>
-                  <span className="font-semibold text-gray-900">
-                    {item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : "—"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-6 space-y-2">
-                <Button variant="outline" className="w-full" onClick={handleShare}>
-                  <Share2 className="w-4 h-4 mr-2" />
-                  {copied ? "Copied!" : "Share"}
-                </Button>
-              </div>
-            </div>
-          </div>
+            ←
+          </button>
         </div>
       </div>
 
-      {/* Content Section */}
-      <div className="max-w-6xl mx-auto px-4 py-12 bg-white">
+      {/* Content Section - Like Main Page */}
+      <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto", backgroundColor: "#f9fafb" }}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* About This Place */}
-            {item.rotation_city && (
-              <Card className={`${scheme.cardBg} ${scheme.border} backdrop-blur-sm`}>
-                <CardHeader>
-                  <CardTitle className="text-2xl text-gray-900 flex items-center gap-2">
-                    <MapPin className="w-6 h-6" />
-                    About This Location
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className={`${scheme.innerBg} rounded-lg p-4`}>
-                      <div className="text-sm text-gray-600 mb-1">Time Zone</div>
-                      <div className="text-lg text-gray-900 font-medium">{item.rotation_city.time_zone}</div>
+            {/* Quick Info Card */}
+            <Card className={`${scheme.cardBg} ${scheme.border} shadow-md hover:shadow-lg transition-all duration-200 rounded-xl overflow-hidden`}>
+              <CardHeader className="bg-gradient-to-r from-white to-gray-50 border-b border-gray-200">
+                <CardTitle className="text-lg text-gray-900 font-bold">
+                  Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6 space-y-4">
+                {item.location && (
+                  <div className="flex items-start gap-4 pb-4 border-b border-gray-200 last:border-0">
+                    <MapPin className="w-6 h-6 text-blue-500 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <div className="text-xs uppercase tracking-wider text-gray-400 font-bold mb-1">Location</div>
+                      <div className="text-gray-900 font-semibold text-base">{item.location}</div>
                     </div>
-                    {item.rotation_city.res_hall_location && (
-                      <div className={`${scheme.innerBg} rounded-lg p-4`}>
-                        <div className="text-sm text-gray-600 mb-1">Near</div>
-                        <div className="text-lg text-gray-900 font-medium">{item.rotation_city.res_hall_location}</div>
-                      </div>
-                    )}
-                    {item.walking_distance && (
-                      <div className={`${scheme.innerBg} rounded-lg p-4`}>
-                        <div className="text-sm text-gray-600 mb-1">Distance</div>
-                        <div className="text-lg text-gray-900 font-medium">{item.walking_distance}m away</div>
-                      </div>
-                    )}
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                )}
+                {item.walking_distance && (
+                  <div className="flex items-start gap-4 pb-4 border-b border-gray-200 last:border-0">
+                    <Clock className="w-6 h-6 text-green-500 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <div className="text-xs uppercase tracking-wider text-gray-400 font-bold mb-1">Walking Distance</div>
+                      <div className="text-gray-900 font-semibold text-base">{Math.round(item.walking_distance / 80)} min walk</div>
+                      <div className="text-xs text-gray-500 mt-1">({item.walking_distance}m from campus)</div>
+                    </div>
+                  </div>
+                )}
+                {item.categories && item.categories.length > 0 && (
+                  <div className="flex items-start gap-4">
+                    <Tag className="w-6 h-6 text-purple-500 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <div className="text-xs uppercase tracking-wider text-gray-400 font-bold mb-3">Categories</div>
+                      <div className="flex flex-wrap gap-2">
+                        {item.categories.map((category) => (
+                          <span
+                            key={category.category_id}
+                            className="px-3 py-1.5 text-white rounded-full text-xs font-semibold transition-all"
+                            style={{
+                              backgroundColor: getCategoryColor(category.category_id),
+                              opacity: 0.9
+                            }}
+                          >
+                            {category.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Details & Attributes */}
             {item.tags && item.tags.length > 0 && (
-              <Card className={`${scheme.cardBg} ${scheme.border} backdrop-blur-sm`}>
-                <CardHeader>
-                  <CardTitle className="text-2xl text-gray-900 flex items-center gap-2">
-                    <Tag className="w-6 h-6" />
-                    What to Know
+              <Card className={`${scheme.cardBg} ${scheme.border} shadow-md hover:shadow-lg transition-all duration-200 rounded-xl overflow-hidden`}>
+                <CardHeader className="bg-gradient-to-r from-white to-gray-50 border-b border-gray-200">
+                  <CardTitle className="text-lg text-gray-900 font-bold">
+                    More information
                   </CardTitle>
-                  <CardDescription className="text-gray-600">
-                    Key details about this recommendation
-                  </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {item.tags.map((tag) => (
                       <div
                         key={tag.tag_id}
-                        className={`${scheme.innerBg} rounded-lg p-4 flex items-center justify-between border border-gray-200 hover:border-gray-300 transition-colors`}
+                        className={`${scheme.innerBg} rounded-lg p-4 flex items-center justify-between border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all`}
                       >
                         <div className="flex-1">
-                          <div className="font-medium text-gray-900 mb-1">{tag.name}</div>
+                          <div className="font-semibold text-gray-900">{tag.name}</div>
                         </div>
                         <div className="ml-4">
                           {tag.value_type === 'boolean' ? (
-                            <span className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+                            <span className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                               tag.value
-                                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                                : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-red-100 text-red-700'
                             }`}>
                               {tag.value ? '✓ Yes' : '✗ No'}
                             </span>
                           ) : (
-                            <span className="text-gray-900 font-semibold text-lg">{tag.value}</span>
+                            <span className="text-gray-900 font-semibold text-sm bg-gray-100 px-3 py-1.5 rounded-lg">{tag.value}</span>
                           )}
                         </div>
                       </div>
@@ -414,23 +330,106 @@ export default function ItemDetailPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Action Buttons */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              {/* Share Location Button */}
+              <button
+                onClick={handleShare}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem 1rem",
+                  borderRadius: "0.5rem",
+                  border: "none",
+                  background: "white",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                  color: "rgba(0, 0, 0, 0.7)",
+                  fontSize: "0.9rem",
+                  fontWeight: "600",
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
+                  e.currentTarget.style.background = "#f9fafb";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.1)";
+                  e.currentTarget.style.background = "white";
+                }}
+                title={copied ? "Copied!" : "Share this item"}
+              >
+                <span>{copied ? "Copied" : "Share location"}</span>
+                {copied ? (
+                  <CheckCircle className="w-5 h-5" />
+                ) : (
+                  <Share2 className="w-5 h-5" />
+                )}
+              </button>
+              
+              {/* Get Directions Button */}
+              <button
+                onClick={() => {
+                  if (item?.location) {
+                    const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(item.location)}`;
+                    window.open(mapsUrl, '_blank');
+                  }
+                }}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem 1rem",
+                  borderRadius: "0.5rem",
+                  border: "none",
+                  background: "white",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                  color: "rgba(0, 0, 0, 0.7)",
+                  fontSize: "0.9rem",
+                  fontWeight: "600",
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                  opacity: item?.location ? 1 : 0.5
+                }}
+                onMouseEnter={(e) => {
+                  if (item?.location) {
+                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
+                    e.currentTarget.style.background = "#f9fafb";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.1)";
+                  e.currentTarget.style.background = "white";
+                }}
+                disabled={!item?.location}
+                title="Get directions"
+              >
+                <span>Get directions</span>
+                <Navigation className="w-5 h-5" />
+              </button>
+            </div>
+
             {/* Recommender Card */}
             {item.added_by_user && (
-              <Card className={`${scheme.cardBg} ${scheme.border} backdrop-blur-sm`}>
-                <CardHeader>
-                  <CardTitle className="text-lg text-gray-900 flex items-center gap-2">
-                    <User className="w-5 h-5" />
+              <Card className={`${scheme.cardBg} ${scheme.border} shadow-md hover:shadow-lg transition-all duration-200 rounded-xl overflow-hidden`}>
+                <CardHeader className="bg-gradient-to-r from-white to-gray-50 border-b border-gray-200">
+                  <CardTitle className="text-base text-gray-900 font-bold">
                     Recommended by
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                   <button
                     type="button"
                     onClick={handleGoToUserProfile}
-                    className="w-full text-left"
+                    className="w-full text-left hover:opacity-80 transition-opacity"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center overflow-hidden flex-shrink-0 border-2 border-white shadow-md">
                         {profilePic ? (
                           <img
                             src={profilePic}
@@ -438,20 +437,20 @@ export default function ItemDetailPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <span className="text-gray-900 font-bold text-lg">
+                          <span className="text-gray-700 font-bold text-lg">
                             {firstInitial}{lastInitial}
                           </span>
                         )}
                       </div>
                       <div className="flex-1">
-                        <div className="font-semibold text-gray-900 text-lg hover:underline">
+                        <div className="font-semibold text-gray-900 text-lg hover:text-blue-600 transition-colors">
                           {item.added_by_user.first_name} {item.added_by_user.last_name}
                         </div>
-                        <div className="text-sm text-gray-600 mt-1">
+                        <div className="text-sm text-gray-600 mt-0.5 line-clamp-1">
                           {item.added_by_user.email}
                         </div>
-                        <div className="mt-3 text-xs text-gray-500">
-                          Fellow Minerva student sharing local insights
+                        <div className="mt-2 text-xs text-gray-500 leading-relaxed">
+                          Minerva student sharing local insights
                         </div>
                       </div>
                     </div>
@@ -460,27 +459,36 @@ export default function ItemDetailPage() {
               </Card>
             )}
 
-            {/* ✅ NEW: Verified By Card (added; does not remove anything) */}
-            <Card className={`${scheme.cardBg} ${scheme.border} backdrop-blur-sm`}>
-              <CardHeader>
-                <CardTitle className="text-lg text-gray-900 flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5" />
+            {/* Verified By Card */}
+            <Card className={`${scheme.cardBg} ${scheme.border} shadow-md hover:shadow-lg transition-all duration-200 rounded-xl overflow-hidden`}>
+              <CardHeader className="bg-gradient-to-r from-white to-gray-50 border-b border-gray-200">
+                <CardTitle className="text-base text-gray-900 font-bold">
                   Verified by
                 </CardTitle>
-                <CardDescription className="text-gray-600">
-                  People who verified this place
+                <CardDescription className="text-gray-600 text-xs mt-1">
+                  {verifications.length} {verifications.length === 1 ? 'person' : 'people'} verified
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="pt-6 space-y-3">
                 {verifications.length === 0 ? (
-                  <p className="text-sm text-gray-500">No verifications yet.</p>
+                  <p className="text-sm text-gray-500">No verifications yet. Be the first!</p>
                 ) : (
                   verifications.map((v) => (
-                    <div key={v.verification_id} className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-gray-900 text-sm">
-                        {getInitialsFromName(v.user_name)}
+                    <div key={v.verification_id} className="flex items-center gap-3 pb-2 border-b border-gray-100 last:border-0">
+                      <div className="w-9 h-9 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0 overflow-hidden border-2 border-gray-200">
+                        {v.profile_picture ? (
+                          <img
+                            src={v.profile_picture}
+                            alt={v.user_name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-blue-700">
+                            {getInitialsFromName(v.user_name)}
+                          </div>
+                        )}
                       </div>
-                      <div className="text-sm text-gray-900 font-medium">
+                      <div className="text-sm text-gray-900 font-medium truncate">
                         {v.user_name || "Anonymous"}
                       </div>
                     </div>
@@ -489,28 +497,6 @@ export default function ItemDetailPage() {
               </CardContent>
             </Card>
 
-            {/* Quick Info */}
-            <Card className={`${scheme.cardBg} ${scheme.border} backdrop-blur-sm`}>
-              <CardHeader>
-                <CardTitle className="text-lg text-gray-900">Quick Info</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Location</span>
-                  <span className="text-gray-900 font-medium text-right">{item.location}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Added on</span>
-                  <span className="text-gray-900 font-medium">
-                    {item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric'
-                    }) : "—"}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>

@@ -11,7 +11,7 @@ import { verifyItem } from "../../api/verification";
 
 // Locale-based category palettes (from provided swatches)
 const localeCategoryPalettes = {
-    usa: ["#E31B23", "#9A2623", "#5C2A28", "#E53935", "#A63A3A"],
+    usa: ["#002856", "#A50404", "#B8500C", "#F6DBAF", "#F6DBAF"],
     china: ["#2c6e49", "#4c956c", "#ffc9b9", "#d68c45"],
     korea: ["#f9dbbd", "#ffa5ab", "#da627d", "#a53860", "#450920"],
     argentina: ["#D9A300", "#F7A721", "#E5B74A", "#C8922E", "#B47F21"],
