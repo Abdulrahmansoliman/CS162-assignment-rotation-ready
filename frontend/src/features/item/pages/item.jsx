@@ -46,9 +46,11 @@ export default function ItemDetailPage() {
       const v = await getItemVerifications(id);
       setVerifications(v?.verifications || []);
     } catch {
-      // Don’t break the page if verifications fails
+      // Don't break the page if verifications fails
       setVerifications([]);
     }
+  };
+
   const handleGoToUserProfile = () => {
     const userId = item?.added_by_user?.user_id;
     if (!userId) return;
@@ -204,6 +206,12 @@ export default function ItemDetailPage() {
 
             {/* Right: Quick Stats Card */}
             <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl min-w-[280px]">
+              <div className="flex items-center justify-center gap-2 pb-4 border-b border-gray-200">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span className="text-lg font-semibold text-gray-900">
+                  {item.number_of_verifications || 0} {(item.number_of_verifications || 0) === 1 ? 'Verification' : 'Verifications'}
+                </span>
+              </div>
               <div className="border-t border-gray-200 pt-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">City</span>
