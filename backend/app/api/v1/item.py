@@ -167,3 +167,38 @@ def get_item_by_id(item_id):
     except Exception as e:
         # Log the error in production
         return jsonify({'message': 'An error occurred while fetching item'}), 500
+
+
+@item_bp.route('/user/<int:user_id>', methods=['GET'])
+@jwt_required()
+def get_user_items(user_id):
+    """Get all items added by a specific user.
+    
+    Returns all items created by the specified user,
+    with full details including categories, tags, and values.
+    Useful for displaying user profiles showing their contributions.
+    
+    Path Parameters:
+        user_id (int): ID of the user whose items to retrieve
+        
+    Headers:
+        Authorization: Bearer <access_token>
+    
+    Returns:
+        200: List of items added by the user
+        404: User not found
+        500: Internal server error
+    """
+    try:
+        # Verify user exists
+        user = _user_service.get_user_by_id(user_id)
+        if not user:
+            return jsonify({'message': f'User with ID {user_id} not found'}), 404
+        
+        # Get all items added by this user
+        items = _item_service.get_user_items(user_id)
+        return jsonify([ItemResponse.model_validate(item).model_dump() for item in items]), 200
+    
+    except Exception as e:
+        # Log the error in production
+        return jsonify({'message': 'An error occurred while fetching user items'}), 500
