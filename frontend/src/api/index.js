@@ -15,7 +15,14 @@ const commonHeaders = {
   "Content-Type": "application/json",
 }
 
-// Reuse apiFetch behavior for auth check
+/**
+ * Check if the user is authenticated.
+ * 
+ * Attempts to fetch the current user's profile to verify authentication.
+ * This is used to protect routes and determine if a user session is valid.
+ * 
+ * @returns {Promise<boolean>} True if authenticated, false otherwise
+ */
 export const checkAuth = async () => {
   try {
     await apiFetch('/user/me')
@@ -25,6 +32,23 @@ export const checkAuth = async () => {
   }
 }
 
+/**
+ * Core API fetch utility with automatic token refresh.
+ * 
+ * Handles all API requests with automatic JWT token management:
+ * - Adds authentication headers automatically
+ * - Detects expired tokens and refreshes them
+ * - Retries failed requests once after token refresh
+ * - Redirects to login on authentication failure
+ * 
+ * @param {string} endpoint - API endpoint path (e.g., '/user/me')
+ * @param {Object} [options={}] - Fetch options
+ * @param {string} [options.method] - HTTP method (GET, POST, PUT, DELETE)
+ * @param {string} [options.body] - Request body (already stringified JSON)
+ * @param {Object} [options.headers] - Additional headers to merge
+ * @returns {Promise<Object>} Parsed JSON response
+ * @throws {Error} If request fails or user is not authenticated
+ */
 export const apiFetch = async (endpoint, options = {}) => {
   const buildHeaders = (token, extraHeaders = {}) => ({
     ...commonHeaders,
