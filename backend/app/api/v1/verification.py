@@ -62,20 +62,18 @@ def verify_item(item_id: int):
         
     except ValidationError as e:
         return jsonify({
-            "error": "Validation error",
-            "details": e.errors()
+            "message": "Validation error",
         }), 400
         
     except ItemNotFoundError as e:
-        return jsonify({"error": str(e)}), 404
+        return jsonify({"message": str(e)}), 404
         
     except AlreadyVerifiedTodayError as e:
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"message": str(e)}), 400
         
     except Exception as e:
         return jsonify({
-            "error": "Internal server error",
-            "message": str(e)
+            "message": "error occurred during item verification",
         }), 500
 
 
@@ -100,12 +98,11 @@ def get_verification(verification_id: int):
         return jsonify(response.model_dump()), 200
         
     except VerificationNotFoundError as e:
-        return jsonify({"error": str(e)}), 404
+        return jsonify({"message": str(e)}), 404
         
     except Exception as e:
         return jsonify({
-            "error": "Internal server error",
-            "message": str(e)
+            "message": "error occurred while retrieving verification",
         }), 500
 
 
@@ -138,8 +135,7 @@ def get_item_verifications(item_id: int):
         
     except Exception as e:
         return jsonify({
-            "error": "Internal server error",
-            "message": str(e)
+            "message": "error occurred while retrieving item verifications",
         }), 500
 
 
@@ -172,6 +168,5 @@ def get_user_verifications(user_id: int):
         
     except Exception as e:
         return jsonify({
-            "error": "Internal server error",
-            "message": str(e)
+            "message": "error occurred while retrieving user verifications",
         }), 500

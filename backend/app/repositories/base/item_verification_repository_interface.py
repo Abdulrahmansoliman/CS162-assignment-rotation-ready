@@ -4,7 +4,6 @@ Defines the contract for verification data access operations.
 """
 from abc import ABC, abstractmethod
 from typing import Optional, List
-from datetime import datetime
 from app.models.item_verification import ItemVerification
 
 
