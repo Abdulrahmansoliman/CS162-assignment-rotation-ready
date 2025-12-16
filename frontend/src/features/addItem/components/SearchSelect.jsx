@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function SearchSelect({ items, displayField, valueField, onSelect, placeholder }) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const selectRef = useRef(null);
 
   const filtered = items.filter((item) =>
     item[displayField].toLowerCase().includes(query.toLowerCase())
@@ -14,8 +15,20 @@ export default function SearchSelect({ items, displayField, valueField, onSelect
     setOpen(false);
   }
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <div className="relative w-full">
+    <div className="relative w-full" ref={selectRef}>
       <input
         className="w-full bg-gray-700 text-white px-3 py-2 rounded-md"
         placeholder={placeholder}

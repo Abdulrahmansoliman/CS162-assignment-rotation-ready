@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 
 export default function SearchBar({ places, locale, onSearchChange, tags, selectedTagIds, onTagsChange }) {
     const [search, setSearch] = useState("");
@@ -6,6 +6,9 @@ export default function SearchBar({ places, locale, onSearchChange, tags, select
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const [showFilterMenu, setShowFilterMenu] = useState(false);
+    
+    const searchRef = useRef(null);
+    const filterRef = useRef(null);
 
     const [debouncedSearch, setDebouncedSearch] = useState("");
     useEffect(() => {
@@ -80,9 +83,24 @@ export default function SearchBar({ places, locale, onSearchChange, tags, select
         onTagsChange([]);
     };
 
+    // Close dropdowns when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setShowSuggestions(false);
+            }
+            if (filterRef.current && !filterRef.current.contains(event.target)) {
+                setShowFilterMenu(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
     return (
         <div className="flex gap-4 mb-6 relative">
-            <div className="flex-1 relative">
+            <div className="flex-1 relative" ref={searchRef}>
                 <input
                     type="text"
                     placeholder="Search..."
@@ -117,6 +135,7 @@ export default function SearchBar({ places, locale, onSearchChange, tags, select
                     </div>
                 )}
             </div>
+            <div ref={filterRef} className="relative">
             <button 
                 onClick={handleFilterClick}
                 className="text-white border-none rounded-lg px-6 py-2 text-base font-semibold cursor-pointer transition-colors duration-300 hover:opacity-90"
@@ -158,6 +177,7 @@ export default function SearchBar({ places, locale, onSearchChange, tags, select
                     </div>
                 </div>
             )}
+            </div>
         </div>
     );
 }
