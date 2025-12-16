@@ -3,9 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "../../api/user";
 import { apiFetch } from "../../api";
 import "@/shared/styles/locale-theme.css";
+import CategoryTag from "./component/category_tag";
 import SearchBar from "./component/SearchBar";
-
-
 
 
 // Locale-based category palettes (from provided swatches)
@@ -30,7 +29,7 @@ function HomePage() {
     const [filteredPlaces, setFilteredPlaces] = useState([]);
     const [view, setView] = useState("list");
     const [currentLocale, setCurrentLocale] = useState('usa');
-    const [activeCategoryId, setActiveCategoryId] = useState(null);
+    const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
     const [selectedTagIds, setSelectedTagIds] = useState([]);
     const navigate = useNavigate();
 
@@ -98,14 +97,21 @@ function HomePage() {
 
     useEffect(() => {
         const bySearch = (p) => p.name.toLowerCase().includes(search.toLowerCase());
-        const byCategory = (p) => !activeCategoryId || (p.categories || []).some(c => c.id === activeCategoryId);
+        const byCategory = (p) => selectedCategoryIds.length === 0 || (p.categories || []).some(c => selectedCategoryIds.includes(c.id));
         const selectedTagNames = selectedTagIds
             .map(id => (tags.find(t => t.id === id)?.name || "").toLowerCase())
             .filter(Boolean);
         const byTags = (p) => selectedTagNames.length === 0 || selectedTagNames.some(tag => (p.tags || []).map(t => t.toLowerCase()).includes(tag));
         setFilteredPlaces(places.filter(p => bySearch(p) && byCategory(p) && byTags(p)));
-    }, [search, places, activeCategoryId, selectedTagIds, tags]);
+    }, [search, places, selectedCategoryIds, selectedTagIds, tags]);
 
+    const toggleTag = (id) => {
+        setSelectedTagIds(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]);
+    };
+
+    const toggleCategory = (id) => {
+        setSelectedCategoryIds(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
+    };
     const getLocaleClass = () => {
         const classMap = {
             usa: 'show-photo',
@@ -159,46 +165,14 @@ function HomePage() {
                     selectedTagIds={selectedTagIds}
                     onTagsChange={setSelectedTagIds}
                 />
-                <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem", overflowX: "auto", paddingBottom: "0.5rem" }}>
-                    {categories.map((cat, idx) => {
-                        const palette = localeCategoryPalettes[currentLocale] || localeCategoryPalettes['usa'];
-                        const bg = palette[idx % palette.length];
-                        const isActive = activeCategoryId === cat.id;
-                        return (
-                            <div key={cat.id}
-                                onClick={() => setActiveCategoryId(isActive ? null : cat.id)}
-                                style={{
-                                    background: bg,
-                                    width: 90, height: 90, borderRadius: 16,
-                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                    flexShrink: 0,
-                                    cursor: "pointer",
-                                    transition: "transform 0.2s, box-shadow 0.2s",
-                                    boxShadow: isActive ? "0 0 0 3px rgba(255,255,255,0.9)" : "0 2px 8px rgba(0,0,0,0.1)",
-                                    overflow: "hidden",
-                                    position: "relative",
-                                    border: isActive ? "2px solid #fff" : "none"
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
-                                onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
-                            >
-                                {cat.image ? (
-                                    <img 
-                                        src={`data:image/png;base64,${cat.image}`}
-                                        alt={cat.name}
-                                        style={{
-                                            width: "60%",
-                                            height: "60%",
-                                            objectFit: "contain"
-                                        }}
-                                    />
-                                ) : (
-                                    <span style={{ fontSize: 14, color: "#fff", fontWeight: 700 }}>{cat.name}</span>
-                                )}
-                            </div>
-                        );
-                    })}
-                </div>
+                {/* Category Tags Component */}
+                <CategoryTag 
+                    categories={categories}
+                    selectedCategoryIds={selectedCategoryIds}
+                    onToggleCategory={toggleCategory}
+                    currentLocale={currentLocale}
+                />
+               
             <div style={{ display: "flex", alignItems: "center", marginBottom: 20 }}>
                 <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 600 }}>All Places <span style={{ color: "#999" }}>({filteredPlaces.length})</span></h3>
                 <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
