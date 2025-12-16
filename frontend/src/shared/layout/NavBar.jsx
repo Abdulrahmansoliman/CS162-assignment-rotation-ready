@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import { getCurrentUser } from "@/api/user"
 
 const localeColors = {
-  usa: "#cc0000",
+  usa: "#A50404",
   china: "#2c6e49",
   korea: "#da627d",
   argentina: "#d9a300",

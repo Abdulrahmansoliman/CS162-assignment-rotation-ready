@@ -33,7 +33,7 @@
 
 /* Locale-themed container - use on any page that needs locale backgrounds */
 .locale-container {
-  background: linear-gradient(135deg, #cc0000 0%, #ff4444 100%);
+  background: linear-gradient(135deg, #002856 0%, #A50404 100%);
   background-size: cover;
   background-position: center;
   transition: background-image 0.8s ease-out, background 0.8s ease-out;
@@ -90,12 +90,12 @@
 
 /* Overlay styles */
 .locale-overlay {
-  background-color: rgba(204, 0, 0, 0.8);
+  background-color: rgba(0, 40, 86, 0.8);
   transition: background-color 0.8s ease-out;
 }
 
 .locale-overlay.show-photo {
-  background-color: rgba(204, 0, 0, 0.5);
+  background-color: rgba(0, 40, 86, 0.5);
 }
 
 .locale-overlay.transition-green {

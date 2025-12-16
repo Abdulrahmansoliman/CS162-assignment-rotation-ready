@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "../../api/user";
 import { apiFetch } from "../../api";
+import { getCategories } from "../../api/category";
+import { getItems } from "../../api/item";
+import { getTags } from "../../api/tag";
 import "@/shared/styles/locale-theme.css";
 import CategoryTag from "./component/category_tag";
 import SearchBar from "./component/SearchBar";
@@ -71,7 +74,7 @@ function HomePage() {
                 setCurrentLocale(selectedLocale);
 
                 // Fetch categories with images
-                const cats = await apiFetch("/category/", { method: "GET" });
+                const cats = await getCategories();
                 setCategories(cats.map(c => ({ 
                     id: c.category_id, 
                     name: c.category_name,
@@ -79,7 +82,7 @@ function HomePage() {
                 })));
 
                 // Fetch items for user's rotation city
-                const items = await apiFetch("/item/", { method: "GET" });
+                const items = await getItems();
                 console.log("Items from backend:", items);
                 setPlaces(items.map(item => {
                     const tags = item.tags || [];
@@ -109,7 +112,7 @@ function HomePage() {
                 }));
 
                 // Fetch tags from backend
-                const tagList = await apiFetch("/tag/", { method: "GET" });
+                const tagList = await getTags();
                 setTags(tagList.map(t => ({ id: t.tag_id, name: t.name || t.tag_name })));
             } catch (e) {
                 console.error(e);

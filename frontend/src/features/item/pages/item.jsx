@@ -35,7 +35,7 @@ export default function ItemDetailPage() {
     if (cityNameLower.includes('buenos aires')) return 'transition-argentina';
     if (cityNameLower.includes('hyderabad')) return 'transition-india';
     if (cityNameLower.includes('berlin')) return 'transition-germany';
-    return 'transition-usa';
+    return 'show-photo';
   };
 
   const getLocaleForCategoryColors = () => {
@@ -62,6 +62,19 @@ export default function ItemDetailPage() {
     const locale = getLocaleForCategoryColors();
     const palette = localeCategoryPalettes[locale] || localeCategoryPalettes['usa'];
     return palette[index % palette.length];
+  };
+
+  const getBackButtonColor = () => {
+    const localeClass = getLocaleClass();
+    const colorMap = {
+      'show-photo': '#A50404',      // San Francisco - dark red
+      'transition-green': '#1d9a5c',     // China - green
+      'transition-korea': '#c60c30',     // Korea - red
+      'transition-argentina': '#d9a300', // Argentina - gold
+      'transition-india': '#ff9933',     // India - orange
+      'transition-germany': '#7ab3e8'    // Germany - blue
+    };
+    return colorMap[localeClass] || '#A50404';
   };
 
   const handleShare = async () => {
@@ -216,7 +229,7 @@ export default function ItemDetailPage() {
               marginLeft: "2rem",
               transition: "all 0.3s ease",
               fontSize: "28px",
-              color: "rgba(0, 0, 0, 0.4)"
+              color: getBackButtonColor()
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = "scale(1.05)";
@@ -247,14 +260,13 @@ export default function ItemDetailPage() {
               <CardContent className="pt-6 space-y-4">
                 {item.location && (
                   <div className="flex items-start gap-4 pb-4 border-b border-gray-200 last:border-0">
-                    <MapPin className="w-6 h-6 text-blue-500 mt-0.5 flex-shrink-0" />
                     <div className="flex-1">
                       <div className="text-xs uppercase tracking-wider text-gray-400 font-bold mb-1">Location</div>
                       <div className="text-gray-900 font-semibold text-base">{item.location}</div>
                     </div>
                   </div>
                 )}
-                {item.walking_distance && (
+                {item.walking_distance !== null && item.walking_distance !== undefined && item.walking_distance > 0 && (
                   <div className="flex items-start gap-4 pb-4 border-b border-gray-200 last:border-0">
                     <Clock className="w-6 h-6 text-green-500 mt-0.5 flex-shrink-0" />
                     <div className="flex-1">
@@ -266,7 +278,6 @@ export default function ItemDetailPage() {
                 )}
                 {item.categories && item.categories.length > 0 && (
                   <div className="flex items-start gap-4">
-                    <Tag className="w-6 h-6 text-purple-500 mt-0.5 flex-shrink-0" />
                     <div className="flex-1">
                       <div className="text-xs uppercase tracking-wider text-gray-400 font-bold mb-3">Categories</div>
                       <div className="flex flex-wrap gap-2">
