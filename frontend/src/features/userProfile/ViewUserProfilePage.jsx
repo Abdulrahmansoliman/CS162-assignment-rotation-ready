@@ -1,4 +1,4 @@
-// frontend/src/features/userProfile/ViewUserProfilePage.jsx
+// Page for viewing another user's public profile
 
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
@@ -84,6 +84,11 @@ export default function ViewUserProfilePage() {
             <h1 className="text-2xl font-bold">
               {user.first_name} {user.last_name}
             </h1>
+
+            <p className="text-gray-400 text-sm mb-1">
+              Viewing public profile information
+            </p>
+
             <p className="text-gray-400">{user.email}</p>
             <p className="text-gray-400">
               City: {user.rotation_city?.name || "Unknown"}

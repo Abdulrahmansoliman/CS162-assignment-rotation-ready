@@ -1,3 +1,6 @@
+// Page-level component for creating a new item.
+// UI refinements added after local testing (placeholders, helper text).
+
 import { useEffect, useState } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -358,6 +361,7 @@ export default function AddItemPage() {
     </div>
   );
 }
+
 
 
 
