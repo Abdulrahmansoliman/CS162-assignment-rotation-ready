@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import { useLogin } from '@/features/auth/hooks/useLogin'
-import { authService } from '@/features/auth/services/authservice'
 
 vi.mock('@/features/auth/services/authservice')
 
