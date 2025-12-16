@@ -213,4 +213,7 @@ marimo/_lsp/
 __marimo__/
 
 # Streamlit
-.streamlit/secrets.toml
+.streamlit/secrets.tomlpackage-lock.json
+frontend/package-lock.json
+backend/package-lock.json
+package-lock.json

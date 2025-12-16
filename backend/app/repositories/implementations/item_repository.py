@@ -125,3 +125,40 @@ class ItemRepository(ItemRepositoryInterface):
             )
         )
         return result.unique().scalar_one_or_none()
+
+    def get_items_by_user(self, user_id: int) -> list[Item]:
+        """Retrieve all items added by a specific user.
+        
+        Preloads all relationships for efficient access.
+        Returns items ordered by creation date (newest first).
+        
+        Args:
+            user_id: The ID of the user who added the items
+            
+        Returns:
+            List of Item objects with all relationships loaded
+        """
+        result = db.session.execute(
+            db.select(Item)
+            .filter_by(added_by_user_id=user_id)
+            .order_by(Item.created_at.desc())
+            .options(
+                joinedload(Item.rotation_city),
+                joinedload(Item.added_by_user),
+                joinedload(Item.category_items).joinedload(CategoryItem.category),
+                joinedload(Item.item_tag_values).joinedload(ItemTagValue.value).joinedload(Value.tag)
+            )
+        )
+        return result.scalars().unique().all()
+    def exists(self, item_id: int) -> bool:
+        """Check if item exists regardless of rotation city."""
+        return db.session.query(
+            db.session.query(Item).filter_by(item_id=item_id).exists()
+        ).scalar()
+
+    def update_verification_count(self, item_id: int, count: int) -> None:
+        """Update the number of verifications for an item."""
+        item = db.session.get(Item, item_id)
+        if item:
+            item.number_of_verifications = count
+            db.session.commit()

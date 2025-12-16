@@ -432,3 +432,171 @@ class TestItemRoutes:
         assert 'message' in data
         assert 'not found' in data['message'].lower()
 
+    def test_get_user_items_requires_authentication(self, client):
+        """Test that GET /api/v1/item/user/<user_id> requires JWT token."""
+        response = client.get('/api/v1/item/user/1')
+        
+        assert response.status_code == 401
+
+    def test_get_user_items_empty_list(self, client, verified_user, app_context):
+        """Test getting user items when user has no items."""
+        tokens = TokenService.generate_tokens(verified_user)
+        headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
+        
+        response = client.get(f'/api/v1/item/user/{verified_user.user_id}', headers=headers)
+        
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data == []
+        assert isinstance(data, list)
+
+    def test_get_user_items_returns_only_user_items(self, client, verified_user, second_user, app_context, db_session):
+        """Test that endpoint returns only items added by the specified user."""
+        # Create tokens for both users
+        user1_tokens = TokenService.generate_tokens(verified_user)
+        user2_tokens = TokenService.generate_tokens(second_user)
+        user1_headers = {'Authorization': f'Bearer {user1_tokens["access_token"]}'}
+        user2_headers = {'Authorization': f'Bearer {user2_tokens["access_token"]}'}
+        
+        # Create category
+        category = Category(category_name="TestCategory")
+        db.session.add(category)
+        db.session.commit()
+        
+        # User 1 creates 2 items
+        item1_data = {
+            "name": "User1 Item1",
+            "location": "Location A",
+            "category_ids": [category.category_id],
+            "existing_tags": [],
+            "new_tags": []
+        }
+        item2_data = {
+            "name": "User1 Item2",
+            "location": "Location B",
+            "category_ids": [category.category_id],
+            "existing_tags": [],
+            "new_tags": []
+        }
+        
+        client.post('/api/v1/item/', headers=user1_headers, json=item1_data)
+        client.post('/api/v1/item/', headers=user1_headers, json=item2_data)
+        
+        # User 2 creates 1 item
+        item3_data = {
+            "name": "User2 Item1",
+            "location": "Location C",
+            "category_ids": [category.category_id],
+            "existing_tags": [],
+            "new_tags": []
+        }
+        
+        client.post('/api/v1/item/', headers=user2_headers, json=item3_data)
+        
+        # Get user1's items
+        response = client.get(f'/api/v1/item/user/{verified_user.user_id}', headers=user1_headers)
+        
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert len(data) == 2
+        assert all(item['name'].startswith('User1') for item in data)
+        
+        # Get user2's items
+        response = client.get(f'/api/v1/item/user/{second_user.user_id}', headers=user2_headers)
+        
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert len(data) == 1
+        assert data[0]['name'] == "User2 Item1"
+
+    def test_get_user_items_includes_full_details(self, client, verified_user, app_context, db_session):
+        """Test that user items include categories, tags, and all details."""
+        tokens = TokenService.generate_tokens(verified_user)
+        headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
+        
+        # Create category
+        category = Category(category_name="Electronics")
+        db.session.add(category)
+        db.session.commit()
+        
+        # Create item with new tag
+        item_data = {
+            "name": "Laptop",
+            "location": "Office 101",
+            "walking_distance": 50.0,
+            "category_ids": [category.category_id],
+            "existing_tags": [],
+            "new_tags": [
+                {
+                    "name": "Brand",
+                    "value_type": "text",
+                    "value": "Dell"
+                }
+            ]
+        }
+        
+        client.post('/api/v1/item/', headers=headers, json=item_data)
+        
+        # Get user items
+        response = client.get(f'/api/v1/item/user/{verified_user.user_id}', headers=headers)
+        
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert len(data) == 1
+        
+        item = data[0]
+        assert item['name'] == "Laptop"
+        assert item['location'] == "Office 101"
+        assert item['walking_distance'] == 50.0
+        assert 'categories' in item
+        assert len(item['categories']) == 1
+        assert item['categories'][0]['name'] == "Electronics"
+        assert 'tags' in item
+        assert len(item['tags']) == 1
+        assert item['tags'][0]['name'] == "Brand"
+        assert item['tags'][0]['value'] == "Dell"
+
+    def test_get_user_items_nonexistent_user(self, client, verified_user, app_context):
+        """Test getting items for non-existent user returns 404."""
+        tokens = TokenService.generate_tokens(verified_user)
+        headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
+        
+        response = client.get('/api/v1/item/user/99999', headers=headers)
+        
+        assert response.status_code == 404
+        data = json.loads(response.data)
+        assert 'message' in data
+        assert 'not found' in data['message'].lower()
+
+    def test_get_user_items_ordered_by_newest_first(self, client, verified_user, app_context, db_session):
+        """Test that user items are ordered by creation date (newest first)."""
+        tokens = TokenService.generate_tokens(verified_user)
+        headers = {'Authorization': f'Bearer {tokens["access_token"]}'}
+        
+        # Create category
+        category = Category(category_name="Test")
+        db.session.add(category)
+        db.session.commit()
+        
+        # Create 3 items
+        for i in range(3):
+            item_data = {
+                "name": f"Item {i}",
+                "location": f"Location {i}",
+                "category_ids": [category.category_id],
+                "existing_tags": [],
+                "new_tags": []
+            }
+            client.post('/api/v1/item/', headers=headers, json=item_data)
+        
+        # Get user items
+        response = client.get(f'/api/v1/item/user/{verified_user.user_id}', headers=headers)
+        
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert len(data) == 3
+        # Newest should be first (Item 2, Item 1, Item 0)
+        assert data[0]['name'] == "Item 2"
+        assert data[1]['name'] == "Item 1"
+        assert data[2]['name'] == "Item 0"
+

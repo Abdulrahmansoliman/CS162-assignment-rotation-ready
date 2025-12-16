@@ -3,17 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "../../api/user";
 import { apiFetch } from "../../api";
 import "@/shared/styles/locale-theme.css";
+import CategoryTag from "./component/category_tag";
+import SearchBar from "./component/SearchBar";
+import { verifyItem } from "../../api/verification";
 
 
 
 // Locale-based category palettes (from provided swatches)
 const localeCategoryPalettes = {
     usa: ["#E31B23", "#9A2623", "#5C2A28", "#E53935", "#A63A3A"],
-    china: ["#55B89C", "#5AD4A8", "#49C792", "#6AD9A7", "#7AE3B0"],
-    korea: ["#FF7890", "#F3A1B6", "#E67A94", "#FF9AB0", "#F8B0C6"],
+    china: ["#2c6e49", "#4c956c", "#fefee3", "#ffc9b9", "#d68c45"],
+    korea: ["#f9dbbd", "#ffa5ab", "#da627d", "#a53860", "#450920"],
     argentina: ["#D9A300", "#F7A721", "#E5B74A", "#C8922E", "#B47F21"],
-    india: ["#F7A721", "#E58B20", "#D0771D", "#C16A1B", "#A85A18"],
-    germany: ["#005493", "#85A0CB", "#5688C0", "#1E5F90", "#0A3F66"],
+    india: ["#cc5803", "#e2711d", "#ff9505", "#ffb627", "#ffc971"],
+    germany: ["#003459", "#007ea7", "#00a8e8", "#ffedd8"],
 };
 
 const iconMap = [
@@ -28,10 +31,15 @@ function HomePage() {
     const [filteredPlaces, setFilteredPlaces] = useState([]);
     const [view, setView] = useState("list");
     const [currentLocale, setCurrentLocale] = useState('usa');
-    const [activeCategoryId, setActiveCategoryId] = useState(null);
+    const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
     const [selectedTagIds, setSelectedTagIds] = useState([]);
-    const [showFilterMenu, setShowFilterMenu] = useState(false);
     const navigate = useNavigate();
+    const [filters, setFilters] = useState({
+        distanceMeters: 1000,
+        conditions: [],
+        hours: [],
+        prices: [],
+    });
 
     useEffect(() => {
         const loadData = async () => {
@@ -43,6 +51,8 @@ function HomePage() {
                 // Set user name from first_name and last_name
                 const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
                 setUserName(fullName || user.email || "User");
+                setUserFirstName(user.first_name || "");
+                setUserProfilePic(user.profile_picture || null);
 
                 // Map rotation city id to locale - get city_id from rotation_city object
                 const cityName = user.rotation_city?.name?.toLowerCase() || '';
@@ -71,17 +81,32 @@ function HomePage() {
                 // Fetch items for user's rotation city
                 const items = await apiFetch("/item/", { method: "GET" });
                 console.log("Items from backend:", items);
-                setPlaces(items.map(item => ({
-                    id: item.item_id,
-                    name: item.name,
-                    address: item.location,
-                    distance: item.walking_distance ? (item.walking_distance / 1000).toFixed(1) : null,
-                    tags: (item.tags || []).map(t => t.tag_name || t.name),
-                    verifiedCount: item.number_of_verifications || 0,
-                    lastVerified: item.created_at ? new Date(item.created_at).toLocaleDateString() : null,
-                    priceLevel: 1,
-                    categories: (item.categories || []).map(c => ({ id: c.category_id, name: c.category_name })),
-                })));
+                setPlaces(items.map(item => {
+                    const tags = item.tags || [];
+                    const findTagValue = (tagName) => {
+                        const t = tags.find(tt => (tt.name || tt.tag_name || '').toLowerCase() === tagName.toLowerCase());
+                        return t ? (t.value ?? t.name_val ?? t.tag_value ?? t.value_text ?? t.value_name) : undefined;
+                    };
+                    const condition = findTagValue('Condition');
+                    const priceRange = findTagValue('Price Range') || findTagValue('Price');
+                    // Operating hours may be text values; allow any of Morning/Afternoon/Evening
+                    const hoursText = findTagValue('Operating Hours') || findTagValue('Hours');
+                    return ({
+                        id: item.item_id,
+                        name: item.name,
+                        address: item.location,
+                        distanceMeters: typeof item.walking_distance === 'number' ? Math.round(item.walking_distance) : undefined,
+                        distance: item.walking_distance ? (item.walking_distance / 1000).toFixed(1) : null,
+                        tags: tags.map(t => t.name || t.tag_name),
+                        verifiedCount: item.number_of_verifications || 0,
+                        lastVerified: item.last_verified_date ? new Date(item.last_verified_date).toLocaleDateString() : (item.created_at ? new Date(item.created_at).toLocaleDateString() : null),
+                        priceLevel: priceRange === 'Premium' ? 3 : priceRange === 'Mid-Range' ? 2 : 1,
+                        priceRange,
+                        condition,
+                        hours: hoursText,
+                        categories: (item.categories || []).map(c => ({ id: c.category_id, name: c.category_name })),
+                    });
+                }));
 
                 // Fetch tags from backend
                 const tagList = await apiFetch("/tag/", { method: "GET" });
@@ -95,20 +120,67 @@ function HomePage() {
 
     // Locale is set from backend and remains stable for the session
 
+    const handleVerify = async (itemId) => {
+        try {
+            await verifyItem(itemId);
+
+            // optimistic UI update — NO refetch
+            setPlaces(prev =>
+                prev.map(p =>
+                    p.id === itemId
+                        ? { ...p, verifiedCount: (p.verifiedCount || 0) + 1 }
+                        : p
+                )
+            );
+        } catch (e) {
+            alert("You already verified today or an error occurred.");
+        }
+    };
+
     useEffect(() => {
         const bySearch = (p) => p.name.toLowerCase().includes(search.toLowerCase());
-        const byCategory = (p) => !activeCategoryId || (p.categories || []).some(c => c.id === activeCategoryId);
+        const byCategory = (p) => selectedCategoryIds.length === 0 || (p.categories || []).some(c => selectedCategoryIds.includes(c.id));
         const selectedTagNames = selectedTagIds
             .map(id => (tags.find(t => t.id === id)?.name || "").toLowerCase())
             .filter(Boolean);
         const byTags = (p) => selectedTagNames.length === 0 || selectedTagNames.some(tag => (p.tags || []).map(t => t.toLowerCase()).includes(tag));
-        setFilteredPlaces(places.filter(p => bySearch(p) && byCategory(p) && byTags(p)));
-    }, [search, places, activeCategoryId, selectedTagIds, tags]);
+
+        const byDistance = (p) => {
+            if (!filters || typeof filters.distanceMeters !== 'number') return true;
+            if (typeof p.distanceMeters !== 'number') return true; // if missing, don't exclude
+            return p.distanceMeters <= filters.distanceMeters;
+        };
+
+        const byCondition = (p) => {
+            if (!filters.conditions || filters.conditions.length === 0) return true;
+            const val = (p.condition || '').toString();
+            return val && filters.conditions.some(c => c.toLowerCase() === val.toLowerCase());
+        };
+
+        const byHours = (p) => {
+            if (!filters.hours || filters.hours.length === 0) return true;
+            const val = (p.hours || '').toString().toLowerCase();
+            return filters.hours.some(h => val.includes(h.toLowerCase()));
+        };
+
+        const byPrice = (p) => {
+            if (!filters.prices || filters.prices.length === 0) return true;
+            const val = (p.priceRange || '').toString();
+            return val && filters.prices.some(pr => pr.toLowerCase() === val.toLowerCase());
+        };
+
+        setFilteredPlaces(
+            places.filter(p => bySearch(p) && byCategory(p) && byTags(p) && byDistance(p) && byCondition(p) && byHours(p) && byPrice(p))
+        );
+    }, [search, places, selectedCategoryIds, selectedTagIds, tags, filters]);
 
     const toggleTag = (id) => {
         setSelectedTagIds(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]);
     };
 
+    const toggleCategory = (id) => {
+        setSelectedCategoryIds(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
+    };
     const getLocaleClass = () => {
         const classMap = {
             usa: 'show-photo',
@@ -124,16 +196,19 @@ function HomePage() {
     const getLocaleColor = () => {
         const colorMap = {
             usa: '#cc0000',
-            china: '#1d9a5c',
-            korea: '#c60c30',
-            argentina: '#d9a300',
-            india: '#ff9933',
-            germany: '#4a90e2'
+            china: '#2c6e49',
+            korea: '#da627d',
+            // Use BA palette accent for buttons: 2a9d8f
+            argentina: '#2a9d8f',
+            india: '#ff9505',
+            germany: '#007ea7'
         }
         return colorMap[currentLocale] || '#cc0000'
     }
 
     const [userName, setUserName] = useState("User");
+    const [userFirstName, setUserFirstName] = useState("");
+    const [userProfilePic, setUserProfilePic] = useState(null);
 
     const getLocaleText = () => {
         const textMap = {
@@ -149,122 +224,64 @@ function HomePage() {
 
     return (
         <div style={{ paddingBottom: "2rem" }}>
-            <div className={`locale-container ${getLocaleClass()}`} style={{ color: "white", padding: "3rem 2rem 2rem 2rem" }}>
+            <div className={`locale-container ${getLocaleClass()}`} style={{ color: "white", padding: "3rem 2rem 2rem 2rem", position: "relative" }}>
                 <div className={`locale-overlay absolute inset-0 ${getLocaleClass()}`}></div>
-                <h1 style={{ fontSize: "2.5rem", margin: 0, fontWeight: 300, letterSpacing: "1px", position: "relative", zIndex: 10, fontFamily: 'Fraunces, serif' }}>{getLocaleText()}, {userName}</h1>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", zIndex: 10 }}>
+                    <h1 style={{ fontSize: "2.5rem", margin: 0, fontWeight: 300, letterSpacing: "1px", fontFamily: 'Fraunces, serif' }}>
+                        {getLocaleText()} {userFirstName}
+                    </h1>
+                    {userProfilePic && (
+                        <div style={{ 
+                            width: "60px", 
+                            height: "60px", 
+                            borderRadius: "50%", 
+                            border: "3px solid white",
+                            overflow: "hidden",
+                            flexShrink: 0
+                        }}>
+                            <img 
+                                src={userProfilePic} 
+                                alt="Profile" 
+                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            />
+                        </div>
+                    )}
+                    {!userProfilePic && (
+                        <div style={{ 
+                            width: "60px", 
+                            height: "60px", 
+                            borderRadius: "50%", 
+                            border: "3px solid white",
+                            background: "rgba(255,255,255,0.2)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "24px",
+                            flexShrink: 0
+                        }}>
+                            👤
+                        </div>
+                    )}
+                </div>
             </div>
             <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
-                <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem" }}>
-                    <input
-                        type="text"
-                        placeholder="Search..."
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                        style={{
-                            flex: 1, padding: "1rem 1.5rem", borderRadius: "8px",
-                            border: "none", background: "#fff", color: "#333", fontSize: "1rem",
-                            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-                        }}
-                    />
-                    <div style={{ position: "relative" }}>
-                        <button onClick={() => setShowFilterMenu(!showFilterMenu)} style={{
-                            background: getLocaleColor(), color: "white", border: "none",
-                            borderRadius: "8px", padding: "1rem 2rem", fontSize: "1rem", fontWeight: 600,
-                            cursor: "pointer", transition: "background 0.3s"
-                        }}>
-                            Filters ▾
-                        </button>
-                        {showFilterMenu && (
-                            <div style={{
-                                position: "absolute",
-                                right: 0,
-                                marginTop: "0.5rem",
-                                background: "#ffffff",
-                                borderRadius: "12px",
-                                boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
-                                padding: "1rem",
-                                minWidth: "260px",
-                                zIndex: 20
-                            }}>
-                                <div style={{ fontWeight: 700, marginBottom: "0.5rem", color: "#333" }}>Tags</div>
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", maxHeight: "200px", overflowY: "auto" }}>
-                                    {tags.map(tag => {
-                                        const isOn = selectedTagIds.includes(tag.id);
-                                        return (
-                                            <button
-                                                key={tag.id}
-                                                onClick={() => toggleTag(tag.id)}
-                                                style={{
-                                                    border: "1px solid #ddd",
-                                                    background: isOn ? getLocaleColor() : "#f7f7f8",
-                                                    color: isOn ? "#fff" : "#444",
-                                                    borderRadius: "999px",
-                                                    padding: "6px 12px",
-                                                    fontSize: "0.85rem",
-                                                    cursor: "pointer",
-                                                    transition: "all 0.2s"
-                                                }}
-                                            >
-                                                {tag.name}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.75rem" }}>
-                                    <button onClick={() => { setSelectedTagIds([]); }} style={{
-                                        background: "#f1f1f4", border: "1px solid #e0e0e5", color: "#444",
-                                        borderRadius: "8px", padding: "0.5rem 0.9rem", cursor: "pointer"
-                                    }}>Clear</button>
-                                    <button onClick={() => setShowFilterMenu(false)} style={{
-                                        background: getLocaleColor(), border: "none", color: "#fff",
-                                        borderRadius: "8px", padding: "0.5rem 0.9rem", cursor: "pointer",
-                                        fontWeight: 600
-                                    }}>Done</button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-                <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem", overflowX: "auto", paddingBottom: "0.5rem" }}>
-                    {categories.map((cat, idx) => {
-                        const palette = localeCategoryPalettes[currentLocale] || localeCategoryPalettes['usa'];
-                        const bg = palette[idx % palette.length];
-                        const isActive = activeCategoryId === cat.id;
-                        return (
-                            <div key={cat.id}
-                                onClick={() => setActiveCategoryId(isActive ? null : cat.id)}
-                                style={{
-                                    background: bg,
-                                    width: 90, height: 90, borderRadius: 16,
-                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                    flexShrink: 0,
-                                    cursor: "pointer",
-                                    transition: "transform 0.2s, box-shadow 0.2s",
-                                    boxShadow: isActive ? "0 0 0 3px rgba(255,255,255,0.9)" : "0 2px 8px rgba(0,0,0,0.1)",
-                                    overflow: "hidden",
-                                    position: "relative",
-                                    border: isActive ? "2px solid #fff" : "none"
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
-                                onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
-                            >
-                                {cat.image ? (
-                                    <img 
-                                        src={`data:image/png;base64,${cat.image}`}
-                                        alt={cat.name}
-                                        style={{
-                                            width: "60%",
-                                            height: "60%",
-                                            objectFit: "contain"
-                                        }}
-                                    />
-                                ) : (
-                                    <span style={{ fontSize: 14, color: "#fff", fontWeight: 700 }}>{cat.name}</span>
-                                )}
-                            </div>
-                        );
-                    })}
-                </div>
+                <SearchBar 
+                    places={places}
+                    locale={{ color: getLocaleColor() }}
+                    onSearchChange={setSearch}
+                    tags={tags}
+                    selectedTagIds={selectedTagIds}
+                    onTagsChange={setSelectedTagIds}
+                    onFilterChange={setFilters}
+                />
+                {/* Category Tags Component */}
+                <CategoryTag 
+                    categories={categories}
+                    selectedCategoryIds={selectedCategoryIds}
+                    onToggleCategory={toggleCategory}
+                    currentLocale={currentLocale}
+                />
+               
             <div style={{ display: "flex", alignItems: "center", marginBottom: 20 }}>
                 <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 600 }}>All Places <span style={{ color: "#999" }}>({filteredPlaces.length})</span></h3>
                 <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
@@ -304,18 +321,38 @@ function HomePage() {
                             <div style={{ color: "#666", fontSize: "0.9rem", margin: "4px 0 8px 0", display: "flex", alignItems: "center", gap: 4 }}>
                                 📍 {place.address} {place.distance && `${place.distance} km away`}
                             </div>
+                            {/* Quick badges from tags */}
                             <div style={{ margin: "8px 0", display: "flex", gap: 6, flexWrap: "wrap" }}>
                                 {place.tags && place.tags.map((tag, i) => (
                                     <span key={i} style={{
-                                        background: tag === "Foreign Cards" ? "#b2f2bb" :
-                                            tag === "English" ? "#e0b3ff" :
-                                            tag === "Walk-in" ? "#fff3cd" :
-                                            tag === "24/7" ? "#d1e7f5" :
-                                            tag === "Fast service" ? "#f8d7da" : "#eee",
-                                        color: tag === "English" ? "#333" : "#333", 
+                                        background: "#eee",
+                                        color: "#333",
                                         borderRadius: 4, padding: "3px 8px", fontSize: "0.75rem", fontWeight: 500
                                     }}>{tag}</span>
                                 ))}
+                            </div>
+                            {/* Structured meta */}
+                            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+                                {place.condition && (
+                                    <span style={{ background: "#eef2ff", color: "#333", border: "1px solid #d0d7ff", borderRadius: 6, padding: "6px 10px", fontSize: "0.8rem" }}>
+                                        Condition: <strong>{place.condition}</strong>
+                                    </span>
+                                )}
+                                {typeof place.distanceMeters === 'number' && (
+                                    <span style={{ background: "#f8f9fa", color: "#333", border: "1px solid #e1e5ea", borderRadius: 6, padding: "6px 10px", fontSize: "0.8rem" }}>
+                                        Distance (meters): <strong>{place.distanceMeters}</strong>
+                                    </span>
+                                )}
+                                {place.hours && (
+                                    <span style={{ background: "#fff7ed", color: "#7a4b00", border: "1px solid #ffd8a8", borderRadius: 6, padding: "6px 10px", fontSize: "0.8rem" }}>
+                                        Hours: <strong>{place.hours}</strong>
+                                    </span>
+                                )}
+                                {place.priceRange && (
+                                    <span style={{ background: "#f0fff4", color: "#1f7a1f", border: "1px solid #c6f6d5", borderRadius: 6, padding: "6px 10px", fontSize: "0.8rem" }}>
+                                        Price: <strong>{place.priceRange}</strong>
+                                    </span>
+                                )}
                             </div>
                             <div style={{ color: "#4caf50", fontSize: "0.85rem", display: "flex", alignItems: "center", gap: 8 }}>
                                 <span>✓ {place.verifiedCount || 0} verified</span>
@@ -337,6 +374,16 @@ function HomePage() {
                             }}>
                                 View Details
                             </button>
+                            <button 
+                                onClick={() => handleVerify(place.id)}
+                                style={{
+                                    background: "#4caf50", color: "#fff", border: "none",
+                                    borderRadius: 6, padding: "8px 16px", fontWeight: 600, fontSize: "0.85rem",
+                                    cursor: "pointer", width: view === "list" ? "auto" : "100%"
+                                }}>
+                                Verify
+                            </button>
+
                         </div>
                     </div>
                 ))}

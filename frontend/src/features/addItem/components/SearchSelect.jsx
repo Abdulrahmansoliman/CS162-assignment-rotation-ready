@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function SearchSelect({ items, displayField, valueField, onSelect, placeholder }) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const selectRef = useRef(null);
 
   const filtered = items.filter((item) =>
     item[displayField].toLowerCase().includes(query.toLowerCase())
@@ -14,10 +15,22 @@ export default function SearchSelect({ items, displayField, valueField, onSelect
     setOpen(false);
   }
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <div className="relative w-full">
+    <div className="relative w-full" ref={selectRef}>
       <input
-        className="w-full bg-gray-700 text-white px-3 py-2 rounded-md"
+        className="w-full bg-white text-gray-800 px-6 py-3 rounded-full placeholder-gray-400 shadow-lg"
         placeholder={placeholder}
         value={query}
         onChange={(e) => {
@@ -28,7 +41,7 @@ export default function SearchSelect({ items, displayField, valueField, onSelect
       />
 
       {open && (
-        <div className="absolute mt-1 w-full bg-gray-800 text-white rounded-md shadow-lg max-h-48 overflow-auto z-20">
+        <div className="absolute mt-1 w-full bg-white text-gray-800 rounded-lg shadow-lg max-h-48 overflow-auto z-20">
           {filtered.length === 0 && (
             <div className="p-2 text-gray-400">No results</div>
           )}
@@ -36,7 +49,7 @@ export default function SearchSelect({ items, displayField, valueField, onSelect
           {filtered.map((item) => (
             <div
               key={item[valueField]}
-              className="px-3 py-2 hover:bg-gray-700 cursor-pointer"
+              className="px-6 py-3 hover:bg-gray-100 cursor-pointer transition-colors"
               onClick={() => handleSelect(item)}
             >
               {item[displayField]}
