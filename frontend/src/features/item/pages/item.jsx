@@ -10,10 +10,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/sha
 import { Button } from '@/shared/components/ui/button';
 import { Spinner } from '@/shared/components/ui/spinner';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { MapPin, Clock, User, CheckCircle, Tag, ArrowLeft, Share2, Navigation } from 'lucide-react';
 =======
 import { MapPin, Clock, User, CheckCircle, Tag, ArrowLeft, Share2, Bookmark, Navigation } from 'lucide-react';
 >>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
+=======
+import { MapPin, Clock, User, CheckCircle, Tag, ArrowLeft, Share2, Navigation } from 'lucide-react';
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
 import { colorSchemes, defaultScheme } from '@/lib/themes.js';
 import '@/shared/styles/locale-theme.css';
 
@@ -30,6 +34,9 @@ export default function ItemDetailPage() {
   const [copied, setCopied] = useState(false);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
   const scheme = item && item.rotation_city ? (colorSchemes[item.rotation_city.name] || defaultScheme) : defaultScheme;
 
   const getLocaleClass = () => {
@@ -82,6 +89,7 @@ export default function ItemDetailPage() {
     return colorMap[localeClass] || '#A50404';
   };
 
+<<<<<<< HEAD
 =======
   const scheme = item && item.rotation_city ? colorSchemes[item.rotation_city.name] || defaultScheme : defaultScheme;
   
@@ -95,6 +103,8 @@ export default function ItemDetailPage() {
   };
   
 >>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
   const handleShare = async () => {
     await navigator.clipboard.writeText(window.location.href);
     setCopied(true);
@@ -215,6 +225,9 @@ export default function ItemDetailPage() {
 
   return (
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
     <div style={{ paddingBottom: "2rem" }}>
       {/* Header with Item Title - Matching Main Page */}
       <div className={`locale-container ${getLocaleClass()}`} style={{ color: "white", padding: "3rem 2rem 2rem 2rem", position: "relative" }}>
@@ -231,6 +244,7 @@ export default function ItemDetailPage() {
                 </span>
               </div>
             )}
+<<<<<<< HEAD
 =======
     <div className={`min-h-screen ${scheme.bg}`}>
       {/* Hero Section */}
@@ -348,6 +362,8 @@ export default function ItemDetailPage() {
               </div>
             </div>
 >>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
           </div>
           <button
             onClick={() => navigate(-1)}
@@ -622,6 +638,9 @@ export default function ItemDetailPage() {
                 ) : (
                   verifications.map((v) => (
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
                     <div key={v.verification_id} className="flex items-center gap-3 pb-2 border-b border-gray-100 last:border-0">
                       <div className="w-9 h-9 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0 overflow-hidden border-2 border-gray-200">
                         {v.profile_picture ? (
@@ -634,6 +653,7 @@ export default function ItemDetailPage() {
                           <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-blue-700">
                             {getInitialsFromName(v.user_name)}
                           </div>
+<<<<<<< HEAD
 =======
                     <div key={v.verification_id} className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-gray-900 text-sm overflow-hidden">
@@ -646,6 +666,8 @@ export default function ItemDetailPage() {
                         ) : (
                           <span>{getInitialsFromName(v.user_name)}</span>
 >>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
                         )}
                       </div>
                       <div className="text-sm text-gray-900 font-medium truncate">

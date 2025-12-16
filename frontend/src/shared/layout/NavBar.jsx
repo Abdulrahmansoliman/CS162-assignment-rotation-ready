@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/api/user"
 
 const localeColors = {
 <<<<<<< HEAD
+<<<<<<< HEAD
   usa: "#A50404",
   china: "#2c6e49",
   korea: "#da627d",
@@ -13,6 +14,11 @@ const localeColors = {
   china: "#1d9a5c",
   korea: "#c60c30",
 >>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
+=======
+  usa: "#A50404",
+  china: "#2c6e49",
+  korea: "#da627d",
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
   argentina: "#d9a300",
   india: "#ff9933",
   germany: "#4a90e2",
@@ -91,6 +97,9 @@ export default function NavBar() {
           display: flex;
           flex-direction: column;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
           border-right: 1px solid rgba(255, 255, 255, 0.1);
           box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
         }
@@ -130,6 +139,7 @@ export default function NavBar() {
           display: flex;
           flex-direction: column;
           gap: 8px;
+<<<<<<< HEAD
 =======
           background: linear-gradient(180deg, #1b1b1b 0%, #121212 60%, #0f0f0f 100%);
           border-right: 1px solid rgba(var(--accent-rgb), 0.18);
@@ -170,17 +180,23 @@ export default function NavBar() {
           flex-direction: column;
           gap: 6px;
 >>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
           flex: 1;
         }
 
         .nav-item {
           width: 100%;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
           border: none;
           background: rgba(255, 255, 255, 0.05);
           color: rgba(255, 255, 255, 0.7);
           padding: 12px 16px;
           border-radius: 12px;
+<<<<<<< HEAD
 =======
           border: 0;
           background: transparent;
@@ -188,12 +204,17 @@ export default function NavBar() {
           padding: 10px 12px;
           border-radius: 14px;
 >>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
           cursor: pointer;
           display: flex;
           align-items: center;
           gap: 10px;
           text-align: left;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
           transition: all 200ms ease;
           font-size: 14px;
           font-weight: 500;
@@ -233,6 +254,7 @@ export default function NavBar() {
           background: var(--accent);
           color: white;
           transform: translateX(2px);
+<<<<<<< HEAD
 =======
           transition: transform 120ms ease, background 120ms ease, color 120ms ease, box-shadow 120ms ease;
         }
@@ -295,15 +317,21 @@ export default function NavBar() {
         .rg-logout:focus-visible{
           box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
 >>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
         }
       `}</style>
 
       {/* Brand */}
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
       <div className="nav-brand" onClick={() => navigate("/home")}>
         <span className="nav-brand-logo">🗺️</span>
         <div className="nav-brand-title">Rotation Ready</div>
         <div className="nav-brand-subtitle">explore · rotate · repeat</div>
+<<<<<<< HEAD
 =======
       <div className="rg-brand" onClick={() => navigate("/home")}>
         <div className="rg-icon" style={{ background: "rgba(255,255,255,0.08)" }}>
@@ -314,6 +342,8 @@ export default function NavBar() {
           <div className="rg-brandSub">Explore • Save • Contribute</div>
         </div>
 >>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
       </div>
 
       {/* Navigation */}
@@ -334,16 +364,22 @@ export default function NavBar() {
 
       {/* Logout */}
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
       <div className="nav-bottom">
         <button type="button" className="nav-item nav-logout" onClick={handleLogout}>
           <span className="nav-icon">🚪</span>
           <span>Logout</span>
+<<<<<<< HEAD
 =======
       <div className="rg-bottom">
         <button type="button" className="rg-item rg-logout" onClick={handleLogout}>
           <span className="rg-icon">🚪</span>
           <span className="rg-label">Logout</span>
 >>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
+=======
+>>>>>>> a817a4c7c530ceb80354cc37ab7bc0f0ee90d2e1
         </button>
       </div>
     </aside>
