@@ -54,8 +54,30 @@ export default function ProfilePage() {
   const updateLocaleFromCity = (cityId) => {
     const selectedCity = cities.find(c => String(c.city_id) === String(cityId))
     if (selectedCity) {
-      const cityName = selectedCity.name?.toLowerCase() || ''
-      const newLocale = localeMap[cityName] || 'usa'
+      const cityName = (selectedCity.name || '').toLowerCase().trim()
+      
+      // Try exact match first, then partial matching
+      let newLocale = localeMap[cityName]
+      
+      if (!newLocale) {
+        // Fallback: check for partial matches
+        if (cityName.includes('san francisco') || cityName.includes('francisco')) {
+          newLocale = 'usa'
+        } else if (cityName.includes('taipei')) {
+          newLocale = 'china'
+        } else if (cityName.includes('seoul')) {
+          newLocale = 'korea'
+        } else if (cityName.includes('buenos aires') || cityName.includes('buenos')) {
+          newLocale = 'argentina'
+        } else if (cityName.includes('hyderabad')) {
+          newLocale = 'india'
+        } else if (cityName.includes('berlin')) {
+          newLocale = 'germany'
+        } else {
+          newLocale = 'usa' // default
+        }
+      }
+      
       setCurrentLocale(newLocale)
     }
   }
@@ -194,9 +216,37 @@ export default function ProfilePage() {
           // profilePicture stays null unless the user selects a new one
         }
 
-        // Set locale from user's rotation city
-        if (userData?.rotation_city?.city_id) {
-          updateLocaleFromCity(String(userData.rotation_city.city_id))
+        // Set initial locale from user's rotation city
+        if (userData?.rotation_city?.city_id && citiesData.length > 0) {
+          const cityId = String(userData.rotation_city.city_id)
+          const selectedCity = citiesData.find(c => String(c.city_id) === cityId)
+          if (selectedCity) {
+            const cityName = (selectedCity.name || '').toLowerCase().trim()
+            
+            // Try exact match first, then partial matching
+            let newLocale = localeMap[cityName]
+            
+            if (!newLocale) {
+              // Fallback: check for partial matches
+              if (cityName.includes('san francisco') || cityName.includes('francisco')) {
+                newLocale = 'usa'
+              } else if (cityName.includes('taipei')) {
+                newLocale = 'china'
+              } else if (cityName.includes('seoul')) {
+                newLocale = 'korea'
+              } else if (cityName.includes('buenos aires') || cityName.includes('buenos')) {
+                newLocale = 'argentina'
+              } else if (cityName.includes('hyderabad')) {
+                newLocale = 'india'
+              } else if (cityName.includes('berlin')) {
+                newLocale = 'germany'
+              } else {
+                newLocale = 'usa' // default
+              }
+            }
+            
+            setCurrentLocale(newLocale)
+          }
         }
       } catch (err) {
         console.error(err)
@@ -273,16 +323,16 @@ export default function ProfilePage() {
     <div className={`locale-container min-h-screen w-full relative flex items-center justify-center ${getLocaleClass()} p-4`}>
       <div className={`locale-overlay absolute inset-0 ${getLocaleClass()}`}></div>
       
-      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-2xl py-6">
-        <h1 className="text-white text-5xl font-extrabold leading-tight drop-shadow-md text-center mb-4" style={{fontFamily: 'Fraunces, serif'}}>
+      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-2xl py-4">
+        <h1 className="text-white text-4xl font-extrabold leading-tight drop-shadow-md text-center mb-2" style={{fontFamily: 'Fraunces, serif'}}>
           My Profile
         </h1>
         
-        {message && <p className="text-white text-center mb-4 font-semibold text-base">{message}</p>}
+        {message && <p className="text-white text-center mb-2 font-semibold text-sm">{message}</p>}
 
         {/* Profile Picture (UI + preview) */}
-        <div className="flex flex-col items-center gap-2 mb-5">
-          <div className="w-28 h-28 rounded-full bg-white/20 overflow-hidden flex items-center justify-center border-2 border-white">
+        <div className="flex flex-col items-center gap-1 mb-3">
+          <div className="w-24 h-24 rounded-full bg-white/20 overflow-hidden flex items-center justify-center border-2 border-white">
             {profilePreview ? (
               <img
                 src={profilePreview}
@@ -305,7 +355,7 @@ export default function ProfilePage() {
           </label>
         </div>
 
-        <form onSubmit={handleSubmit} className="w-full space-y-5">
+        <form onSubmit={handleSubmit} className="w-full space-y-3">
           {/* Email (cannot change) */}
           <Field>
             <FieldContent>

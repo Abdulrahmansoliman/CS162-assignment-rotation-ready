@@ -3,12 +3,12 @@ import React from "react";
 export default function CategoryTag({ categories, selectedCategoryIds, onToggleCategory, currentLocale }) {
     const localeCategoryPalettes = {
         usa: ["#E31B23", "#B71C1C"],        
-        china: ["#2c6e49", "#4c956c", "#fefee3", "#ffc9b9", "#d68c45"],
+        china: ["#2c6e49", "#4c956c", "#ffc9b9", "#d68c45"],
         korea: ["#f9dbbd", "#ffa5ab", "#da627d", "#a53860", "#450920"],
         // Buenos Aires requested palette (multi-tile): 264653, 2a9d8f, e9c46a, f4a261, e76f51
         argentina: ["#264653", "#2a9d8f", "#e9c46a", "#f4a261", "#e76f51"],
         india: ["#cc5803", "#e2711d", "#ff9505", "#ffb627", "#ffc971"],
-        germany: ["#003459", "#007ea7", "#00a8e8", "#ffedd8"],
+        germany: ["#003459", "#007ea7", "#00a8e8"],
     };
 
     const palette = localeCategoryPalettes[currentLocale] || localeCategoryPalettes['usa'];
@@ -19,7 +19,7 @@ export default function CategoryTag({ categories, selectedCategoryIds, onToggleC
                 <div className="flex flex-wrap gap-4 pb-2">
                     {categories.map((cat, idx) => {
                         const isSelected = selectedCategoryIds.includes(cat.id);
-                        const tileColor = palette[(currentLocale === 'argentina' ? idx : 0) % palette.length];
+                        const tileColor = palette[idx % palette.length];
                         const selectedColor = tileColor; // keep same hue, emphasize via scale
                         return (
                             <button

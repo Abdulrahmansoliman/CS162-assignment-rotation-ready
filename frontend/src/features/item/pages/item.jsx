@@ -6,11 +6,13 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getItemById } from '@/api/item';
 import { verifyItem, getItemVerifications } from '@/api/verification';
+import { getCurrentUser } from '@/api/user';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import { Spinner } from '@/shared/components/ui/spinner';
 import { MapPin, Clock, User, CheckCircle, Tag, ArrowLeft, Share2 } from 'lucide-react';
 import { colorSchemes, defaultScheme } from '@/lib/themes.js';
+import '@/shared/styles/locale-theme.css';
 
 export default function ItemDetailPage() {
   const { id } = useParams();
@@ -24,7 +26,36 @@ export default function ItemDetailPage() {
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
 
+  const [currentUser, setCurrentUser] = useState(null);
+  const [currentLocale, setCurrentLocale] = useState('usa');
+  const [userFirstName, setUserFirstName] = useState('');
+  const [userProfilePic, setUserProfilePic] = useState(null);
+
   const scheme = item && item.rotation_city ? (colorSchemes[item.rotation_city.name] || defaultScheme) : defaultScheme;
+
+  const getLocaleClass = () => {
+    const classMap = {
+      usa: 'show-photo',
+      china: 'transition-green',
+      korea: 'transition-korea',
+      argentina: 'transition-argentina',
+      india: 'transition-india',
+      germany: 'transition-germany'
+    }
+    return classMap[currentLocale] || 'show-photo'
+  }
+
+  const getLocaleText = () => {
+    const textMap = {
+      usa: 'Welcome',
+      china: '欢迎',
+      korea: '어서 오세요',
+      argentina: 'Bienvenido',
+      india: 'స్వాగతం',
+      germany: 'Willkommen'
+    };
+    return textMap[currentLocale] || 'Welcome';
+  };
 
   const handleShare = async () => {
     await navigator.clipboard.writeText(window.location.href);
@@ -62,8 +93,32 @@ export default function ItemDetailPage() {
       try {
         setLoading(true);
         setError(null);
-        const data = await getItemById(id);
-        setItem(data);
+        
+        // Fetch current user and item in parallel
+        const [userData, itemData] = await Promise.all([
+          getCurrentUser(),
+          getItemById(id)
+        ]);
+        
+        // Set current user data
+        setCurrentUser(userData);
+        setUserFirstName(userData.first_name || '');
+        setUserProfilePic(userData.profile_picture || null);
+        
+        // Set locale based on user's rotation city
+        const cityName = userData.rotation_city?.name?.toLowerCase() || '';
+        const localeMap = {
+          'san francisco': 'usa',
+          'taipei': 'china',
+          'seoul': 'korea',
+          'buenos aires': 'argentina',
+          'hyderabad': 'india',
+          'berlin': 'germany'
+        };
+        const selectedLocale = localeMap[cityName] || 'usa';
+        setCurrentLocale(selectedLocale);
+        
+        setItem(itemData);
 
         // fetch verifications after item loads
         await loadVerifications();
@@ -146,6 +201,47 @@ export default function ItemDetailPage() {
 
   return (
     <div className={`min-h-screen ${scheme.bg}`}>
+      {/* Header with User Greeting */}
+      <div className={`locale-container ${getLocaleClass()}`} style={{ color: "white", padding: "3rem 2rem 2rem 2rem", position: "relative" }}>
+        <div className={`locale-overlay absolute inset-0 ${getLocaleClass()}`}></div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", zIndex: 10, maxWidth: "1200px", margin: "0 auto" }}>
+          <h1 style={{ fontSize: "2.5rem", margin: 0, fontWeight: 300, letterSpacing: "1px", fontFamily: 'Fraunces, serif' }}>
+            {getLocaleText()}, {userFirstName}
+          </h1>
+          {userProfilePic && (
+            <div style={{ 
+              width: "60px", 
+              height: "60px", 
+              borderRadius: "50%", 
+              border: "3px solid white",
+              overflow: "hidden",
+              flexShrink: 0
+            }}>
+              <img 
+                src={userProfilePic} 
+                alt="Profile" 
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </div>
+          )}
+          {!userProfilePic && (
+            <div style={{ 
+              width: "60px", 
+              height: "60px", 
+              borderRadius: "50%", 
+              border: "3px solid white",
+              background: "rgba(255,255,255,0.2)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "24px",
+              flexShrink: 0
+            }}>
+              👤
+            </div>
+          )}
+        </div>
+      </div>
       {/* Hero Section */}
       <div className={`relative ${scheme.heroBg} overflow-hidden`}>
         <div className={`absolute inset-0 ${scheme.overlay}`}></div>

@@ -35,6 +35,10 @@ export default function AddItemPage() {
   const [currentLocale, setCurrentLocale] = useState('usa');
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userName, setUserName] = useState("User");
+  const [userFirstName, setUserFirstName] = useState("");
+  const [userProfilePic, setUserProfilePic] = useState(null);
+  
   const localeMap = {
     'san francisco': 'usa',
     'taipei': 'china',
@@ -43,6 +47,42 @@ export default function AddItemPage() {
     'hyderabad': 'india',
     'berlin': 'germany'
   }
+
+  const getLocaleClass = () => {
+    const classMap = {
+      usa: 'show-photo',
+      china: 'transition-green',
+      korea: 'transition-korea',
+      argentina: 'transition-argentina',
+      india: 'transition-india',
+      germany: 'transition-germany'
+    }
+    return classMap[currentLocale] || 'show-photo'
+  }
+
+  const getLocaleColor = () => {
+    const colorMap = {
+      usa: '#cc0000',
+      china: '#2c6e49',
+      korea: '#da627d',
+      argentina: '#2a9d8f',
+      india: '#ff9505',
+      germany: '#007ea7'
+    }
+    return colorMap[currentLocale] || '#cc0000'
+  }
+
+  const getLocaleText = () => {
+    const textMap = {
+      usa: 'Contribute',
+      china: '贡献',
+      korea: '기여하기',
+      argentina: 'Contribuir',
+      india: 'योगदान',
+      germany: 'Beitragen'
+    };
+    return textMap[currentLocale] || 'Contribute';
+  };
   useEffect(() => {
     async function loadUserLocale() {
       try {
@@ -51,6 +91,12 @@ export default function AddItemPage() {
           const cityName = user.rotation_city.name?.toLowerCase() || '';
           const newLocale = localeMap[cityName] || 'usa';
           setCurrentLocale(newLocale);
+          
+          // Also set user name and profile picture
+          const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+          setUserName(fullName || user.email || "User");
+          setUserFirstName(user.first_name || "");
+          setUserProfilePic(user.profile_picture || null);
         }
       } catch (err) {
         console.error("Failed to load user data:", err);
@@ -110,30 +156,6 @@ export default function AddItemPage() {
     setNewTags((prev) => [...prev, tagObj]);
   }
 
-  const getLocaleClass = () => {
-    const classMap = {
-      usa: 'show-photo',
-      china: 'transition-green',
-      korea: 'transition-korea',
-      argentina: 'transition-argentina',
-      india: 'transition-india',
-      germany: 'transition-germany'
-    }
-    return classMap[currentLocale] || 'show-photo'
-  }
-
-  const getLocaleColor = () => {
-    const colorMap = {
-      usa: '#cc0000',
-      china: '#2c6e49',
-      korea: '#da627d',
-      argentina: '#2a9d8f',
-      india: '#ff9505',
-      germany: '#007ea7'
-    }
-    return colorMap[currentLocale] || '#cc0000'
-  }
-
   async function handleSubmit(e) {
     e.preventDefault();
     setIsSubmitting(true);
@@ -188,21 +210,21 @@ export default function AddItemPage() {
   return (
     <div className={`locale-container min-h-screen w-full relative flex items-center justify-center ${getLocaleClass()} p-4`}>
       <div className={`locale-overlay absolute inset-0 ${getLocaleClass()}`}></div>
-
+      
       <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-2xl py-4">
-        <h1 className="text-white text-4xl font-extrabold leading-tight drop-shadow-md text-center mb-4" style={{fontFamily: 'Fraunces, serif'}}>
-          Add Item
+        <h1 className="text-white text-4xl font-extrabold leading-tight drop-shadow-md text-center mb-2" style={{fontFamily: 'Fraunces, serif'}}>
+          Contribute
         </h1>
 
         {error && (
-          <div className="text-white text-center mb-4">{error}</div>
+          <div className="text-white text-center mb-3 text-sm">{error}</div>
         )}
 
         <form onSubmit={handleSubmit} className="w-full space-y-3">
           {/* NAME */}
           <Field>
             <FieldContent>
-              <FieldLabel className="text-lg font-semibold text-white">Name</FieldLabel>
+              <FieldLabel className="text-base font-semibold text-white">Name</FieldLabel>
               <Input
                 type="text"
                 placeholder="Item name"
@@ -210,7 +232,7 @@ export default function AddItemPage() {
                 onChange={(e) => setName(e.target.value)}
                 disabled={isSubmitting}
                 required
-                className="bg-white rounded-full px-6 py-3 text-gray-800 text-lg placeholder-gray-400 shadow-lg"
+                className="bg-white rounded-full px-6 py-3 text-base text-gray-800 placeholder-gray-400 shadow-lg"
               />
             </FieldContent>
           </Field>
@@ -218,7 +240,7 @@ export default function AddItemPage() {
           {/* LOCATION */}
           <Field>
             <FieldContent>
-              <FieldLabel className="text-lg font-semibold text-white">Location</FieldLabel>
+              <FieldLabel className="text-base font-semibold text-white">Location</FieldLabel>
               <Input
                 type="text"
                 placeholder="Location description"
@@ -226,7 +248,7 @@ export default function AddItemPage() {
                 onChange={(e) => setLocation(e.target.value)}
                 disabled={isSubmitting}
                 required
-                className="bg-white rounded-full px-6 py-3 text-gray-800 text-lg placeholder-gray-400 shadow-lg"
+                className="bg-white rounded-full px-6 py-3 text-base text-gray-800 placeholder-gray-400 shadow-lg"
               />
             </FieldContent>
           </Field>
@@ -234,14 +256,14 @@ export default function AddItemPage() {
           {/* WALKING DISTANCE */}
           <Field>
             <FieldContent>
-              <FieldLabel className="text-lg font-semibold text-white">Walking Distance (meters)</FieldLabel>
+              <FieldLabel className="text-base font-semibold text-white">Walking Distance (meters)</FieldLabel>
               <Input
                 type="number"
                 placeholder="Distance in meters"
                 value={walkingDistance}
                 onChange={(e) => setWalkingDistance(e.target.value)}
                 disabled={isSubmitting}
-                className="bg-white rounded-full px-6 py-3 text-gray-800 text-lg placeholder-gray-400 shadow-lg"
+                className="bg-white rounded-full px-6 py-3 text-base text-gray-800 placeholder-gray-400 shadow-lg"
               />
             </FieldContent>
           </Field>
@@ -249,7 +271,7 @@ export default function AddItemPage() {
           {/* CATEGORIES */}
           <Field>
             <FieldContent>
-              <FieldLabel className="text-lg font-semibold text-white">Categories</FieldLabel>
+              <FieldLabel className="text-base font-semibold text-white">Categories</FieldLabel>
               <SearchSelect
                 placeholder="Search categories..."
                 items={categories.map((c) => ({
@@ -262,7 +284,7 @@ export default function AddItemPage() {
                 selectedItems={selectedCategories.map((c) => c.category_id)}
               />
 
-              <div className="flex flex-wrap gap-2 mt-3">
+              <div className="flex flex-wrap gap-2 mt-2">
                 {selectedCategories.map((cat) => (
                   <CategoryChip key={cat.category_id} category={cat} onRemove={removeCategory} />
                 ))}
@@ -273,7 +295,7 @@ export default function AddItemPage() {
           {/* TAGS */}
           <Field>
             <FieldContent>
-              <FieldLabel className="text-lg font-semibold text-white">Tags</FieldLabel>
+              <FieldLabel className="text-base font-semibold text-white">Tags</FieldLabel>
               <div className="flex items-center gap-3">
                 <SearchSelect
                   placeholder="Search tags..."
@@ -331,14 +353,14 @@ export default function AddItemPage() {
           </Field>
 
           {submitError && (
-            <FieldError errors={[{ message: submitError }]} />
+            <p className="text-white text-base">{submitError}</p>
           )}
 
           {/* SUBMIT */}
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-full px-6 py-3 bg-white font-semibold shadow-lg transition-all"
+            className="w-full rounded-full px-6 py-3 text-base bg-white font-semibold shadow-lg transition-all"
             style={{ color: getLocaleColor() }}
             onMouseEnter={(e) => { if (!isSubmitting) { e.currentTarget.style.backgroundColor = getLocaleColor(); e.currentTarget.style.color = 'white'; } }}
             onMouseLeave={(e) => { if (!isSubmitting) { e.currentTarget.style.backgroundColor = 'white'; e.currentTarget.style.color = getLocaleColor(); } }}
@@ -358,10 +380,3 @@ export default function AddItemPage() {
     </div>
   );
 }
-
-
-
-
-
-
-

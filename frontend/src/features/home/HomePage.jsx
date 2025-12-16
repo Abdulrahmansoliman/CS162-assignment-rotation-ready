@@ -12,11 +12,11 @@ import { verifyItem } from "../../api/verification";
 // Locale-based category palettes (from provided swatches)
 const localeCategoryPalettes = {
     usa: ["#E31B23", "#9A2623", "#5C2A28", "#E53935", "#A63A3A"],
-    china: ["#2c6e49", "#4c956c", "#fefee3", "#ffc9b9", "#d68c45"],
+    china: ["#2c6e49", "#4c956c", "#ffc9b9", "#d68c45"],
     korea: ["#f9dbbd", "#ffa5ab", "#da627d", "#a53860", "#450920"],
     argentina: ["#D9A300", "#F7A721", "#E5B74A", "#C8922E", "#B47F21"],
     india: ["#cc5803", "#e2711d", "#ff9505", "#ffb627", "#ffc971"],
-    germany: ["#003459", "#007ea7", "#00a8e8", "#ffedd8"],
+    germany: ["#003459", "#007ea7", "#00a8e8"],
 };
 
 const iconMap = [
@@ -228,7 +228,7 @@ function HomePage() {
                 <div className={`locale-overlay absolute inset-0 ${getLocaleClass()}`}></div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", zIndex: 10 }}>
                     <h1 style={{ fontSize: "2.5rem", margin: 0, fontWeight: 300, letterSpacing: "1px", fontFamily: 'Fraunces, serif' }}>
-                        {getLocaleText()} {userFirstName}
+                        {getLocaleText()}, {userFirstName}
                     </h1>
                     {userProfilePic && (
                         <div style={{ 
@@ -377,7 +377,7 @@ function HomePage() {
                             <button 
                                 onClick={() => handleVerify(place.id)}
                                 style={{
-                                    background: "#4caf50", color: "#fff", border: "none",
+                                    background: localeCategoryPalettes[currentLocale][1] || getLocaleColor(), color: "#fff", border: "none",
                                     borderRadius: 6, padding: "8px 16px", fontWeight: 600, fontSize: "0.85rem",
                                     cursor: "pointer", width: view === "list" ? "auto" : "100%"
                                 }}>

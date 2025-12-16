@@ -3,7 +3,6 @@ import { clearTokens } from "@/features/auth/services/authservice.js"
 import { useEffect, useMemo, useState } from "react"
 import { getCurrentUser } from "@/api/user"
 
-// Locale-based colors matching HomePage
 const localeColors = {
   usa: "#cc0000",
   china: "#2c6e49",
@@ -13,17 +12,10 @@ const localeColors = {
   germany: "#007ea7",
 }
 
-function hexToRgb(hex) {
-  const h = (hex || "").replace("#", "")
-  if (h.length !== 6) return { r: 59, g: 130, b: 246 } // fallback blue
-  const n = parseInt(h, 16)
-  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 }
-}
-
 export default function NavBar() {
   const navigate = useNavigate()
   const location = useLocation()
-  const [themeColor, setThemeColor] = useState("#3b82f6") // default blue
+  const [themeColor, setThemeColor] = useState("#3b82f6")
 
   useEffect(() => {
     let mounted = true
@@ -51,7 +43,6 @@ export default function NavBar() {
 
     loadUserTheme()
     
-    // Listen for city change events
     const handleCityChange = () => {
       loadUserTheme()
     }
@@ -80,143 +71,142 @@ export default function NavBar() {
     []
   )
 
-  const { r, g, b } = hexToRgb(themeColor)
-
   return (
-    <aside
-      className="rg-sidebar"
-      style={{
-        "--accent": themeColor,
-        "--accent-rgb": `${r}, ${g}, ${b}`,
-        "--w": "200px", // change to 220px if you want slightly wider
-      }}
-    >
+    <aside className="nav-sidebar" style={{ "--accent": themeColor }}>
       <style>{`
-        .rg-sidebar{
-          width: var(--w);
+        .nav-sidebar {
+          width: 200px;
           min-height: 100vh;
+          background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
           position: fixed;
-          left: 0; top: 0;
+          left: 0;
+          top: 0;
           z-index: 100;
           display: flex;
           flex-direction: column;
-          background: linear-gradient(180deg, var(--accent) 0%, rgba(var(--accent-rgb), 0.85) 100%);
-          border-right: 1px solid rgba(255, 255, 255, 0.2);
-          box-shadow: 4px 0 32px rgba(0,0,0,0.15);
+          border-right: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
         }
 
-        .rg-brand{
+        .nav-brand {
           padding: 24px 20px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
           cursor: pointer;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .rg-brandTitle{
-          font-size: 24px;
-          font-weight: 700;
-          letter-spacing: 0.5px;
-          color: white;
-          font-family: 'Fraunces', serif;
-          text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .rg-nav{
-          padding: 20px 16px;
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .nav-brand-logo {
+          font-size: 32px;
+        }
+
+        .nav-brand-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: white;
+          font-family: 'Fraunces', serif;
+          letter-spacing: 0.5px;
+          white-space: nowrap;
+        }
+
+        .nav-brand-subtitle {
+          font-size: 10px;
+          color: rgba(255, 255, 255, 0.5);
+          letter-spacing: 1px;
+          text-transform: lowercase;
+        }
+
+        .nav-menu {
+          padding: 24px 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
           flex: 1;
         }
 
-        .rg-item{
-          position: relative;
+        .nav-item {
           width: 100%;
-          border: 0;
-          background: rgba(255, 255, 255, 0.25);
-          color: white;
-          padding: 14px 18px;
-          border-radius: 50px;
+          border: none;
+          background: rgba(255, 255, 255, 0.05);
+          color: rgba(255, 255, 255, 0.7);
+          padding: 12px 16px;
+          border-radius: 12px;
           cursor: pointer;
           display: flex;
           align-items: center;
           gap: 12px;
           text-align: left;
-          transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
-          backdrop-filter: blur(8px);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-        .rg-item:hover{
-          background: rgba(255, 255, 255, 0.4);
-          transform: translateX(4px);
-          box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-        }
-        .rg-item:focus-visible{
-          outline: none;
-          box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);
-        }
-
-        .rg-item[data-active="true"]{
-          background: white;
-          color: var(--accent);
-          transform: translateX(4px);
-          box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-          border: 1px solid rgba(255, 255, 255, 0.9);
-        }
-
-        .rg-icon{
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          display: grid;
-          place-items: center;
-          background: rgba(255,255,255,0.3);
-          font-size: 18px;
-          transition: all 250ms ease;
-        }
-        .rg-item[data-active="true"] .rg-icon{
-          background: rgba(var(--accent-rgb), 0.15);
-        }
-
-        .rg-label{
+          transition: all 200ms ease;
           font-size: 14px;
-          font-weight: 600;
-          letter-spacing: 0.2px;
+          font-weight: 500;
         }
 
-        .rg-bottom{
+        .nav-item:hover {
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+          transform: translateX(2px);
+        }
+
+        .nav-item[data-active="true"] {
+          background: var(--accent);
+          color: white;
+          border: 1px solid var(--accent);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-icon {
+          font-size: 18px;
+          width: 24px;
+          text-align: center;
+        }
+
+        .nav-bottom {
           padding: 16px;
-          border-top: 1px solid rgba(255, 255, 255, 0.2);
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-logout {
+          background: rgba(239, 68, 68, 0.1);
+          color: #fca5a5;
+          border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .nav-logout:hover {
+          background: rgba(239, 68, 68, 0.2);
+          color: #fca5a5;
         }
       `}</style>
 
       {/* Brand */}
-      <div className="rg-brand" onClick={() => navigate("/home")}>
-        <div className="rg-brandTitle">Rotation Guide</div>
+      <div className="nav-brand" onClick={() => navigate("/home")}>
+        <span className="nav-brand-logo">🗺️</span>
+        <div className="nav-brand-title">Rotation Ready</div>
+        <div className="nav-brand-subtitle">explore · rotate · repeat</div>
       </div>
 
-      {/* Nav */}
-      <nav className="rg-nav" aria-label="Sidebar navigation">
+      {/* Navigation */}
+      <nav className="nav-menu" aria-label="Main navigation">
         {navItems.map((item) => (
           <button
             key={item.path}
             type="button"
-            className="rg-item"
+            className="nav-item"
             data-active={isActive(item.path)}
             onClick={() => navigate(item.path)}
           >
-            <span className="rg-icon">{item.icon}</span>
-            <span className="rg-label">{item.label}</span>
+            <span className="nav-icon">{item.icon}</span>
+            <span>{item.label}</span>
           </button>
         ))}
       </nav>
 
       {/* Logout */}
-      <div className="rg-bottom">
-        <button type="button" className="rg-item" onClick={handleLogout}>
-          <span className="rg-icon">🚪</span>
-          <span className="rg-label">Logout</span>
+      <div className="nav-bottom">
+        <button type="button" className="nav-item nav-logout" onClick={handleLogout}>
+          <span className="nav-icon">🚪</span>
+          <span>Logout</span>
         </button>
       </div>
     </aside>
