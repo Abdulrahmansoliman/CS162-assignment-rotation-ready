@@ -233,16 +233,6 @@ npm test -- -u
 npm test LoginPage.test.jsx
 ```
 
-## Known Issues
-
-**Performance:** Category API supports `?no_images=true` parameter but frontend doesn't use it (can reduce payload by 95%)
-
-**Missing Feature:** Backend value endpoints (`/value/tag/<id>`) not integrated - no autocomplete for tag values
-
-**Code Quality:** Some direct API calls instead of using abstraction layer (HomePage line 64)
-
-See [../GITHUB_ISSUES_TO_CREATE.md](../GITHUB_ISSUES_TO_CREATE.md) for details.
-
 ## Deployment
 
 Build for production:
@@ -259,25 +249,6 @@ Configured for Vercel deployment (see `vercel.json`).
 ```bash
 npm run lint
 ```
-
-### Best Practices
-
-**Do:**
-- Use functional components with hooks
-- Handle loading and error states
-- Implement proper form validation
-- Use semantic HTML elements
-- Add ARIA labels for accessibility
-- Keep components small and focused
-- Extract reusable logic to custom hooks
-
-**Don't:**
-- Mutate state directly
-- Forget useEffect cleanup
-- Make API calls in render
-- Hardcode URLs or magic numbers
-- Ignore ESLint warnings
-
 ## Contributing
 
 1. Create feature branch: `git checkout -b feature/my-feature`
