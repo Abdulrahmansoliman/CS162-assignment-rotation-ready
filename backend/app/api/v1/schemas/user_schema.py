@@ -8,6 +8,7 @@ class UserResponse(BaseModel):
     first_name: str
     last_name: str
     email: str | None = None
+    profile_picture: str | None = None
     rotation_city: RotationCityResponse | None = None
 
     model_config = ConfigDict(from_attributes=True)

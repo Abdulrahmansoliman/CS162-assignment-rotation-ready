@@ -20,6 +20,7 @@ def register():
         city_id (int): ID of user's current rotation city
         first_name (str): User's first name
         last_name (str): User's last name
+        profile_picture (str, optional): Base64 encoded profile picture
         
     Returns:
         201: User registered successfully, verification email sent
@@ -35,13 +36,16 @@ def register():
     first_name = data['first_name']
     last_name = data['last_name']
 
+    profile_picture = data.get('profile_picture', None)
+
     try:
         registration_service = RegistrationService()
         new_user = registration_service.register_user(
             first_name=first_name,
             last_name=last_name,
             email=email,
-            rotation_city_id=city_id
+            rotation_city_id=city_id,
+            profile_picture=profile_picture
         )
         if new_user is None:
             return jsonify({'message': 'Verification code resent. Please check your email.'}), 200
