@@ -78,7 +78,7 @@ export default function ProfilePage() {
       china: '#2c6e49',
       korea: '#da627d',
       argentina: '#2a9d8f',
-      india: '#ff9933',
+      india: '#ff9505',
       germany: '#007ea7'
     }
     return colorMap[currentLocale] || '#cc0000'
@@ -273,16 +273,16 @@ export default function ProfilePage() {
     <div className={`locale-container min-h-screen w-full relative flex items-center justify-center ${getLocaleClass()} p-4`}>
       <div className={`locale-overlay absolute inset-0 ${getLocaleClass()}`}></div>
       
-      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-2xl py-4">
-        <h1 className="text-white text-4xl font-extrabold leading-tight drop-shadow-md text-center mb-2" style={{fontFamily: 'Fraunces, serif'}}>
+      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-2xl py-6">
+        <h1 className="text-white text-5xl font-extrabold leading-tight drop-shadow-md text-center mb-4" style={{fontFamily: 'Fraunces, serif'}}>
           My Profile
         </h1>
         
-        {message && <p className="text-white text-center mb-3 font-semibold text-sm">{message}</p>}
+        {message && <p className="text-white text-center mb-4 font-semibold text-base">{message}</p>}
 
         {/* Profile Picture (UI + preview) */}
-        <div className="flex flex-col items-center gap-1 mb-3">
-          <div className="w-20 h-20 rounded-full bg-white/20 overflow-hidden flex items-center justify-center border-2 border-white">
+        <div className="flex flex-col items-center gap-2 mb-5">
+          <div className="w-28 h-28 rounded-full bg-white/20 overflow-hidden flex items-center justify-center border-2 border-white">
             {profilePreview ? (
               <img
                 src={profilePreview}
@@ -305,16 +305,16 @@ export default function ProfilePage() {
           </label>
         </div>
 
-        <form onSubmit={handleSubmit} className="w-full space-y-3">
+        <form onSubmit={handleSubmit} className="w-full space-y-5">
           {/* Email (cannot change) */}
           <Field>
             <FieldContent>
-              <FieldLabel className="text-sm font-semibold text-white">Email</FieldLabel>
+              <FieldLabel className="text-base font-semibold text-white">Email</FieldLabel>
               <Input
                 type="email"
                 value={user?.email || ""}
                 disabled
-                className="w-full bg-white/10 rounded-full px-4 py-2 text-sm text-white/60 cursor-not-allowed backdrop-blur-sm"
+                className="w-full bg-white/10 rounded-full px-6 py-3 text-base text-white/60 cursor-not-allowed backdrop-blur-sm"
               />
             </FieldContent>
           </Field>
@@ -322,12 +322,12 @@ export default function ProfilePage() {
           {/* First Name */}
           <Field>
             <FieldContent>
-              <FieldLabel className="text-sm font-semibold text-white">First Name</FieldLabel>
+              <FieldLabel className="text-base font-semibold text-white">First Name</FieldLabel>
               <Input
                 type="text"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                className="w-full bg-white rounded-full px-4 py-2 text-sm text-gray-800 placeholder-gray-400 shadow-lg"
+                className="w-full bg-white rounded-full px-6 py-3 text-base text-gray-800 placeholder-gray-400 shadow-lg"
               />
             </FieldContent>
           </Field>
@@ -335,12 +335,12 @@ export default function ProfilePage() {
           {/* Last Name */}
           <Field>
             <FieldContent>
-              <FieldLabel className="text-sm font-semibold text-white">Last Name</FieldLabel>
+              <FieldLabel className="text-base font-semibold text-white">Last Name</FieldLabel>
               <Input
                 type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                className="w-full bg-white rounded-full px-4 py-2 text-sm text-gray-800 placeholder-gray-400 shadow-lg"
+                className="w-full bg-white rounded-full px-6 py-3 text-base text-gray-800 placeholder-gray-400 shadow-lg"
               />
             </FieldContent>
           </Field>
@@ -348,10 +348,10 @@ export default function ProfilePage() {
           {/* Rotation City */}
           <Field>
             <FieldContent>
-              <FieldLabel className="text-sm font-semibold text-white">Rotation City</FieldLabel>
+              <FieldLabel className="text-base font-semibold text-white">Rotation City</FieldLabel>
               {citiesError ? (
                 <div className="space-y-2">
-                  <p className="text-white text-sm">{citiesError}</p>
+                  <p className="text-white text-base">{citiesError}</p>
                   <Button
                     type="button"
                     onClick={handleRetryFetchCities}
@@ -371,7 +371,7 @@ export default function ProfilePage() {
                     updateLocaleFromCity(v)
                   }}
                 >
-                  <SelectTrigger className="w-full bg-white rounded-full px-4 py-2 text-sm text-gray-800 shadow-lg">
+                  <SelectTrigger className="w-full bg-white rounded-full px-6 py-3 text-base text-gray-800 shadow-lg">
                     <SelectValue placeholder="Choose a city" />
                   </SelectTrigger>
 
@@ -387,11 +387,11 @@ export default function ProfilePage() {
             </FieldContent>
           </Field>
 
-          {errorMessage && <p className="text-white text-sm">{errorMessage}</p>}
+          {errorMessage && <p className="text-white text-base">{errorMessage}</p>}
 
           <Button
             type="submit"
-            className="w-full rounded-full px-6 py-2 text-sm bg-white font-semibold shadow-lg transition-all"
+            className="w-full rounded-full px-6 py-3 text-base bg-white font-semibold shadow-lg transition-all"
             style={{ color: getLocaleColor() }}
             onMouseEnter={(e) => { if (!saving) { e.currentTarget.style.backgroundColor = getLocaleColor(); e.currentTarget.style.color = 'white'; } }}
             onMouseLeave={(e) => { if (!saving) { e.currentTarget.style.backgroundColor = 'white'; e.currentTarget.style.color = getLocaleColor(); } }}

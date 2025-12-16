@@ -128,7 +128,7 @@ export default function AddItemPage() {
       china: '#2c6e49',
       korea: '#da627d',
       argentina: '#2a9d8f',
-      india: '#ff9933',
+      india: '#ff9505',
       germany: '#007ea7'
     }
     return colorMap[currentLocale] || '#cc0000'

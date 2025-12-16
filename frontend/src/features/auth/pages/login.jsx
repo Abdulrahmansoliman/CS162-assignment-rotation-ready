@@ -92,7 +92,7 @@ export default function LoginPage() {
       china: '#2c6e49',
       korea: '#da627d',
       argentina: '#d9a300',
-      india: '#ff9933',
+      india: '#ff9505',
       germany: '#007ea7'
     }
     return colorMap[currentLocale] || '#cc0000'

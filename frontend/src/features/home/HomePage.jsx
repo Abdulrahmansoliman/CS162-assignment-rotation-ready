@@ -5,6 +5,8 @@ import { apiFetch } from "../../api";
 import "@/shared/styles/locale-theme.css";
 import CategoryTag from "./component/category_tag";
 import SearchBar from "./component/SearchBar";
+import { verifyItem } from "../../api/verification";
+
 
 
 // Locale-based category palettes (from provided swatches)
@@ -13,7 +15,7 @@ const localeCategoryPalettes = {
     china: ["#2c6e49", "#4c956c", "#fefee3", "#ffc9b9", "#d68c45"],
     korea: ["#f9dbbd", "#ffa5ab", "#da627d", "#a53860", "#450920"],
     argentina: ["#D9A300", "#F7A721", "#E5B74A", "#C8922E", "#B47F21"],
-    india: ["#F7A721", "#E58B20", "#D0771D", "#C16A1B", "#A85A18"],
+    india: ["#cc5803", "#e2711d", "#ff9505", "#ffb627", "#ffc971"],
     germany: ["#003459", "#007ea7", "#00a8e8", "#ffedd8"],
 };
 
@@ -118,6 +120,23 @@ function HomePage() {
 
     // Locale is set from backend and remains stable for the session
 
+    const handleVerify = async (itemId) => {
+        try {
+            await verifyItem(itemId);
+
+            // optimistic UI update — NO refetch
+            setPlaces(prev =>
+                prev.map(p =>
+                    p.id === itemId
+                        ? { ...p, verifiedCount: (p.verifiedCount || 0) + 1 }
+                        : p
+                )
+            );
+        } catch (e) {
+            alert("You already verified today or an error occurred.");
+        }
+    };
+
     useEffect(() => {
         const bySearch = (p) => p.name.toLowerCase().includes(search.toLowerCase());
         const byCategory = (p) => selectedCategoryIds.length === 0 || (p.categories || []).some(c => selectedCategoryIds.includes(c.id));
@@ -181,7 +200,7 @@ function HomePage() {
             korea: '#da627d',
             // Use BA palette accent for buttons: 2a9d8f
             argentina: '#2a9d8f',
-            india: '#ff9933',
+            india: '#ff9505',
             germany: '#007ea7'
         }
         return colorMap[currentLocale] || '#cc0000'
@@ -355,6 +374,16 @@ function HomePage() {
                             }}>
                                 View Details
                             </button>
+                            <button 
+                                onClick={() => handleVerify(place.id)}
+                                style={{
+                                    background: "#4caf50", color: "#fff", border: "none",
+                                    borderRadius: 6, padding: "8px 16px", fontWeight: 600, fontSize: "0.85rem",
+                                    cursor: "pointer", width: view === "list" ? "auto" : "100%"
+                                }}>
+                                Verify
+                            </button>
+
                         </div>
                     </div>
                 ))}

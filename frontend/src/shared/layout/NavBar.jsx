@@ -9,7 +9,7 @@ const localeColors = {
   china: "#2c6e49",
   korea: "#da627d",
   argentina: "#d9a300",
-  india: "#ff9933",
+  india: "#ff9505",
   germany: "#007ea7",
 }
 
@@ -109,30 +109,17 @@ export default function NavBar() {
           padding: 24px 20px;
           display: flex;
           align-items: center;
-          gap: 12px;
+          justify-content: center;
           cursor: pointer;
           border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-          position: relative;
-        }
-        .rg-brand::after{
-          content:"";
-          position:absolute;
-          inset:0;
-          background: radial-gradient(140px 70px at 30% 40%, rgba(255,255,255,0.15), transparent 70%);
-          pointer-events:none;
         }
         .rg-brandTitle{
-          font-size: 18px;
+          font-size: 24px;
           font-weight: 700;
           letter-spacing: 0.5px;
           color: white;
           font-family: 'Fraunces', serif;
           text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .rg-brandSub{
-          font-size: 11px;
-          color: rgba(255,255,255,0.8);
-          margin-top: 2px;
         }
 
         .rg-nav{
@@ -202,48 +189,11 @@ export default function NavBar() {
           padding: 16px;
           border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
-
-        .rg-logout{
-          background: rgba(220, 38, 38, 0.2);
-          color: white;
-          border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        .rg-logout:hover{
-          background: rgba(220, 38, 38, 0.9);
-          color: white;
-          transform: translateX(4px);
-          box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
-        }
-        .rg-logout:focus-visible{
-          box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);
-        }
-        .rg-logout .rg-icon{
-          background: rgba(255, 255, 255, 0.2);
-        }
-        .rg-logout:hover .rg-icon{
-          background: rgba(255, 255, 255, 0.3);
-        }
       `}</style>
 
       {/* Brand */}
       <div className="rg-brand" onClick={() => navigate("/home")}>
-        <div style={{ 
-          width: "42px", 
-          height: "42px", 
-          borderRadius: "50%",
-          display: "grid",
-          placeItems: "center",
-          background: "rgba(255, 255, 255, 0.25)",
-          border: "1px solid rgba(255, 255, 255, 0.3)",
-          fontSize: "20px",
-          backdropFilter: "blur(8px)"
-        }}>
-          🗺️
-        </div>
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <div className="rg-brandTitle">Rotation Guide</div>
-          <div className="rg-brandSub">Explore • Save • Contribute</div>
-        </div>
+        <div className="rg-brandTitle">Rotation Guide</div>
       </div>
 
       {/* Nav */}
@@ -264,7 +214,7 @@ export default function NavBar() {
 
       {/* Logout */}
       <div className="rg-bottom">
-        <button type="button" className="rg-item rg-logout" onClick={handleLogout}>
+        <button type="button" className="rg-item" onClick={handleLogout}>
           <span className="rg-icon">🚪</span>
           <span className="rg-label">Logout</span>
         </button>

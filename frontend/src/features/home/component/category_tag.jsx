@@ -7,7 +7,7 @@ export default function CategoryTag({ categories, selectedCategoryIds, onToggleC
         korea: ["#f9dbbd", "#ffa5ab", "#da627d", "#a53860", "#450920"],
         // Buenos Aires requested palette (multi-tile): 264653, 2a9d8f, e9c46a, f4a261, e76f51
         argentina: ["#264653", "#2a9d8f", "#e9c46a", "#f4a261", "#e76f51"],
-        india: ["#F7A721", "#B8860B"],
+        india: ["#cc5803", "#e2711d", "#ff9505", "#ffb627", "#ffc971"],
         germany: ["#003459", "#007ea7", "#00a8e8", "#ffedd8"],
     };
 
