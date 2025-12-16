@@ -10,11 +10,11 @@ import SearchBar from "./component/SearchBar";
 // Locale-based category palettes (from provided swatches)
 const localeCategoryPalettes = {
     usa: ["#E31B23", "#9A2623", "#5C2A28", "#E53935", "#A63A3A"],
-    china: ["#55B89C", "#5AD4A8", "#49C792", "#6AD9A7", "#7AE3B0"],
-    korea: ["#FF7890", "#F3A1B6", "#E67A94", "#FF9AB0", "#F8B0C6"],
+    china: ["#2c6e49", "#4c956c", "#fefee3", "#ffc9b9", "#d68c45"],
+    korea: ["#f9dbbd", "#ffa5ab", "#da627d", "#a53860", "#450920"],
     argentina: ["#D9A300", "#F7A721", "#E5B74A", "#C8922E", "#B47F21"],
     india: ["#F7A721", "#E58B20", "#D0771D", "#C16A1B", "#A85A18"],
-    germany: ["#005493", "#85A0CB", "#5688C0", "#1E5F90", "#0A3F66"],
+    germany: ["#003459", "#007ea7", "#00a8e8", "#ffedd8"],
 };
 
 const iconMap = [
@@ -177,12 +177,12 @@ function HomePage() {
     const getLocaleColor = () => {
         const colorMap = {
             usa: '#cc0000',
-            china: '#1d9a5c',
-            korea: '#c60c30',
+            china: '#2c6e49',
+            korea: '#da627d',
             // Use BA palette accent for buttons: 2a9d8f
             argentina: '#2a9d8f',
             india: '#ff9933',
-            germany: '#4a90e2'
+            germany: '#007ea7'
         }
         return colorMap[currentLocale] || '#cc0000'
     }

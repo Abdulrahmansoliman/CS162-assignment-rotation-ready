@@ -3,12 +3,12 @@ import React from "react";
 export default function CategoryTag({ categories, selectedCategoryIds, onToggleCategory, currentLocale }) {
     const localeCategoryPalettes = {
         usa: ["#E31B23", "#B71C1C"],        
-        china: ["#55B89C", "#21806A"],
-        korea: ["#FF7890", "#C2185B"],
+        china: ["#2c6e49", "#4c956c", "#fefee3", "#ffc9b9", "#d68c45"],
+        korea: ["#f9dbbd", "#ffa5ab", "#da627d", "#a53860", "#450920"],
         // Buenos Aires requested palette (multi-tile): 264653, 2a9d8f, e9c46a, f4a261, e76f51
         argentina: ["#264653", "#2a9d8f", "#e9c46a", "#f4a261", "#e76f51"],
         india: ["#F7A721", "#B8860B"],
-        germany: ["#85A0CB", "#5688C0"],
+        germany: ["#003459", "#007ea7", "#00a8e8", "#ffedd8"],
     };
 
     const palette = localeCategoryPalettes[currentLocale] || localeCategoryPalettes['usa'];

@@ -89,11 +89,11 @@ export default function LoginPage() {
   const getLocaleColor = () => {
     const colorMap = {
       usa: '#cc0000',
-      china: '#006779',
-      korea: '#e67ba5',
-      argentina: '#eac640',
-      india: '#f7a721',
-      germany: '#005493'
+      china: '#2c6e49',
+      korea: '#da627d',
+      argentina: '#d9a300',
+      india: '#ff9933',
+      germany: '#007ea7'
     }
     return colorMap[currentLocale] || '#cc0000'
   }

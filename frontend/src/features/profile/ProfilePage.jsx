@@ -75,11 +75,11 @@ export default function ProfilePage() {
   const getLocaleColor = () => {
     const colorMap = {
       usa: '#cc0000',
-      china: '#1d9a5c',
-      korea: '#c60c30',
+      china: '#2c6e49',
+      korea: '#da627d',
       argentina: '#2a9d8f',
       india: '#ff9933',
-      germany: '#4a90e2'
+      germany: '#007ea7'
     }
     return colorMap[currentLocale] || '#cc0000'
   }

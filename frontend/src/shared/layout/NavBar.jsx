@@ -6,11 +6,11 @@ import { getCurrentUser } from "@/api/user"
 // Locale-based colors matching HomePage
 const localeColors = {
   usa: "#cc0000",
-  china: "#1d9a5c",
-  korea: "#c60c30",
+  china: "#2c6e49",
+  korea: "#da627d",
   argentina: "#d9a300",
   india: "#ff9933",
-  germany: "#4a90e2",
+  germany: "#007ea7",
 }
 
 function hexToRgb(hex) {
@@ -100,44 +100,46 @@ export default function NavBar() {
           z-index: 100;
           display: flex;
           flex-direction: column;
-          background: linear-gradient(180deg, #1b1b1b 0%, #121212 60%, #0f0f0f 100%);
-          border-right: 1px solid rgba(var(--accent-rgb), 0.18);
-          box-shadow: 0 12px 36px rgba(0,0,0,0.35);
+          background: linear-gradient(180deg, var(--accent) 0%, rgba(var(--accent-rgb), 0.85) 100%);
+          border-right: 1px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 4px 0 32px rgba(0,0,0,0.15);
         }
 
         .rg-brand{
-          padding: 18px 16px;
+          padding: 24px 20px;
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
           cursor: pointer;
-          border-bottom: 1px solid rgba(var(--accent-rgb), 0.22);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.2);
           position: relative;
         }
         .rg-brand::after{
           content:"";
           position:absolute;
           inset:0;
-          background: radial-gradient(120px 60px at 20% 30%, rgba(var(--accent-rgb),0.25), transparent 70%);
+          background: radial-gradient(140px 70px at 30% 40%, rgba(255,255,255,0.15), transparent 70%);
           pointer-events:none;
         }
         .rg-brandTitle{
-          font-size: 14px;
+          font-size: 18px;
           font-weight: 700;
-          letter-spacing: 0.3px;
-          color: var(--accent);
+          letter-spacing: 0.5px;
+          color: white;
+          font-family: 'Fraunces', serif;
+          text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .rg-brandSub{
           font-size: 11px;
-          color: rgba(255,255,255,0.55);
+          color: rgba(255,255,255,0.8);
           margin-top: 2px;
         }
 
         .rg-nav{
-          padding: 12px 10px;
+          padding: 20px 16px;
           display: flex;
           flex-direction: column;
-          gap: 6px;
+          gap: 10px;
           flex: 1;
         }
 
@@ -145,81 +147,97 @@ export default function NavBar() {
           position: relative;
           width: 100%;
           border: 0;
-          background: transparent;
-          color: rgba(255,255,255,0.72);
-          padding: 10px 12px;
-          border-radius: 14px;
+          background: rgba(255, 255, 255, 0.25);
+          color: white;
+          padding: 14px 18px;
+          border-radius: 50px;
           cursor: pointer;
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
           text-align: left;
-          transition: transform 120ms ease, background 120ms ease, color 120ms ease, box-shadow 120ms ease;
+          transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.15);
         }
         .rg-item:hover{
-          background: rgba(255,255,255,0.06);
-          color: rgba(255,255,255,0.95);
-          transform: translateY(-1px);
+          background: rgba(255, 255, 255, 0.4);
+          transform: translateX(4px);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.15);
         }
         .rg-item:focus-visible{
           outline: none;
-          box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.28);
+          box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);
         }
 
         .rg-item[data-active="true"]{
-          background: rgba(var(--accent-rgb), 0.16);
-          color: #fff;
-          box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.28) inset;
-        }
-        .rg-item[data-active="true"]::before{
-          content:"";
-          position:absolute;
-          left: 6px;
-          top: 10px;
-          bottom: 10px;
-          width: 3px;
-          border-radius: 3px;
-          background: var(--accent);
+          background: white;
+          color: var(--accent);
+          transform: translateX(4px);
+          box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+          border: 1px solid rgba(255, 255, 255, 0.9);
         }
 
         .rg-icon{
-          width: 34px;
-          height: 34px;
-          border-radius: 12px;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
           display: grid;
           place-items: center;
-          background: rgba(255,255,255,0.06);
-          box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset;
-          font-size: 16px;
+          background: rgba(255,255,255,0.3);
+          font-size: 18px;
+          transition: all 250ms ease;
         }
         .rg-item[data-active="true"] .rg-icon{
-          background: rgba(var(--accent-rgb), 0.22);
-          box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.35) inset;
+          background: rgba(var(--accent-rgb), 0.15);
         }
 
         .rg-label{
-          font-size: 13px;
+          font-size: 14px;
           font-weight: 600;
+          letter-spacing: 0.2px;
         }
 
         .rg-bottom{
-          padding: 10px;
-          border-top: 1px solid rgba(255,255,255,0.08);
+          padding: 16px;
+          border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
 
+        .rg-logout{
+          background: rgba(220, 38, 38, 0.2);
+          color: white;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+        }
         .rg-logout:hover{
-          background: rgba(239, 68, 68, 0.14);
-          color: #fecaca;
-          transform: none;
+          background: rgba(220, 38, 38, 0.9);
+          color: white;
+          transform: translateX(4px);
+          box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
         }
         .rg-logout:focus-visible{
-          box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+          box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);
+        }
+        .rg-logout .rg-icon{
+          background: rgba(255, 255, 255, 0.2);
+        }
+        .rg-logout:hover .rg-icon{
+          background: rgba(255, 255, 255, 0.3);
         }
       `}</style>
 
       {/* Brand */}
       <div className="rg-brand" onClick={() => navigate("/home")}>
-        <div className="rg-icon" style={{ background: "rgba(255,255,255,0.08)" }}>
+        <div style={{ 
+          width: "42px", 
+          height: "42px", 
+          borderRadius: "50%",
+          display: "grid",
+          placeItems: "center",
+          background: "rgba(255, 255, 255, 0.25)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          fontSize: "20px",
+          backdropFilter: "blur(8px)"
+        }}>
           🗺️
         </div>
         <div style={{ position: "relative", zIndex: 1 }}>
