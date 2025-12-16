@@ -31,7 +31,8 @@ class UserRepository(IUserRepository):
         first_name: str,
         last_name: str,
         email: str,
-        rotation_city_id: int
+        rotation_city_id: int,
+        profile_picture: Optional[str] = None
     ) -> User:
         """Create a new user in the database.
         
@@ -39,6 +40,7 @@ class UserRepository(IUserRepository):
             first_name: User's first name
             last_name: User's last name
             email: User's email address
+            profile_picture: Optional profile picture as base64 string
             rotation_city_id: ID of the user's rotation city
             
         Returns:
@@ -48,6 +50,7 @@ class UserRepository(IUserRepository):
             first_name=first_name,
             last_name=last_name,
             email=email,
+            profile_picture=profile_picture,
             rotation_city_id=rotation_city_id,
             is_verified=False,
             status=VerificationStatusEnum.PENDING.code
@@ -112,12 +115,11 @@ class UserRepository(IUserRepository):
         if not user:
             raise ValueError("User not found")
         
-        allowed_fields = ['first_name', 'last_name','rotation_city_id']
+        allowed_fields = ['first_name', 'last_name','rotation_city_id', 'profile_picture']
 
         for field in allowed_fields:
             if field in kwargs:
                 setattr(user, field, kwargs[field])
-
         
         db.session.commit()
         db.session.refresh(user)

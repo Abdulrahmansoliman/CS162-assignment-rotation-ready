@@ -1,3 +1,4 @@
+from typing import Optional
 from app.repositories.implementations.user_repository import UserRepository
 from app.repositories.implementations.verification_code_repository import (
     VerificationCodeRepository
@@ -52,7 +53,8 @@ class RegistrationService:
         first_name: str,
         last_name: str,
         email: str,
-        rotation_city_id: int
+        rotation_city_id: int,
+        profile_picture: Optional[str] = None
     ) -> User:
         """Register a new user in the system.
         
@@ -64,6 +66,7 @@ class RegistrationService:
             last_name: User's last name
             email: User's email address
             rotation_city_id: ID of the user's current rotation city
+            profile_picture: Optional profile picture as base64 string
             
         Returns:
             Created or updated User object
@@ -87,7 +90,8 @@ class RegistrationService:
                     {
                         'first_name': first_name,
                         'last_name': last_name,
-                        'rotation_city_id': rotation_city_id
+                        'rotation_city_id': rotation_city_id,
+                        'profile_picture': profile_picture
                     }
                 )
                 return None
@@ -96,7 +100,8 @@ class RegistrationService:
             first_name=first_name,
             last_name=last_name,
             email=email,
-            rotation_city_id=rotation_city_id
+            rotation_city_id=rotation_city_id,
+            profile_picture=profile_picture
         )
 
         verification_code, code = (

@@ -68,8 +68,7 @@ def verified_user(db_session, rotation_city):
     db_session.commit()
     db_session.refresh(user)
     return user
-
-
+  
 @pytest.fixture
 def second_user(db_session, rotation_city):
     """Create a second verified test user."""
@@ -80,6 +79,23 @@ def second_user(db_session, rotation_city):
         rotation_city_id=rotation_city.city_id,
         is_verified=True,
         status=VerificationStatusEnum.VERIFIED.code
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
+@pytest.fixture
+def user_with_profile_picture(db_session, rotation_city):
+    """Create a test user with a profile picture."""
+    user = User(
+        first_name='Alice',
+        last_name='Williams',
+        email='alice@example.com',
+        rotation_city_id=rotation_city.city_id,
+        is_verified=False,
+        status=VerificationStatusEnum.PENDING.code,
+        profile_picture='data:image/png;base64,TESTBASE64DATA'
     )
     db_session.add(user)
     db_session.commit()
