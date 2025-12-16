@@ -67,6 +67,9 @@ export default function ProfilePage() {
       })
 
       setMessage("Profile updated successfully!")
+      
+      // Dispatch custom event to notify navbar of city change
+      window.dispatchEvent(new CustomEvent('cityChanged'))
     } catch (err) {
       console.error(err)
       setErrorMessage("Failed to update profile")
