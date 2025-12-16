@@ -7,6 +7,7 @@ import { getAccessToken } from './features/auth/services/authservice'
 import AddItemPage from './features/addItem/AddItemPage';
 import ViewUserProfilePage from "./features/userProfile/ViewUserProfilePage";
 import ItemDetailPage from './features/item/pages/item';
+import NavBar from './shared/layout/NavBar';
 
 
 function ProtectedRoute({ element }) {
@@ -16,7 +17,14 @@ function ProtectedRoute({ element }) {
     return <Navigate to="/login" replace />
   }
 
-  return element
+  return (
+    <div style={{ display: "flex" }}>
+      <NavBar />
+      <main style={{ marginLeft: "200px", flex: 1, minHeight: "100vh" }}>
+        {element}
+      </main>
+    </div>
+  )
 }
 
 function PublicRoute({ element }) {

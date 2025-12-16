@@ -1,11 +1,19 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function CreateTagModal({ isOpen, onClose, onCreate }) {
   const [name, setName] = useState("");
   const [valueType, setValueType] = useState("");
   const [value, setValue] = useState("");
+  
+  const modalRef = useRef(null);
 
   if (!isOpen) return null;
+
+  const handleOverlayClick = (e) => {
+    if (modalRef.current && !modalRef.current.contains(e.target)) {
+      onClose();
+    }
+  };
 
   function handleSubmit() {
     if (!name || !valueType || value === "") return;
@@ -28,8 +36,11 @@ export default function CreateTagModal({ isOpen, onClose, onCreate }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-gray-900 p-6 rounded-xl w-[400px] shadow-xl">
+    <div 
+      className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+      onClick={handleOverlayClick}
+    >
+      <div className="bg-gray-900 p-6 rounded-xl w-[400px] shadow-xl" ref={modalRef}>
         <h2 className="text-xl font-semibold text-white mb-4">
           Create New Tag
         </h2>

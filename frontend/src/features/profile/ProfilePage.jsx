@@ -189,6 +189,9 @@ export default function ProfilePage() {
         setProfilePreview(profilePicture)
         setProfilePicture(null) // reset "pending" state after save
       }
+      
+      // Dispatch custom event to notify navbar of city change
+      window.dispatchEvent(new CustomEvent('cityChanged'))
     } catch (err) {
       console.error(err)
       setErrorMessage("Failed to update profile")
