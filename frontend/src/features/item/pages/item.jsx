@@ -32,12 +32,13 @@ export default function ItemDetailPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const safeInitials = (u) => {
-    const fn = u?.first_name || "";
-    const ln = u?.last_name || "";
-    const a = fn.trim()[0] || "";
-    const b = ln.trim()[0] || "";
-    return (a + b) || "?";
+  const getInitialsFromName = (fullName) => {
+    if (!fullName) return "?";
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return parts[0]?.substring(0, 2).toUpperCase() || "?";
   };
 
   const loadVerifications = async () => {
@@ -327,7 +328,7 @@ export default function ItemDetailPage() {
                   <div className="flex items-start gap-4">
                     <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center">
                       <span className="text-gray-900 font-bold text-lg">
-                        {safeInitials(item.added_by_user)}
+                        {getInitialsFromName(`${item.added_by_user.first_name || ""} ${item.added_by_user.last_name || ""}`)}
                       </span>
                     </div>
                     <div className="flex-1">
@@ -363,11 +364,11 @@ export default function ItemDetailPage() {
                 ) : (
                   verifications.map((v) => (
                     <div key={v.verification_id} className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-gray-900">
-                        {safeInitials(v.user)}
+                      <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-gray-900 text-sm">
+                        {getInitialsFromName(v.user_name)}
                       </div>
                       <div className="text-sm text-gray-900 font-medium">
-                        {(v.user?.first_name || "")} {(v.user?.last_name || "")}
+                        {v.user_name || "Anonymous"}
                       </div>
                     </div>
                   ))
