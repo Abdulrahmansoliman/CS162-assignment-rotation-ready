@@ -80,6 +80,20 @@ pytest tests/integration/ # Integration tests only
     └── package.json
 ```
 
-## 🛠️ Development
+## � Documentation
 
-See [backend/README.md](backend/README.md) for detailed backend setup and [backend/TESTING.md](backend/TESTING.md) for testing guidelines.
+For comprehensive documentation, visit the **[Project Wiki](https://github.com/Abdulrahmansoliman/CS162-assignment-rotation-ready/wiki)**:
+
+- **[Quick Start Guide](https://github.com/Abdulrahmansoliman/CS162-assignment-rotation-ready/wiki/Quick-Start-Guide)** - Get up and running in 10 minutes
+- **[API Documentation](https://github.com/Abdulrahmansoliman/CS162-assignment-rotation-ready/wiki/API-Documentation)** - Complete REST API reference
+- **[Database Schema](https://github.com/Abdulrahmansoliman/CS162-assignment-rotation-ready/wiki/Database-Schema)** - Database design and relationships
+- **[Backend Development](https://github.com/Abdulrahmansoliman/CS162-assignment-rotation-ready/wiki/Backend-Development)** - Backend architecture guide
+- **[Frontend Development](https://github.com/Abdulrahmansoliman/CS162-assignment-rotation-ready/wiki/Frontend-Development)** - Frontend development guide
+- **[Testing Guide](https://github.com/Abdulrahmansoliman/CS162-assignment-rotation-ready/wiki/Testing-Guide)** - How to write and run tests
+- **[Deployment Guide](https://github.com/Abdulrahmansoliman/CS162-assignment-rotation-ready/wiki/Deployment-Guide)** - Production deployment instructions
+- **[Project Structure](https://github.com/Abdulrahmansoliman/CS162-assignment-rotation-ready/wiki/Project-Structure)** - Codebase organization
+
+Also see:
+- [backend/README.md](backend/README.md) - Backend setup and development
+- [backend/TESTING.md](backend/TESTING.md) - Testing guidelines
+- [DEPLOYMENT.md](DEPLOYMENT.md) - Deployment configuration
