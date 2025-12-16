@@ -9,7 +9,11 @@ import { verifyItem, getItemVerifications } from '@/api/verification';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import { Spinner } from '@/shared/components/ui/spinner';
+<<<<<<< HEAD
 import { MapPin, Clock, User, CheckCircle, Tag, ArrowLeft, Share2, Navigation } from 'lucide-react';
+=======
+import { MapPin, Clock, User, CheckCircle, Tag, ArrowLeft, Share2, Bookmark, Navigation } from 'lucide-react';
+>>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
 import { colorSchemes, defaultScheme } from '@/lib/themes.js';
 import '@/shared/styles/locale-theme.css';
 
@@ -25,6 +29,7 @@ export default function ItemDetailPage() {
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
 
+<<<<<<< HEAD
   const scheme = item && item.rotation_city ? (colorSchemes[item.rotation_city.name] || defaultScheme) : defaultScheme;
 
   const getLocaleClass = () => {
@@ -77,6 +82,19 @@ export default function ItemDetailPage() {
     return colorMap[localeClass] || '#A50404';
   };
 
+=======
+  const scheme = item && item.rotation_city ? colorSchemes[item.rotation_city.name] || defaultScheme : defaultScheme;
+  
+  const handleDirections = () => {
+    if (item?.rotation_city?.res_hall_location && item?.location) {
+      const origin = encodeURIComponent(item.rotation_city.res_hall_location);
+      const destination = encodeURIComponent(item.location);
+      const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=walking`;
+      window.open(url, '_blank');
+    }
+  };
+  
+>>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
   const handleShare = async () => {
     await navigator.clipboard.writeText(window.location.href);
     setCopied(true);
@@ -196,6 +214,7 @@ export default function ItemDetailPage() {
   const profilePic = item.added_by_user?.profile_picture || null;
 
   return (
+<<<<<<< HEAD
     <div style={{ paddingBottom: "2rem" }}>
       {/* Header with Item Title - Matching Main Page */}
       <div className={`locale-container ${getLocaleClass()}`} style={{ color: "white", padding: "3rem 2rem 2rem 2rem", position: "relative" }}>
@@ -212,6 +231,123 @@ export default function ItemDetailPage() {
                 </span>
               </div>
             )}
+=======
+    <div className={`min-h-screen ${scheme.bg}`}>
+      {/* Hero Section */}
+      <div className={`relative ${scheme.heroBg} overflow-hidden`}>
+        <div className={`absolute inset-0 ${scheme.overlay}`}></div>
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
+
+        <div className="relative max-w-6xl mx-auto px-4 py-12">
+          <Button
+            onClick={() => navigate(-1)}
+            variant="ghost"
+            className="mb-6 text-white hover:bg-white/20 transition-all border border-white/25 rounded-lg"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+
+          <div className="flex flex-col md:flex-row gap-8 items-start">
+            <div className="flex-1">
+              <button
+                type="button"
+                onClick={handleGoToUserProfile}
+                className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full mb-4 hover:bg-white/30 transition"
+              >
+                <div className="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center overflow-hidden">
+                  {profilePic ? (
+                    <img
+                      src={profilePic}
+                      alt={item.added_by_user?.first_name || 'User'}
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    <span className="text-white font-semibold text-xs">
+                      {firstInitial}{lastInitial}
+                    </span>
+                  )}
+                </div>
+                <span className="text-white text-sm font-medium">
+                  Recommended by {item.added_by_user?.first_name || 'a fellow student'}
+                </span>
+              </button>
+
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
+                {item.name}
+              </h1>
+
+              <div className="flex flex-wrap gap-4 mb-6">
+                <div className="flex items-center gap-2 text-white/90">
+                  <MapPin className="w-5 h-5" />
+                  <span className="text-lg">{item.location}</span>
+                </div>
+                {item.walking_distance && (
+                  <div className="flex items-center gap-2 text-white/90">
+                    <Clock className="w-5 h-5" />
+                    <span className="text-lg">{Math.round(item.walking_distance / 80)} min walk</span>
+                  </div>
+                )}
+              </div>
+
+              {item.categories && item.categories.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {item.categories.map((category) => (
+                    <span
+                      key={category.category_id}
+                      className="px-4 py-2 bg-white/90 text-gray-900 rounded-lg text-sm font-semibold shadow-lg"
+                    >
+                      {category.name}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Right: Quick Stats Card */}
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl min-w-[280px]">
+              <div className="flex items-center justify-center gap-2 pb-4 border-b border-gray-200">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span className="text-lg font-semibold text-gray-900">
+                  {item.number_of_verifications || 0} {(item.number_of_verifications || 0) === 1 ? 'Verification' : 'Verifications'}
+                </span>
+              </div>
+              <div className="border-t border-gray-200 pt-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">City</span>
+                  <span className="font-semibold text-gray-900">{item.rotation_city?.name || "—"}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Added</span>
+                  <span className="font-semibold text-gray-900">
+                    {item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : "—"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-2">
+                {item.rotation_city?.res_hall_location && (
+                  <Button
+                    className={`w-full ${scheme.heroBg} text-white hover:opacity-90 shadow-lg`}
+                    onClick={handleDirections}
+                  >
+                    <Navigation className="w-4 h-4 mr-2" />
+                    Get Directions
+                  </Button>
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={handleShare}
+                  >
+                    <Share2 className="w-4 h-4 mr-2" />
+                    {copied ? "Copied!" : "Share"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+>>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
           </div>
           <button
             onClick={() => navigate(-1)}
@@ -485,6 +621,7 @@ export default function ItemDetailPage() {
                   <p className="text-sm text-gray-500">No verifications yet. Be the first!</p>
                 ) : (
                   verifications.map((v) => (
+<<<<<<< HEAD
                     <div key={v.verification_id} className="flex items-center gap-3 pb-2 border-b border-gray-100 last:border-0">
                       <div className="w-9 h-9 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0 overflow-hidden border-2 border-gray-200">
                         {v.profile_picture ? (
@@ -497,6 +634,18 @@ export default function ItemDetailPage() {
                           <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-blue-700">
                             {getInitialsFromName(v.user_name)}
                           </div>
+=======
+                    <div key={v.verification_id} className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-gray-900 text-sm overflow-hidden">
+                        {v.user_photo ? (
+                          <img
+                            src={v.user_photo}
+                            alt={v.user_name || "Anonymous"}
+                            className="w-full h-full object-cover rounded-full"
+                          />
+                        ) : (
+                          <span>{getInitialsFromName(v.user_name)}</span>
+>>>>>>> 7d9d74130f074d479a37109a13798d426c2cd339
                         )}
                       </div>
                       <div className="text-sm text-gray-900 font-medium truncate">
