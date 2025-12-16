@@ -9,7 +9,7 @@ import { getItemById } from '@/api/item';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import { Spinner } from '@/shared/components/ui/spinner';
-import { MapPin, Clock, User, CheckCircle, Tag, ArrowLeft, Share2, Bookmark } from 'lucide-react';
+import { MapPin, Clock, User, CheckCircle, Tag, ArrowLeft, Share2, Bookmark, Navigation } from 'lucide-react';
 import { colorSchemes, defaultScheme } from '@/lib/themes.js';
 
 export default function ItemDetailPage() {
@@ -21,6 +21,15 @@ export default function ItemDetailPage() {
   const [copied, setCopied] = useState(false);
 
   const scheme = item && item.rotation_city ? colorSchemes[item.rotation_city.name] || defaultScheme : defaultScheme;
+  
+  const handleDirections = () => {
+    if (item?.rotation_city?.res_hall_location && item?.location) {
+      const origin = encodeURIComponent(item.rotation_city.res_hall_location);
+      const destination = encodeURIComponent(item.location);
+      const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=walking`;
+      window.open(url, '_blank');
+    }
+  };
   
   const handleShare = async () => {
     await navigator.clipboard.writeText(window.location.href);
@@ -181,6 +190,15 @@ export default function ItemDetailPage() {
 
               {/* Action Buttons */}
               <div className="mt-6 space-y-2">
+                {item.rotation_city?.res_hall_location && (
+                  <Button
+                    className={`w-full ${scheme.heroBg} text-white hover:opacity-90 shadow-lg`}
+                    onClick={handleDirections}
+                  >
+                    <Navigation className="w-4 h-4 mr-2" />
+                    Get Directions
+                  </Button>
+                )}
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
